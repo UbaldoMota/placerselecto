@@ -41,7 +41,8 @@ $disponibles     = $maxFotos - $yaSubidas;
             <button type="button"
                     class="foto-thumb__del"
                     title="Eliminar foto"
-                    onclick="eliminarFotoDb(<?= (int)$f['id'] ?>, this)">
+                    data-action="eliminar-db"
+                    data-foto-id="<?= (int)$f['id'] ?>">
                 <i class="bi bi-x-lg"></i>
             </button>
 
@@ -50,7 +51,8 @@ $disponibles     = $maxFotos - $yaSubidas;
             <button type="button"
                     class="foto-thumb__set-principal"
                     title="Establecer como principal"
-                    onclick="establecerPrincipalDb(<?= (int)$f['id'] ?>)">
+                    data-action="set-principal-db"
+                    data-foto-id="<?= (int)$f['id'] ?>">
                 <i class="bi bi-star"></i>
             </button>
             <?php endif; ?>
@@ -74,8 +76,7 @@ $disponibles     = $maxFotos - $yaSubidas;
 
     <!-- Zona de arrastre / click -->
     <?php if ($disponibles > 0): ?>
-    <div class="foto-dropzone" id="foto-dropzone"
-         onclick="document.getElementById('fotos-input').click()">
+    <div class="foto-dropzone" id="foto-dropzone" data-trigger="fotos-input">
         <i class="bi bi-cloud-arrow-up fs-3 d-block mb-2 text-primary"></i>
         <div style="font-size:.85rem;font-weight:600;color:var(--color-text)">
             Arrastra fotos aquí o haz clic para seleccionar
@@ -108,234 +109,9 @@ $disponibles     = $maxFotos - $yaSubidas;
     </div>
 </div>
 
-<script>
-(function () {
-    const MAX_TOTAL  = <?= $maxFotos ?>;
-    const input      = document.getElementById('fotos-input');
-    const newGrid    = document.getElementById('fotos-new-grid');
-    const counter    = document.getElementById('foto-counter');
-    const dropzone   = document.getElementById('foto-dropzone');
-    const principalInput = document.getElementById('foto-principal-id');
-
-    // Archivos pendientes de subir
-    let pendingFiles = [];
-
-    // Cantidad de fotos ya en BD (descontando las marcadas para eliminar)
-    let dbCount = <?= $yaSubidas ?>;
-
-    // ¿Hay foto principal en BD que siga vigente?
-    let dbHasPrincipal = <?= $yaSubidas > 0 ? 'true' : 'false' ?>;
-
-    function updateCounter() {
-        const total = dbCount + pendingFiles.length;
-        if (counter) counter.textContent = total + ' / ' + MAX_TOTAL;
-        if (dropzone) {
-            const restante = MAX_TOTAL - total;
-            if (restante <= 0) {
-                dropzone.style.display = 'none';
-            } else {
-                dropzone.style.display = '';
-                const txt = dropzone.querySelector('div:last-of-type');
-                if (txt) txt.textContent =
-                    'JPG, PNG, WEBP · Máx. 5 MB por foto · Hasta ' + restante +
-                    ' foto' + (restante !== 1 ? 's' : '') + ' más';
-            }
-        }
-    }
-
-    function renderNewPreviews() {
-        if (!newGrid) return;
-        newGrid.innerHTML = '';
-
-        pendingFiles.forEach((item, idx) => {
-            // Es principal si no hay ninguna en BD activa y es la primera nueva
-            const isPrincipal = !dbHasPrincipal && idx === 0;
-
-            const div = document.createElement('div');
-            div.className = 'foto-thumb' + (isPrincipal ? ' foto-thumb--principal' : '');
-
-            // Imagen
-            const img = document.createElement('img');
-            img.src = item.url;
-            img.alt = 'Foto ' + (idx + 1);
-            div.appendChild(img);
-
-            // Botón eliminar
-            const delBtn = document.createElement('button');
-            delBtn.type = 'button';
-            delBtn.className = 'foto-thumb__del';
-            delBtn.title = 'Quitar';
-            delBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
-            delBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                URL.revokeObjectURL(item.url);
-                pendingFiles.splice(idx, 1);
-                syncInput();
-                renderNewPreviews();
-                updateCounter();
-            });
-            div.appendChild(delBtn);
-
-            // Botón "establecer principal" (solo en no-principal)
-            if (!isPrincipal) {
-                const starBtn = document.createElement('button');
-                starBtn.type = 'button';
-                starBtn.className = 'foto-thumb__set-principal';
-                starBtn.title = 'Establecer como principal';
-                starBtn.innerHTML = '<i class="bi bi-star"></i>';
-                starBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    // Mover este archivo al inicio
-                    const [moved] = pendingFiles.splice(idx, 1);
-                    pendingFiles.unshift(moved);
-                    // Si había principal en BD, quitarla
-                    if (dbHasPrincipal) {
-                        dbHasPrincipal = false;
-                        // Quitar badge "Principal" del primer thumb de BD si existe
-                        const dbPrincipal = document.querySelector('#fotos-db-grid .foto-thumb--principal');
-                        if (dbPrincipal) {
-                            dbPrincipal.classList.remove('foto-thumb--principal');
-                            const badge = dbPrincipal.querySelector('.foto-thumb__main');
-                            if (badge) badge.style.display = 'none';
-                            // Mostrar botón estrella en la que era principal de BD
-                            const oldStar = dbPrincipal.querySelector('.foto-thumb__set-principal');
-                            if (oldStar) oldStar.style.display = '';
-                        }
-                        // Asegurarnos de que foto_principal_id no apunte a ninguna de BD
-                        if (principalInput) principalInput.value = '';
-                    }
-                    syncInput();
-                    renderNewPreviews();
-                });
-                div.appendChild(starBtn);
-            }
-
-            // Badge principal
-            const badge = document.createElement('span');
-            badge.className = 'foto-thumb__main';
-            badge.innerHTML = '<i class="bi bi-star-fill me-1"></i>Principal';
-            if (!isPrincipal) badge.style.display = 'none';
-            div.appendChild(badge);
-
-            newGrid.appendChild(div);
-        });
-    }
-
-    function syncInput() {
-        if (!input) return;
-        const dt = new DataTransfer();
-        pendingFiles.forEach(f => dt.items.add(f.file));
-        input.files = dt.files;
-    }
-
-    if (input) {
-        input.addEventListener('change', function () {
-            const libre = MAX_TOTAL - dbCount - pendingFiles.length;
-            const nuevos = Array.from(this.files).slice(0, libre);
-            // Limpiar ANTES de syncInput para no borrar el DataTransfer recién asignado
-            this.value = '';
-            nuevos.forEach(file => {
-                pendingFiles.push({ file, url: URL.createObjectURL(file) });
-            });
-            syncInput();
-            renderNewPreviews();
-            updateCounter();
-        });
-    }
-
-    // Drag & drop
-    if (dropzone) {
-        dropzone.addEventListener('dragover',  e => { e.preventDefault(); dropzone.classList.add('foto-dropzone--over'); });
-        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('foto-dropzone--over'));
-        dropzone.addEventListener('drop', e => {
-            e.preventDefault();
-            dropzone.classList.remove('foto-dropzone--over');
-            const libre = MAX_TOTAL - dbCount - pendingFiles.length;
-            const files = Array.from(e.dataTransfer.files)
-                              .filter(f => f.type.startsWith('image/'))
-                              .slice(0, libre);
-            files.forEach(file => pendingFiles.push({ file, url: URL.createObjectURL(file) }));
-            syncInput();
-            renderNewPreviews();
-            updateCounter();
-        });
-    }
-
-    // -------------------------------------------------------
-    // Foto de BD: establecer como principal
-    // -------------------------------------------------------
-    window.establecerPrincipalDb = function (id) {
-        // Quitar visual principal a todos los thumbs de BD
-        document.querySelectorAll('#fotos-db-grid .foto-thumb').forEach(thumb => {
-            thumb.classList.remove('foto-thumb--principal');
-            const badge = thumb.querySelector('.foto-thumb__main');
-            if (badge) badge.style.display = 'none';
-            const starBtn = thumb.querySelector('.foto-thumb__set-principal');
-            if (starBtn) starBtn.style.display = '';
-        });
-
-        // Marcar el elegido
-        const selected = document.getElementById('db-foto-' + id);
-        if (selected) {
-            selected.classList.add('foto-thumb--principal');
-            const badge = selected.querySelector('.foto-thumb__main');
-            if (badge) badge.style.display = '';
-            const starBtn = selected.querySelector('.foto-thumb__set-principal');
-            if (starBtn) starBtn.style.display = 'none';
-        }
-
-        // Si había nuevas fotos como principal, quitarles el badge
-        dbHasPrincipal = true;
-        renderNewPreviews();
-
-        // Actualizar el input oculto
-        if (principalInput) principalInput.value = id;
-    };
-
-    // -------------------------------------------------------
-    // Foto de BD: eliminar / deshacer
-    // -------------------------------------------------------
-    window.eliminarFotoDb = function (id, btn) {
-        const thumb = document.getElementById('db-foto-' + id);
-        const inp   = document.getElementById('del-input-' + id);
-        if (!thumb || !inp) return;
-        inp.value    = id;
-        inp.disabled = false;
-        thumb.style.opacity = '.35';
-        thumb.style.pointerEvents = 'none';
-        btn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i>';
-        btn.title = 'Deshacer';
-        btn.onclick = function () { deshacerEliminarFotoDb(id, btn); };
-        dbCount--;
-        // Si era la principal de BD, la principal pasa a ser la primera nueva (si hay)
-        if (thumb.classList.contains('foto-thumb--principal')) {
-            dbHasPrincipal = false;
-            if (principalInput) principalInput.value = '';
-            renderNewPreviews();
-        }
-        updateCounter();
-    };
-
-    window.deshacerEliminarFotoDb = function (id, btn) {
-        const thumb = document.getElementById('db-foto-' + id);
-        const inp   = document.getElementById('del-input-' + id);
-        if (!thumb || !inp) return;
-        inp.value    = '';
-        inp.disabled = true;
-        thumb.style.opacity = '';
-        thumb.style.pointerEvents = '';
-        btn.innerHTML = '<i class="bi bi-x-lg"></i>';
-        btn.title = 'Eliminar foto';
-        btn.onclick = function () { eliminarFotoDb(id, btn); };
-        dbCount++;
-        // Si era principal de BD, recuperarla
-        if (thumb.classList.contains('foto-thumb--principal')) {
-            dbHasPrincipal = true;
-            renderNewPreviews();
-        }
-        updateCounter();
-    };
-
-    updateCounter();
-})();
-</script>
+<div id="foto-uploader-config"
+     data-max-fotos="<?= (int)$maxFotos ?>"
+     data-ya-subidas="<?= (int)$yaSubidas ?>"
+     data-has-principal="<?= $yaSubidas > 0 ? '1' : '0' ?>"
+     style="display:none"></div>
+<script src="<?= APP_URL ?>/public/assets/js/foto-uploader.js" defer></script>

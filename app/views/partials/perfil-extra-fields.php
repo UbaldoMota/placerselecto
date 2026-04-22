@@ -51,13 +51,13 @@ $tieneZona = $vLat !== '' && $vLng !== '';
 
         <!-- WhatsApp -->
         <div class="contact-method <?= $tieneWa ? 'activo' : '' ?>" id="cm-wa">
-            <div class="contact-method__header" onclick="toggleCM('wa')">
+            <div class="contact-method__header" data-cm-toggle="wa">
                 <i class="bi bi-whatsapp" style="font-size:1.25rem;color:#25d366;flex-shrink:0"></i>
                 <span class="flex-fill fw-semibold" style="font-size:.9rem">WhatsApp</span>
-                <div class="form-check form-switch mb-0" onclick="event.stopPropagation()">
+                <div class="form-check form-switch mb-0" >
                     <input class="form-check-input" type="checkbox" id="tog-wa"
                            <?= $tieneWa ? 'checked' : '' ?>
-                           onchange="toggleCM('wa',this.checked)">
+                           data-cm-switch="wa">
                 </div>
             </div>
             <div class="contact-method__body <?= $tieneWa ? 'open' : '' ?>" id="body-wa">
@@ -73,13 +73,13 @@ $tieneZona = $vLat !== '' && $vLng !== '';
 
         <!-- Telegram -->
         <div class="contact-method <?= $tieneTg ? 'activo' : '' ?>" id="cm-tg">
-            <div class="contact-method__header" onclick="toggleCM('tg')">
+            <div class="contact-method__header" data-cm-toggle="tg">
                 <i class="bi bi-telegram" style="font-size:1.25rem;color:#29b6f6;flex-shrink:0"></i>
                 <span class="flex-fill fw-semibold" style="font-size:.9rem">Telegram</span>
-                <div class="form-check form-switch mb-0" onclick="event.stopPropagation()">
+                <div class="form-check form-switch mb-0" >
                     <input class="form-check-input" type="checkbox" id="tog-tg"
                            <?= $tieneTg ? 'checked' : '' ?>
-                           onchange="toggleCM('tg',this.checked)">
+                           data-cm-switch="tg">
                 </div>
             </div>
             <div class="contact-method__body <?= $tieneTg ? 'open' : '' ?>" id="body-tg">
@@ -95,13 +95,13 @@ $tieneZona = $vLat !== '' && $vLng !== '';
 
         <!-- Email -->
         <div class="contact-method <?= $tieneEm ? 'activo' : '' ?>" id="cm-em">
-            <div class="contact-method__header" onclick="toggleCM('em')">
+            <div class="contact-method__header" data-cm-toggle="em">
                 <i class="bi bi-envelope" style="font-size:1.25rem;color:#F59E0B;flex-shrink:0"></i>
                 <span class="flex-fill fw-semibold" style="font-size:.9rem">Correo electrónico</span>
-                <div class="form-check form-switch mb-0" onclick="event.stopPropagation()">
+                <div class="form-check form-switch mb-0" >
                     <input class="form-check-input" type="checkbox" id="tog-em"
                            <?= $tieneEm ? 'checked' : '' ?>
-                           onchange="toggleCM('em',this.checked)">
+                           data-cm-switch="em">
                 </div>
             </div>
             <div class="contact-method__body <?= $tieneEm ? 'open' : '' ?>" id="body-em">
@@ -198,144 +198,14 @@ $tieneZona = $vLat !== '' && $vLng !== '';
 <!-- ══════════════════════════════════════════
      JS — Leaflet + lógica de contacto
 ══════════════════════════════════════════ -->
-<script src="<?= APP_URL ?>/public/assets/vendor/leaflet/leaflet.js"></script>
-<script>
-(function(){
-    /* ── Contact method toggles ── */
-    function toggleCM(key, force) {
-        const tog  = document.getElementById('tog-' + key);
-        const body = document.getElementById('body-' + key);
-        const card = document.getElementById('cm-' + key);
-        const open = force !== undefined ? force : !tog.checked;
-        tog.checked = open;
-        body.classList.toggle('open', open);
-        card.classList.toggle('activo', open);
-        if (!open) {
-            const inp = document.getElementById('inp-' + key);
-            if (inp) inp.value = '';
-        }
-    }
-    window.toggleCM = toggleCM;
 
-    /* ── Mapa Leaflet ── */
-    const initLat = <?= $tieneZona ? (float)$vLat : 23.6345 ?>;
-    const initLng = <?= $tieneZona ? (float)$vLng : -102.5528 ?>;
-    const initZoom = <?= $tieneZona ? 12 : 5 ?>;
-    let radioKm = <?= (int)$vRadio ?>;
-
-    const mapa = L.map('mapa-zona').setView([initLat, initLng], initZoom);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
-        maxZoom: 18
-    }).addTo(mapa);
-
-    /* Marcador e icono personalizado */
-    const icono = L.divIcon({
-        className: '',
-        html: '<div style="width:22px;height:22px;background:var(--color-primary);border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div>',
-        iconSize: [22, 22], iconAnchor: [11, 11]
-    });
-
-    <?php if ($tieneZona): ?>
-    let marker = L.marker([initLat, initLng], {draggable:true, icon: icono}).addTo(mapa);
-    let circle = L.circle([initLat, initLng], {radius: radioKm * 1000, color:'#FF2D75', fillColor:'#FF2D75', fillOpacity:.15, weight:2}).addTo(mapa);
-    <?php else: ?>
-    let marker = null;
-    let circle = null;
-    <?php endif; ?>
-
-    function setZona(lat, lng) {
-        document.getElementById('zona_lat').value   = lat;
-        document.getElementById('zona_lng').value   = lng;
-        document.getElementById('zona_radio').value = radioKm;
-
-        if (!marker) {
-            marker = L.marker([lat, lng], {draggable:true, icon: icono}).addTo(mapa);
-            marker.on('dragend', function(e){
-                const pos = e.target.getLatLng();
-                setZona(pos.lat.toFixed(7), pos.lng.toFixed(7));
-                circle.setLatLng(pos);
-            });
-        } else {
-            marker.setLatLng([lat, lng]);
-        }
-
-        if (!circle) {
-            circle = L.circle([lat, lng], {radius: radioKm * 1000, color:'#FF2D75', fillColor:'#FF2D75', fillOpacity:.15, weight:2}).addTo(mapa);
-        } else {
-            circle.setLatLng([lat, lng]).setRadius(radioKm * 1000);
-        }
-    }
-
-    <?php if ($tieneZona): ?>
-    /* Drag listener para datos ya existentes */
-    marker.on('dragend', function(e){
-        const pos = e.target.getLatLng();
-        setZona(pos.lat.toFixed(7), pos.lng.toFixed(7));
-        circle.setLatLng(pos);
-    });
-    <?php endif; ?>
-
-    /* Click en mapa → colocar marcador */
-    mapa.on('click', function(e){
-        setZona(e.latlng.lat.toFixed(7), e.latlng.lng.toFixed(7));
-        mapa.setView(e.latlng);
-    });
-
-    /* Slider de radio */
-    const slider   = document.getElementById('sliderRadio');
-    const lblRadio = document.getElementById('lblRadio');
-    const inpRadio = document.getElementById('zona_radio');
-    slider.addEventListener('input', function(){
-        radioKm = parseInt(this.value);
-        lblRadio.textContent = radioKm + ' km';
-        inpRadio.value = radioKm;
-        if (circle) circle.setRadius(radioKm * 1000);
-    });
-
-    /* Búsqueda con Nominatim */
-    function buscarZona() {
-        const q = document.getElementById('mapSearch').value.trim();
-        if (!q) return;
-        fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&limit=1&countrycodes=mx,us,co,ar,es,pe,ve,cl', {
-            headers: {'Accept-Language': 'es'}
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data && data.length) {
-                const lat = parseFloat(data[0].lat).toFixed(7);
-                const lng = parseFloat(data[0].lon).toFixed(7);
-                setZona(lat, lng);
-                mapa.setView([lat, lng], 13);
-                if (!document.getElementById('zona_descripcion').value) {
-                    document.getElementById('zona_descripcion').value = data[0].display_name.split(',').slice(0,3).join(',');
-                }
-            } else {
-                alert('No se encontró esa ubicación. Prueba con otro término.');
-            }
-        })
-        .catch(() => alert('Error al buscar. Verifica tu conexión.'));
-    }
-
-    document.getElementById('btnMapSearch').addEventListener('click', buscarZona);
-    document.getElementById('mapSearch').addEventListener('keydown', function(e){
-        if (e.key === 'Enter') { e.preventDefault(); buscarZona(); }
-    });
-
-    /* Limpiar zona */
-    const btnLimpiar = document.getElementById('btnLimpiarZona');
-    if (btnLimpiar) {
-        btnLimpiar.addEventListener('click', function(){
-            document.getElementById('zona_lat').value   = '';
-            document.getElementById('zona_lng').value   = '';
-            document.getElementById('zona_descripcion').value = '';
-            if (marker) { mapa.removeLayer(marker); marker = null; }
-            if (circle) { mapa.removeLayer(circle); circle = null; }
-        });
-    }
-
-    /* Invalidar tamaño del mapa cuando la página termina de cargar */
-    setTimeout(() => mapa.invalidateSize(), 300);
-})();
-</script>
+<!-- Config + JS (CSP-safe: sin inline) -->
+<div id="perfil-extra-config"
+     data-tiene-zona="<?= $tieneZona ? '1' : '0' ?>"
+     data-lat="<?= $tieneZona ? (float)$vLat : '23.6345' ?>"
+     data-lng="<?= $tieneZona ? (float)$vLng : '-102.5528' ?>"
+     data-zoom="<?= $tieneZona ? 12 : 5 ?>"
+     data-radio="<?= (int)$vRadio ?>"
+     style="display:none"></div>
+<script src="<?= APP_URL ?>/public/assets/vendor/leaflet/leaflet.js" defer></script>
+<script src="<?= APP_URL ?>/public/assets/js/perfil-extra-fields.js" defer></script>
