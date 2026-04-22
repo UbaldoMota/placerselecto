@@ -55,7 +55,7 @@ $waLink   = $tieneWA ? 'https://wa.me/' . preg_replace('/\D/', '', $anuncio['wha
                     <img src="<?= e($url) ?>"
                          alt="<?= e($anuncio['titulo']) ?>"
                          loading="eager"
-                         onclick="openLightbox(0)"
+                         data-lightbox-open="0"
                          style="cursor:zoom-in">
                     <?php if ($anuncio['destacado']): ?>
                     <span class="foto-galeria__destacado">
@@ -69,7 +69,7 @@ $waLink   = $tieneWA ? 'https://wa.me/' . preg_replace('/\D/', '', $anuncio['wha
                     <?php foreach ($fotos as $i => $f):
                         $url = $lightboxUrls[$i];
                     ?>
-                    <div class="foto-galeria__item" onclick="openLightbox(<?= $i ?>)">
+                    <div class="foto-galeria__item" data-lightbox-open="<?= $i ?>">
                         <img src="<?= e($url) ?>"
                              alt="<?= e($anuncio['titulo']) ?> — foto <?= $i + 1 ?>"
                              loading="<?= $i < 2 ? 'eager' : 'lazy' ?>">
@@ -86,56 +86,15 @@ $waLink   = $tieneWA ? 'https://wa.me/' . preg_replace('/\D/', '', $anuncio['wha
                 <?php endif; ?>
 
                 <!-- Lightbox -->
-                <div id="lightbox" class="lightbox" onclick="handleLightboxClick(event)">
-                    <button class="lightbox__close" onclick="closeLightbox()" title="Cerrar">&times;</button>
-                    <button class="lightbox__nav lightbox__prev" onclick="lightboxNav(-1,event)" title="Anterior">&#8249;</button>
+                <div id="lightbox" class="lightbox">
+                    <button class="lightbox__close" data-lightbox="close" title="Cerrar">&times;</button>
+                    <button class="lightbox__nav lightbox__prev" data-lightbox-nav="-1" title="Anterior">&#8249;</button>
                     <img id="lightbox-img" class="lightbox__img" src="" alt="">
-                    <button class="lightbox__nav lightbox__next" onclick="lightboxNav(1,event)" title="Siguiente">&#8250;</button>
+                    <button class="lightbox__nav lightbox__next" data-lightbox-nav="1" title="Siguiente">&#8250;</button>
                     <div class="lightbox__counter" id="lightbox-counter"></div>
                 </div>
-                <script>
-                (function(){
-                    const urls  = <?= json_encode(array_values($lightboxUrls)) ?>;
-                    const total = urls.length;
-                    let current = 0;
-
-                    window.openLightbox = function(idx) {
-                        current = idx;
-                        const img = document.getElementById('lightbox-img');
-                        const ctr = document.getElementById('lightbox-counter');
-                        const lb  = document.getElementById('lightbox');
-                        img.src = urls[current] || '';
-                        if (ctr) ctr.textContent = total > 1 ? (current + 1) + ' / ' + total : '';
-                        lb.classList.add('is-open');
-                        document.querySelectorAll('.lightbox__nav').forEach(b => {
-                            b.style.display = total > 1 ? '' : 'none';
-                        });
-                    };
-
-                    window.closeLightbox = function() {
-                        document.getElementById('lightbox').classList.remove('is-open');
-                    };
-
-                    window.lightboxNav = function(dir, e) {
-                        if (e) e.stopPropagation();
-                        current = (current + dir + total) % total;
-                        document.getElementById('lightbox-img').src = urls[current] || '';
-                        const ctr = document.getElementById('lightbox-counter');
-                        if (ctr) ctr.textContent = (current + 1) + ' / ' + total;
-                    };
-
-                    window.handleLightboxClick = function(e) {
-                        if (e.target === document.getElementById('lightbox')) closeLightbox();
-                    };
-
-                    document.addEventListener('keydown', function(e) {
-                        if (!document.getElementById('lightbox').classList.contains('is-open')) return;
-                        if (e.key === 'Escape')     closeLightbox();
-                        if (e.key === 'ArrowRight') lightboxNav(1);
-                        if (e.key === 'ArrowLeft')  lightboxNav(-1);
-                    });
-                })();
-                </script>
+                <script id="lightbox-data" type="application/json"><?= json_encode(array_values($lightboxUrls)) ?></script>
+                <script src="<?= APP_URL ?>/public/assets/js/lightbox.js" defer></script>
 
                 <div class="card-body p-4">
 

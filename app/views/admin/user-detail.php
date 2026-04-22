@@ -319,10 +319,8 @@ $estadoVer = $usuario['estado_verificacion'];
                                     ];
                                     foreach ($motivos as $val => [$ico, $label]):
                                     ?>
-                                    <label style="display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;border-radius:8px;border:1px solid var(--color-border);cursor:pointer;font-size:.82rem;transition:background .15s"
-                                           onmouseover="this.style.background='rgba(0,0,0,.03)'"
-                                           onmouseout="this.style.background=''"
-                                           onclick="this.style.borderColor='var(--color-primary)'">
+                                    <label class="hover-bg"
+                                           style="display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;border-radius:8px;border:1px solid var(--color-border);cursor:pointer;font-size:.82rem;transition:background .15s">
                                         <input type="radio" name="motivo" value="<?= $val ?>" required
                                                style="accent-color:var(--color-primary);flex-shrink:0"
                                                <?= $val === 'otro' ? '' : '' ?>>
@@ -347,21 +345,7 @@ $estadoVer = $usuario['estado_verificacion'];
                     </div>
                 </div>
             </div>
-            <script>
-            (function(){
-                document.querySelectorAll('input[name="motivo"]').forEach(function(r){
-                    r.addEventListener('change', function(){
-                        document.getElementById('detalleOtroWrap').style.display =
-                            this.value === 'otro' ? 'block' : 'none';
-                        // Highlight selected
-                        document.querySelectorAll('input[name="motivo"]').forEach(function(x){
-                            x.closest('label').style.borderColor = '';
-                        });
-                        this.closest('label').style.borderColor = 'var(--color-primary)';
-                    });
-                });
-            })();
-            </script>
+            <script src="<?= APP_URL ?>/public/assets/js/user-detail.js" defer></script>
             <?php endif; ?>
 
             <!-- Video de verificación de cuenta -->
@@ -580,21 +564,6 @@ $estadoVer = $usuario['estado_verificacion'];
     </div>
 </div>
 
-<?php $extraJs = <<<'JS'
-<script>
-(function () {
-    const input = document.getElementById('inputConfirmarDetalle');
-    const btn   = document.getElementById('btnConfirmarEliminarDetalle');
-    if (input && btn) {
-        input.addEventListener('input', function () {
-            btn.disabled = this.value.trim() !== 'SI_ELIMINAR';
-        });
-        document.getElementById('modalEliminarDetalle')?.addEventListener('hidden.bs.modal', function () {
-            input.value  = '';
-            btn.disabled = true;
-        });
-    }
-})();
-</script>
-JS;
+<?php
+// El JS está en public/assets/js/user-detail.js que ya se incluye arriba.
 ?>

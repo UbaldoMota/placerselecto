@@ -141,7 +141,7 @@ $docMotivo       = $usuario['documento_rechazo_motivo'] ?? null;
                 <!-- Zona de drop -->
                 <div id="dropZone"
                      style="border:2px dashed var(--color-border);border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;margin-bottom:1rem"
-                     onclick="document.getElementById('inputDocumento').click()">
+                     data-trigger-file="inputDocumento">
                     <i class="bi bi-cloud-arrow-up" id="dropIcon"
                        style="font-size:2.5rem;color:var(--color-text-muted);display:block;margin-bottom:.5rem"></i>
                     <p class="mb-1 fw-semibold" id="dropText">Haz clic o arrastra tu documento aquí</p>
@@ -166,53 +166,4 @@ $docMotivo       = $usuario['documento_rechazo_motivo'] ?? null;
     </div>
 </div>
 
-<script>
-(function () {
-    const input   = document.getElementById('inputDocumento');
-    const drop    = document.getElementById('dropZone');
-    const preview = document.getElementById('previewImg');
-    const icon    = document.getElementById('dropIcon');
-    const text    = document.getElementById('dropText');
-    const btn     = document.getElementById('btnEnviar');
-
-    function cargarArchivo(file) {
-        if (!file || !file.type.startsWith('image/')) return;
-        if (file.size > 5 * 1024 * 1024) {
-            alert('El archivo supera 5 MB. Elige una imagen más pequeña.');
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = e => {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-            icon.style.display    = 'none';
-            text.textContent      = file.name;
-            btn.disabled          = false;
-            drop.style.borderColor = 'var(--color-primary)';
-            drop.style.background  = 'rgba(255,45,117,.04)';
-        };
-        reader.readAsDataURL(file);
-    }
-
-    input.addEventListener('change', () => cargarArchivo(input.files[0]));
-
-    drop.addEventListener('dragover', e => {
-        e.preventDefault();
-        drop.style.borderColor = 'var(--color-primary)';
-    });
-    drop.addEventListener('dragleave', () => {
-        drop.style.borderColor = 'var(--color-border)';
-    });
-    drop.addEventListener('drop', e => {
-        e.preventDefault();
-        drop.style.borderColor = 'var(--color-border)';
-        const file = e.dataTransfer.files[0];
-        if (file) {
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            input.files = dt.files;
-            cargarArchivo(file);
-        }
-    });
-})();
-</script>
+<script src="<?= APP_URL ?>/public/assets/js/subir-documento.js" defer></script>

@@ -67,7 +67,7 @@
         <button type="button"
                 class="btn btn-sm ms-2"
                 style="font-size:.72rem;padding:.1rem .45rem;background:rgba(0,0,0,.04);border:1px solid var(--color-border);color:var(--color-text-muted)"
-                id="btnMostrarCorregir">
+                data-toggle-display="formCorregirWrap">
             <i class="bi bi-pencil me-1"></i>Corregir
         </button>
     </p>
@@ -100,7 +100,7 @@
 
         <div class="mb-4">
             <input type="text"
-                   id="codigo"
+                   id="codigo" data-number-only data-number-max="6"
                    name="codigo"
                    class="form-control code-input"
                    placeholder="000000"
@@ -124,8 +124,9 @@
             <?= $csrfField ?>
             <button type="submit"
                     class="btn-reenviar"
-                    id="btnReenviar"
-                    <?= ($segundosRestantes ?? 0) > 0 ? 'disabled' : '' ?>>
+                    data-countdown-seconds="<?= (int)($segundosRestantes ?? 0) ?>"
+                    data-countdown-display="secs"
+                    data-countdown-wrap="countdown">
                 Reenviar correo
                 <span id="countdown"
                       <?= ($segundosRestantes ?? 0) <= 0 ? 'style="display:none"' : '' ?>>
@@ -139,38 +140,6 @@
 
 <script src="<?= APP_URL ?>/public/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 <script src="<?= APP_URL ?>/public/assets/js/app.js"></script>
-<script>
-(function () {
-    const inp = document.getElementById('codigo');
-    inp.addEventListener('input', function () {
-        this.value = this.value.replace(/\D/g, '').slice(0, 6);
-    });
-
-    // Countdown reenvío
-    let secs    = <?= (int)($segundosRestantes ?? 0) ?>;
-    const btn   = document.getElementById('btnReenviar');
-    const secsEl= document.getElementById('secs');
-    const cdEl  = document.getElementById('countdown');
-
-    if (secs > 0) {
-        const timer = setInterval(() => {
-            secs--;
-            if (secsEl) secsEl.textContent = secs;
-            if (secs <= 0) {
-                clearInterval(timer);
-                if (btn)  btn.disabled = false;
-                if (cdEl) cdEl.style.display = 'none';
-            }
-        }, 1000);
-    }
-
-    // Mostrar/ocultar formulario de corrección
-    document.getElementById('btnMostrarCorregir')?.addEventListener('click', function () {
-        const w = document.getElementById('formCorregirWrap');
-        w.style.display = w.style.display === 'none' ? 'block' : 'none';
-        if (w.style.display === 'block') w.querySelector('input[type=email]').focus();
-    });
-})();
-</script>
+<script src="<?= APP_URL ?>/public/assets/js/common.js"></script>
 </body>
 </html>

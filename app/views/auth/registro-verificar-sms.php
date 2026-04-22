@@ -69,7 +69,7 @@
 
         <div class="mb-4">
             <input type="text"
-                   id="codigo"
+                   id="codigo" data-number-only data-number-max="6"
                    name="codigo"
                    class="form-control code-input"
                    placeholder="000000"
@@ -93,8 +93,9 @@
             <?= $csrfField ?>
             <button type="submit"
                     class="btn-reenviar"
-                    id="btnReenviar"
-                    <?= ($segundosRestantes ?? 0) > 0 ? 'disabled' : '' ?>>
+                    data-countdown-seconds="<?= (int)($segundosRestantes ?? 0) ?>"
+                    data-countdown-display="secs"
+                    data-countdown-wrap="countdown">
                 Reenviar SMS
                 <span id="countdown"
                       <?= ($segundosRestantes ?? 0) <= 0 ? 'style="display:none"' : '' ?>>
@@ -114,32 +115,6 @@
 
 <script src="<?= APP_URL ?>/public/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 <script src="<?= APP_URL ?>/public/assets/js/app.js"></script>
-<script>
-(function () {
-    // Solo números en el input del código
-    const inp = document.getElementById('codigo');
-    inp.addEventListener('input', function () {
-        this.value = this.value.replace(/\D/g, '').slice(0, 6);
-    });
-
-    // Countdown reenvío
-    let secs = <?= (int)($segundosRestantes ?? 0) ?>;
-    const btn       = document.getElementById('btnReenviar');
-    const secsEl    = document.getElementById('secs');
-    const cdEl      = document.getElementById('countdown');
-
-    if (secs > 0) {
-        const timer = setInterval(() => {
-            secs--;
-            if (secsEl) secsEl.textContent = secs;
-            if (secs <= 0) {
-                clearInterval(timer);
-                if (btn)  btn.disabled = false;
-                if (cdEl) cdEl.style.display = 'none';
-            }
-        }, 1000);
-    }
-})();
-</script>
+<script src="<?= APP_URL ?>/public/assets/js/common.js"></script>
 </body>
 </html>

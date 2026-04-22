@@ -63,38 +63,4 @@ $__mpreload  = $municipios ?? [];
     </div>
 </div>
 
-<script>
-(function(){
-    if (window.__perfilSearchBound) return;
-    window.__perfilSearchBound = true;
-    var BASE_URL   = <?= json_encode(APP_URL) ?>;
-    var selEstado  = document.getElementById('ts-estado');
-    var selMunicipio = document.getElementById('ts-municipio');
-    if (!selEstado || !selMunicipio) return;
-
-    selEstado.addEventListener('change', function(){
-        var id = parseInt(this.value, 10);
-        selMunicipio.innerHTML = '<option value="">Cargando...</option>';
-        selMunicipio.disabled  = true;
-        if (!id) {
-            selMunicipio.innerHTML = '<option value="">Todos los municipios</option>';
-            return;
-        }
-        fetch(BASE_URL + '/api/municipios/' + id)
-            .then(function(r){ return r.json(); })
-            .then(function(data){
-                selMunicipio.innerHTML = '<option value="">Todos los municipios</option>';
-                if (data.success && data.municipios.length) {
-                    data.municipios.forEach(function(m){
-                        var opt = document.createElement('option');
-                        opt.value = m.id;
-                        opt.textContent = m.nombre;
-                        selMunicipio.appendChild(opt);
-                    });
-                    selMunicipio.disabled = false;
-                }
-            })
-            .catch(function(){ selMunicipio.innerHTML = '<option value="">Error</option>'; });
-    });
-})();
-</script>
+<script src="<?= APP_URL ?>/public/assets/js/perfil-search.js" defer></script>

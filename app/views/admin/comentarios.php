@@ -159,7 +159,7 @@
                 </form>
                 <?php endif; ?>
                 <form method="POST" action="<?= APP_URL ?>/admin/comentario/<?= (int)$c['id'] ?>/eliminar" class="m-0 ms-auto"
-                      onsubmit="return confirm('¿Eliminar este comentario permanentemente?')">
+                      data-confirm-submit="¿Eliminar este comentario permanentemente?">
                     <?= $csrfField ?>
                     <button type="submit" class="btn btn-sm btn-danger">
                         <i class="bi bi-trash"></i> Eliminar

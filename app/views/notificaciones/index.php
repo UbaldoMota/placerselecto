@@ -71,7 +71,7 @@
                             <form method="POST"
                                   action="<?= APP_URL ?>/notificacion/<?= (int)$n['id'] ?>/eliminar"
                                   class="m-0 ms-auto"
-                                  onsubmit="return confirm('¿Eliminar esta notificación?')">
+                                  data-confirm-submit="¿Eliminar esta notificación?">
                                 <?= $csrfField ?>
                                 <button type="submit" class="btn btn-sm btn-link p-0 text-danger"
                                         style="font-size:.75rem;text-decoration:none">

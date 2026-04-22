@@ -73,7 +73,7 @@
                     <span class="text-muted" style="font-size:.85rem"><i class="bi bi-coin"></i> <?= number_format((int)$b['tokens_gastados']) ?></span>
                     <?php if ($b['_grupo'] === 'Programados'): ?>
                     <form method="POST" action="<?= APP_URL ?>/perfil/boost/<?= (int)$b['id'] ?>/cancelar" class="m-0"
-                          onsubmit="return confirm('¿Cancelar y recuperar <?= (int)$b['tokens_gastados'] ?> tokens?')">
+                          data-confirm-submit="¿Cancelar y recuperar <?= (int)$b['tokens_gastados'] ?> tokens?">
                         <?= $csrfField ?>
                         <button type="submit" class="btn btn-sm btn-secondary" title="Cancelar y reembolsar">
                             <i class="bi bi-x-circle"></i> Cancelar

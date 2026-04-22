@@ -94,7 +94,7 @@ $categoria = (int)($filtros['categoria'] ?? 0);
                                    style="font-size:.85rem">
                                 <input type="radio" name="categoria" value="0"
                                        <?= $categoria === 0 ? 'checked' : '' ?>
-                                       onchange="this.form.submit()">
+                                       data-auto-submit>
                                 Todas
                             </label>
                             <?php foreach ($categorias as $cat): ?>
@@ -103,7 +103,7 @@ $categoria = (int)($filtros['categoria'] ?? 0);
                                 <input type="radio" name="categoria"
                                        value="<?= (int)$cat['id'] ?>"
                                        <?= (int)$cat['id'] === $categoria ? 'checked' : '' ?>
-                                       onchange="this.form.submit()">
+                                       data-auto-submit>
                                 <i class="bi <?= e($cat['icono'] ?? 'bi-person') ?> text-primary"></i>
                                 <?= e($cat['nombre']) ?>
                                 <?php if (!empty($cat['total_anuncios'])): ?>
@@ -135,7 +135,7 @@ $categoria = (int)($filtros['categoria'] ?? 0);
                         <select id="fl-municipio" name="ciudad"
                                 class="form-select form-select-sm"
                                 <?= empty($filtroMunicipios) ? 'disabled' : '' ?>
-                                onchange="this.form.submit()">
+                                data-auto-submit>
                             <option value="">Todos los municipios</option>
                             <?php foreach ($filtroMunicipios as $m): ?>
                             <option value="<?= e($m['nombre']) ?>"
@@ -319,55 +319,7 @@ $categoria = (int)($filtros['categoria'] ?? 0);
     </div>
 </div>
 
-<?php $extraJs = '<script>
-(function () {
-    const BASE_URL = ' . json_encode(APP_URL) . ';
 
-    // Inicializa el cascade para un par de selects (estado + municipio)
-    function initCascade(selEstadoId, selMunId, loadingId, autoSubmitForm) {
-        const selEstado = document.getElementById(selEstadoId);
-        const selMun    = document.getElementById(selMunId);
-        const loading   = loadingId ? document.getElementById(loadingId) : null;
-        if (!selEstado || !selMun) return;
-
-        selEstado.addEventListener("change", function () {
-            const idEstado = parseInt(this.value, 10);
-            selMun.innerHTML = "<option value=\"\">Todos los municipios</option>";
-            selMun.disabled  = true;
-
-            if (!idEstado) {
-                selMun.removeAttribute("name");
-                if (autoSubmitForm) autoSubmitForm.submit();
-                return;
-            }
-
-            if (loading) loading.classList.remove("d-none");
-
-            fetch(BASE_URL + "/api/municipios/" + idEstado)
-                .then(r => r.json())
-                .then(data => {
-                    if (loading) loading.classList.add("d-none");
-                    if (data.success && data.municipios.length) {
-                        data.municipios.forEach(m => {
-                            const opt = document.createElement("option");
-                            opt.value       = m.nombre;
-                            opt.textContent = m.nombre;
-                            selMun.appendChild(opt);
-                        });
-                        selMun.disabled = false;
-                        selMun.setAttribute("name", "ciudad");
-                    }
-                })
-                .catch(() => { if (loading) loading.classList.add("d-none"); });
-        });
-    }
-
-    // Sidebar
-    initCascade("fl-estado", "fl-municipio", "fl-loading",
-                document.getElementById("filter-form"));
-
-    // Barra superior
-    initCascade("ts-estado", "ts-municipio", null, null);
-})();
-</script>';
+<?php
+$extraJs = '<script src="' . APP_URL . '/public/assets/js/ads-index.js" defer></script>';
 ?>

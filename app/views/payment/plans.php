@@ -105,8 +105,7 @@
             ?>
             <div class="col-12 col-md-4">
                 <div class="plan-card <?= $esPopular ? 'popular' : '' ?>"
-                     data-dias="<?= (int)$dias ?>"
-                     onclick="selectPlan(<?= (int)$dias ?>)">
+                     data-dias="<?= (int)$dias ?>">
 
                     <?php if ($esPopular): ?>
                     <div class="plan-badge-popular">
@@ -195,40 +194,9 @@
     </form>
 </div>
 
-<script>
-const planes = <?= json_encode(array_map(fn($dias, $info) => [
+<script id="planes-data" type="application/json"><?= json_encode(array_map(fn($dias, $info) => [
     'dias'   => $dias,
     'precio' => $info['precio'],
     'label'  => $info['label'],
-], array_keys(PLANES_DESTACADO), PLANES_DESTACADO), JSON_UNESCAPED_UNICODE) ?>;
-
-function selectPlan(dias) {
-    // Deseleccionar todos
-    document.querySelectorAll('.plan-card').forEach(c => {
-        c.classList.remove('selected');
-        c.querySelector('.plan-check')?.classList.add('d-none');
-    });
-
-    // Seleccionar el elegido
-    const card = document.querySelector(`.plan-card[data-dias="${dias}"]`);
-    if (card) {
-        card.classList.add('selected');
-        card.querySelector('.plan-check')?.classList.remove('d-none');
-    }
-
-    // Actualizar input hidden y resumen
-    document.getElementById('plan-input').value = dias;
-
-    const plan = planes.find(p => p.dias === dias);
-    if (plan) {
-        document.getElementById('summary-plan').textContent    = plan.label;
-        document.getElementById('summary-duracion').textContent = plan.dias + ' días';
-        document.getElementById('summary-total').textContent   = '$' + plan.precio.toLocaleString('es-MX', {minimumFractionDigits:0}) + ' MXN';
-        document.getElementById('payment-summary').classList.remove('d-none');
-        document.getElementById('pay-btn').classList.remove('d-none');
-    }
-}
-
-// Auto-seleccionar plan popular (7 días)
-document.addEventListener('DOMContentLoaded', () => selectPlan(7));
-</script>
+], array_keys(PLANES_DESTACADO), PLANES_DESTACADO), JSON_UNESCAPED_UNICODE) ?></script>
+<script src="<?= APP_URL ?>/public/assets/js/plans.js" defer></script>

@@ -161,7 +161,7 @@
                 </form>
 
                 <form method="POST" action="<?= APP_URL ?>/admin/mensaje/<?= (int)$m['id'] ?>/cerrar" class="mt-2"
-                      onsubmit="return confirm('¿Cerrar este mensaje sin responder?')">
+                      data-confirm-submit="¿Cerrar este mensaje sin responder?">
                     <?= $csrfField ?>
                     <button type="submit" class="btn btn-sm btn-link text-muted p-0" style="font-size:.78rem;text-decoration:none">
                         <i class="bi bi-x-circle me-1"></i>Cerrar sin responder

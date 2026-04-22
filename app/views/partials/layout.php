@@ -127,6 +127,7 @@
     <!-- App JS -->
     <script src="<?= APP_URL ?>/public/assets/js/validation.js"></script>
     <script src="<?= APP_URL ?>/public/assets/js/app.js"></script>
+    <script src="<?= APP_URL ?>/public/assets/js/common.js"></script>
     <?php if ($currentUser): ?>
     <script src="<?= APP_URL ?>/public/assets/js/notifications.js" defer></script>
     <?php endif; ?>

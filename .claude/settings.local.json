@@ -74,7 +74,23 @@
       "Bash(cat)",
       "Bash(mv /tmp/foto-uploader-new.php app/views/partials/foto-uploader.php)",
       "Bash(head -200 /c/laragon/www/Publicidad/app/views/partials/perfil-extra-fields.php)",
-      "Bash(mv /tmp/new.php /c/laragon/www/Publicidad/app/views/partials/perfil-extra-fields.php)"
+      "Bash(mv /tmp/new.php /c/laragon/www/Publicidad/app/views/partials/perfil-extra-fields.php)",
+      "Bash(sed -i 's|id=\"codigo\"|id=\"codigo\" data-number-only data-number-max=\"6\"|' /c/laragon/www/Publicidad/app/views/auth/registro-verificar-sms.php)",
+      "Bash(sed -i 's|id=\"codigo\"|id=\"codigo\" data-number-only data-number-max=\"6\"|' /c/laragon/www/Publicidad/app/views/auth/registro-verificar-email.php)",
+      "Bash(sed -i \"s|onsubmit=\\\\\"return confirm\\('¿Eliminar tu comentario? Luego podrás escribir uno nuevo.'\\)\\\\\"|data-confirm-submit=\\\\\"¿Eliminar tu comentario? Luego podrás escribir uno nuevo.\\\\\"|g\" app/views/perfiles/show.php)",
+      "Bash(sed -i \"s|onsubmit=\\\\\"return confirm\\('¿Eliminar tu comentario?'\\)\\\\\"|data-confirm-submit=\\\\\"¿Eliminar tu comentario?\\\\\"|g\" app/views/perfiles/show.php)",
+      "Bash(sed -i \"s|onsubmit=\\\\\"return confirm\\('¿Reportar este comentario como abusivo o inapropiado?'\\)\\\\\"|data-confirm-submit=\\\\\"¿Reportar este comentario como abusivo o inapropiado?\\\\\"|g\" app/views/perfiles/show.php)",
+      "Bash(head -253 app/views/perfiles/edit.php)",
+      "Bash(mv /tmp/edit.php app/views/perfiles/edit.php)",
+      "Bash(sed -i 's|onclick=\"openLightbox\\('\\\\'' . $lbIdx . '\\\\''\\)\" style=\"cursor:zoom-in\"|data-lightbox-open=\"'\\\\'' . $lbIdx . '\\\\''\" style=\"cursor:zoom-in\"|g' app/views/admin/perfil-preview.php)",
+      "Bash(sed -i 's|onclick=\"openLightbox\\('\\\\'' . $lbIdx . '\\\\''\\)\"|data-lightbox-open=\"'\\\\'' . $lbIdx . '\\\\''\"|g' app/views/admin/perfil-preview.php)",
+      "Bash(sed -i 's|onclick=\"document.getElementById\\(\\\\x27inputFotos\\\\x27\\).click\\(\\)\"|data-trigger-file=\"inputFotos\"|' app/views/perfiles/verificar-fotos.php)",
+      "Bash(sed -i 's|onclick=\"document.getElementById\\(\\\\x27inputDocumento\\\\x27\\).click\\(\\)\"|data-trigger-file=\"inputDocumento\"|' app/views/user/subir-documento.php)",
+      "Bash(head -162 app/views/perfiles/verificar-camara.php)",
+      "Bash(mv /tmp/pvc.php app/views/perfiles/verificar-camara.php)",
+      "Bash(head -321 app/views/ads/index.php)",
+      "Bash(mv /tmp/adsix.php app/views/ads/index.php)",
+      "Bash(python3 -c ' *)"
     ]
   }
 }

@@ -38,10 +38,20 @@
         toggleCM(el.dataset.cmSwitch, el.checked);
     });
 
-    /* Mapa Leaflet (solo si existe #mapa-zona y L está cargado) */
+    /* Mapa Leaflet (espera a que L esté cargado si aún no lo está) */
     const mapaEl = document.getElementById('mapa-zona');
-    if (!mapaEl || typeof L === 'undefined') return;
+    if (!mapaEl) return;
 
+    function initMap() {
+        if (typeof L === 'undefined') {
+            setTimeout(initMap, 50);
+            return;
+        }
+        startMap();
+    }
+    initMap();
+
+    function startMap() {
     const mapa = L.map('mapa-zona').setView([initLat, initLng], initZoom);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -150,4 +160,5 @@
     }
 
     setTimeout(() => mapa.invalidateSize(), 300);
+    }
 })();

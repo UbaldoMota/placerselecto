@@ -109,7 +109,7 @@
                                         </button>
                                     </form>
                                     <form method="POST" action="<?= APP_URL ?>/admin/tokens/paquete/<?= (int)$p['id'] ?>/eliminar" class="m-0"
-                                          onsubmit="return confirm('¿Eliminar este paquete? Esta acción no se puede deshacer.')">
+                                          data-confirm-submit="¿Eliminar este paquete? Esta acción no se puede deshacer.">
                                         <?= $csrfField ?>
                                         <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
                                             <i class="bi bi-trash"></i>

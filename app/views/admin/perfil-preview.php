@@ -105,7 +105,7 @@ $ambosListos   = $tieneFotosVer && $tieneVideoVer;
                         <img src="<?= APP_URL . '/img/' . e($f['token']) ?>"
                              alt="<?= e($perfil['nombre']) ?>"
                              loading="eager"
-                             <?= $lbIdx !== null ? 'onclick="openLightbox(' . $lbIdx . ')" style="cursor:zoom-in"' : '' ?>>
+                             <?= $lbIdx !== null ? 'data-lightbox-open="' . $lbIdx . '" style="cursor:zoom-in"' : '' ?>>
                     </div>
                     <?php if ($oculta): ?>
                     <div style="position:absolute;top:10px;left:10px;background:rgba(220,53,69,.9);color:#fff;font-size:.72rem;font-weight:700;padding:3px 8px;border-radius:5px">
@@ -139,7 +139,7 @@ $ambosListos   = $tieneFotosVer && $tieneVideoVer;
                     ?>
                     <div class="foto-galeria__item"
                          style="position:relative<?= $oculta ? ';opacity:.5' : '' ?>"
-                         <?= $lbIdx !== null ? 'onclick="openLightbox(' . $lbIdx . ')"' : '' ?>>
+                         <?= $lbIdx !== null ? 'data-lightbox-open="' . $lbIdx . '"' : '' ?>>
                         <img src="<?= APP_URL . '/img/' . e($f['token']) ?>"
                              alt="Foto galería"
                              loading="lazy">
@@ -151,7 +151,7 @@ $ambosListos   = $tieneFotosVer && $tieneVideoVer;
                         <?php endif; ?>
 
                         <div style="position:absolute;bottom:0;left:0;right:0;display:flex;gap:4px;justify-content:center;padding:6px 4px;background:linear-gradient(transparent,rgba(0,0,0,.75))"
-                             onclick="event.stopPropagation()">
+                             data-stop-propagation>
                             <form method="POST" action="<?= APP_URL ?>/admin/foto/<?= (int)$f['id'] ?>/ocultar" style="margin:0">
                                 <?= $csrfField ?>
                                 <button type="submit"
@@ -181,47 +181,15 @@ $ambosListos   = $tieneFotosVer && $tieneVideoVer;
                 <?php endif; ?>
 
                 <!-- Lightbox -->
-                <div id="lightbox" class="lightbox" onclick="handleLightboxClick(event)">
-                    <button class="lightbox__close" onclick="closeLightbox()" title="Cerrar">&times;</button>
-                    <button class="lightbox__nav lightbox__prev" onclick="lightboxNav(-1,event)" title="Anterior">&#8249;</button>
+                <div id="lightbox" class="lightbox">
+                    <button class="lightbox__close" data-lightbox="close" title="Cerrar">&times;</button>
+                    <button class="lightbox__nav lightbox__prev" data-lightbox-nav="-1" title="Anterior">&#8249;</button>
                     <img id="lightbox-img" class="lightbox__img" src="" alt="">
-                    <button class="lightbox__nav lightbox__next" onclick="lightboxNav(1,event)" title="Siguiente">&#8250;</button>
+                    <button class="lightbox__nav lightbox__next" data-lightbox-nav="1" title="Siguiente">&#8250;</button>
                     <div class="lightbox__counter" id="lightbox-counter"></div>
                 </div>
-                <script>
-                (function(){
-                    const urls  = <?= json_encode(array_values($lightboxUrls)) ?>;
-                    const total = urls.length;
-                    let current = 0;
-                    window.openLightbox = function(idx) {
-                        current = idx;
-                        document.getElementById('lightbox-img').src = urls[current] || '';
-                        const ctr = document.getElementById('lightbox-counter');
-                        if (ctr) ctr.textContent = total > 1 ? (current+1)+' / '+total : '';
-                        document.getElementById('lightbox').classList.add('is-open');
-                        document.querySelectorAll('.lightbox__nav').forEach(b => b.style.display = total>1?'':'none');
-                    };
-                    window.closeLightbox = function() {
-                        document.getElementById('lightbox').classList.remove('is-open');
-                    };
-                    window.lightboxNav = function(dir,e) {
-                        if(e) e.stopPropagation();
-                        current = (current+dir+total)%total;
-                        document.getElementById('lightbox-img').src = urls[current]||'';
-                        const ctr = document.getElementById('lightbox-counter');
-                        if(ctr) ctr.textContent = (current+1)+' / '+total;
-                    };
-                    window.handleLightboxClick = function(e) {
-                        if(e.target===document.getElementById('lightbox')) closeLightbox();
-                    };
-                    document.addEventListener('keydown', function(e) {
-                        if(!document.getElementById('lightbox').classList.contains('is-open')) return;
-                        if(e.key==='Escape') closeLightbox();
-                        if(e.key==='ArrowRight') lightboxNav(1);
-                        if(e.key==='ArrowLeft')  lightboxNav(-1);
-                    });
-                })();
-                </script>
+                <script id="lightbox-data" type="application/json"><?= json_encode(array_values($lightboxUrls)) ?></script>
+                <script src="<?= APP_URL ?>/public/assets/js/lightbox.js" defer></script>
 
                 <div class="card-body p-4">
                     <!-- Meta -->
@@ -409,7 +377,7 @@ $ambosListos   = $tieneFotosVer && $tieneVideoVer;
                                 </button>
                                 <?php endif; ?>
                                 <form method="POST" action="<?= APP_URL ?>/admin/video/<?= (int)$v['id'] ?>/eliminar" class="m-0 ms-auto"
-                                      onsubmit="return confirm('¿Eliminar este video permanentemente?')">
+                                      data-confirm-submit="¿Eliminar este video permanentemente?">
                                     <?= $csrfField ?>
                                     <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
                                         <i class="bi bi-trash"></i>

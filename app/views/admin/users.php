@@ -281,31 +281,6 @@ $buscar = $filtros['buscar'] ?? '';
 
 </div>
 
-<?php $extraJs = <<<'JS'
-<script>
-(function () {
-    const modal    = document.getElementById('modalEliminar');
-    const form     = document.getElementById('formEliminar');
-    const inputConf= document.getElementById('inputConfirmar');
-    const btnConf  = document.getElementById('btnConfirmarEliminar');
-    const nombreEl = document.getElementById('modalNombreUsuario');
-
-    modal.addEventListener('show.bs.modal', function (e) {
-        const btn    = e.relatedTarget;
-        const userId = btn.dataset.userId;
-        const nombre = btn.dataset.userNombre;
-
-        nombreEl.textContent = nombre;
-        const base = document.querySelector('[data-app-url]')?.dataset.appUrl ?? '';
-        form.action = base + '/admin/usuario/' + userId + '/eliminar';
-        inputConf.value = '';
-        btnConf.disabled = true;
-    });
-
-    inputConf.addEventListener('input', function () {
-        btnConf.disabled = this.value.trim() !== 'SI_ELIMINAR';
-    });
-})();
-</script>
-JS;
+<?php
+$extraJs = '<script src="' . APP_URL . '/public/assets/js/admin-users.js" defer></script>';
 ?>

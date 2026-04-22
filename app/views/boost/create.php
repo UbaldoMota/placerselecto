@@ -177,7 +177,7 @@ $descRes = (string)($tarifas['resaltado']['descripcion']  ?? '');
                         <td class="text-end">
                             <?php if ($b['estado'] === 'programado'): ?>
                             <form method="POST" action="<?= APP_URL ?>/perfil/boost/<?= (int)$b['id'] ?>/cancelar" class="m-0"
-                                  onsubmit="return confirm('¿Cancelar y recuperar <?= (int)$b['tokens_gastados'] ?> tokens?')">
+                                  data-confirm-submit="¿Cancelar y recuperar <?= (int)$b['tokens_gastados'] ?> tokens?">
                                 <?= $csrfField ?>
                                 <button type="submit" class="btn btn-sm btn-secondary">
                                     <i class="bi bi-x"></i> Cancelar
@@ -195,68 +195,5 @@ $descRes = (string)($tarifas['resaltado']['descripcion']  ?? '');
 
 </div>
 
-<script>
-(function () {
-    const form     = document.getElementById('boost-form');
-    const horasI   = document.getElementById('boost-horas');
-    const modosR   = form.querySelectorAll('input[name="modo_inicio"]');
-    const inicioI  = document.getElementById('boost-inicio');
-    const resTarifa = document.getElementById('res-tarifa');
-    const resHoras  = document.getElementById('res-horas');
-    const resCosto  = document.getElementById('res-costo');
-    const saldoW    = document.getElementById('saldo-warning');
-    const faltanEl  = document.getElementById('faltan');
-    const submit    = document.getElementById('boost-submit');
-    const saldo     = <?= (int)$saldo ?>;
-
-    // selector visual de tipo (plan-card highlight)
-    form.querySelectorAll('input[name="tipo"]').forEach(r => {
-        r.addEventListener('change', () => {
-            form.querySelectorAll('label.plan-card').forEach(l => {
-                const input = l.querySelector('input[name="tipo"]');
-                l.classList.toggle('selected', input.checked);
-            });
-            calcular();
-        });
-    });
-    // inicial: marcar el checked
-    form.querySelector('input[name="tipo"]:checked').closest('label').classList.add('selected');
-
-    // presets de horas
-    document.querySelectorAll('.boost-h-preset').forEach(b => {
-        b.addEventListener('click', () => {
-            horasI.value = b.dataset.h;
-            calcular();
-        });
-    });
-
-    horasI.addEventListener('input', calcular);
-
-    modosR.forEach(r => r.addEventListener('change', () => {
-        const programado = form.querySelector('input[name="modo_inicio"]:checked').value === 'programado';
-        inicioI.disabled = !programado;
-        if (programado && !inicioI.value) {
-            const d = new Date(Date.now() + 30 * 60000); // +30min por defecto
-            inicioI.value = d.toISOString().slice(0, 16);
-        }
-    }));
-
-    function calcular() {
-        const tipo  = form.querySelector('input[name="tipo"]:checked');
-        const tph   = tipo ? parseInt(tipo.dataset.tph) : 0;
-        const horas = Math.max(1, parseInt(horasI.value) || 0);
-        const costo = tph * horas;
-
-        resTarifa.textContent = tph + ' t/h';
-        resHoras.textContent  = horas + ' h';
-        resCosto.textContent  = costo.toLocaleString();
-
-        const insuficiente = costo > saldo;
-        saldoW.classList.toggle('d-none', !insuficiente);
-        if (insuficiente) faltanEl.textContent = (costo - saldo).toLocaleString();
-        submit.disabled = insuficiente || horas < 1;
-    }
-
-    calcular();
-})();
-</script>
+<div id="boost-config" data-saldo="<?= (int)$saldo ?>" style="display:none"></div>
+<script src="<?= APP_URL ?>/public/assets/js/boost-create.js" defer></script>

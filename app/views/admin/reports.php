@@ -234,7 +234,7 @@ $motivoLabels = [
 
                 <!-- Resolver sin acción -->
                 <form method="POST" action="<?= APP_URL ?>/admin/reporte/<?= (int)$r['id'] ?>/resolver" class="m-0"
-                      onsubmit="return confirm('¿Marcar como resuelto sin tomar acción sobre el perfil?')">
+                      data-confirm-submit="¿Marcar como resuelto sin tomar acción sobre el perfil?">
                     <?= $csrfField ?>
                     <input type="hidden" name="accion" value="resolver">
                     <button type="submit" class="btn btn-sm btn-success">
@@ -246,7 +246,7 @@ $motivoLabels = [
                     <?php if (!empty($r['id_perfil'])): ?>
                     <!-- Suspender cuenta del denunciado -->
                     <form method="POST" action="<?= APP_URL ?>/admin/reporte/<?= (int)$r['id'] ?>/suspender" class="m-0"
-                          onsubmit="return confirm('¿Suspender la cuenta del denunciado? Dejará de poder publicar.')">
+                          data-confirm-submit="¿Suspender la cuenta del denunciado? Dejará de poder publicar.">
                         <?= $csrfField ?>
                         <button type="submit" class="btn btn-sm btn-outline-primary" style="border-color:var(--color-warning);color:#B45309">
                             <i class="bi bi-slash-circle me-1"></i>Suspender cuenta
@@ -254,7 +254,7 @@ $motivoLabels = [
                     </form>
                     <!-- Eliminar perfil reportado -->
                     <form method="POST" action="<?= APP_URL ?>/admin/reporte/<?= (int)$r['id'] ?>/eliminar-perfil" class="m-0"
-                          onsubmit="return confirm('¿Eliminar permanentemente el perfil reportado? Esta acción no se puede deshacer.')">
+                          data-confirm-submit="¿Eliminar permanentemente el perfil reportado? Esta acción no se puede deshacer.">
                         <?= $csrfField ?>
                         <button type="submit" class="btn btn-sm btn-danger">
                             <i class="bi bi-trash me-1"></i>Eliminar perfil
@@ -262,7 +262,7 @@ $motivoLabels = [
                     </form>
                     <?php elseif (!empty($r['anuncio_titulo'])): ?>
                     <form method="POST" action="<?= APP_URL ?>/admin/reporte/<?= (int)$r['id'] ?>/resolver" class="m-0"
-                          onsubmit="return confirm('¿Resolver el reporte Y eliminar el anuncio?')">
+                          data-confirm-submit="¿Resolver el reporte Y eliminar el anuncio?">
                         <?= $csrfField ?>
                         <input type="hidden" name="accion" value="eliminar_anuncio">
                         <button type="submit" class="btn btn-sm btn-danger">

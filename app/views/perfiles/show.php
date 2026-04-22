@@ -248,23 +248,6 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
                     </div>
                     <?php endif; ?>
 
-                    <?php if (!$esPropio && $currentUser && $perfil['estado'] === 'publicado'): ?>
-                    <script>
-                    (function(){
-                        var sel = document.getElementById('rp-motivo');
-                        var urlW = document.getElementById('rp-url-wrap');
-                        var urlI = document.getElementById('rp-url');
-                        if (!sel || !urlW) return;
-                        function toggleUrl() {
-                            var needs = sel.value === 'fotos_de_internet';
-                            urlW.classList.toggle('d-none', !needs);
-                            if (urlI) urlI.required = needs;
-                        }
-                        sel.addEventListener('change', toggleUrl);
-                        toggleUrl();
-                    })();
-                    </script>
-                    <?php endif; ?>
 
                 </div>
             </div>
@@ -277,13 +260,13 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
                     <img src="<?= e($lightboxUrls[0]) ?>"
                          alt="<?= e($perfil['nombre']) ?>"
                          loading="eager"
-                         onclick="openLightbox(0)"
+                         data-lightbox-open="0"
                          style="cursor:zoom-in">
                 </div>
                 <?php else: ?>
                 <div class="foto-galeria--multi">
                     <?php foreach ($lightboxUrls as $i => $url): ?>
-                    <div class="foto-galeria__item" onclick="openLightbox(<?= $i ?>)">
+                    <div class="foto-galeria__item" data-lightbox-open="<?= $i ?>">
                         <img src="<?= e($url) ?>"
                              alt="<?= e($perfil['nombre']) ?> — foto <?= $i + 1 ?>"
                              loading="<?= $i < 2 ? 'eager' : 'lazy' ?>">
@@ -295,52 +278,14 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
             <?php endif; ?>
 
             <!-- Lightbox -->
-            <div id="lightbox" class="lightbox" onclick="handleLightboxClick(event)">
-                <button class="lightbox__close" onclick="closeLightbox()" title="Cerrar">&times;</button>
-                <button class="lightbox__nav lightbox__prev" onclick="lightboxNav(-1,event)" title="Anterior">&#8249;</button>
+            <div id="lightbox" class="lightbox">
+                <button class="lightbox__close" data-lightbox="close" title="Cerrar">&times;</button>
+                <button class="lightbox__nav lightbox__prev" data-lightbox-nav="-1" title="Anterior">&#8249;</button>
                 <img id="lightbox-img" class="lightbox__img" src="" alt="">
-                <button class="lightbox__nav lightbox__next" onclick="lightboxNav(1,event)" title="Siguiente">&#8250;</button>
+                <button class="lightbox__nav lightbox__next" data-lightbox-nav="1" title="Siguiente">&#8250;</button>
                 <div class="lightbox__counter" id="lightbox-counter"></div>
             </div>
-            <script>
-            (function(){
-                const urls  = <?= json_encode(array_values($lightboxUrls)) ?>;
-                const total = urls.length;
-                let current = 0;
-
-                window.openLightbox = function(idx) {
-                    current = idx;
-                    const img = document.getElementById('lightbox-img');
-                    const ctr = document.getElementById('lightbox-counter');
-                    const lb  = document.getElementById('lightbox');
-                    img.src = urls[current] || '';
-                    if (ctr) ctr.textContent = total > 1 ? (current + 1) + ' / ' + total : '';
-                    lb.classList.add('is-open');
-                    document.querySelectorAll('.lightbox__nav').forEach(b => {
-                        b.style.display = total > 1 ? '' : 'none';
-                    });
-                };
-                window.closeLightbox = function() {
-                    document.getElementById('lightbox').classList.remove('is-open');
-                };
-                window.lightboxNav = function(dir, e) {
-                    if (e) e.stopPropagation();
-                    current = (current + dir + total) % total;
-                    document.getElementById('lightbox-img').src = urls[current] || '';
-                    const ctr = document.getElementById('lightbox-counter');
-                    if (ctr) ctr.textContent = (current + 1) + ' / ' + total;
-                };
-                window.handleLightboxClick = function(e) {
-                    if (e.target === document.getElementById('lightbox')) closeLightbox();
-                };
-                document.addEventListener('keydown', function(e) {
-                    if (!document.getElementById('lightbox').classList.contains('is-open')) return;
-                    if (e.key === 'Escape')     closeLightbox();
-                    if (e.key === 'ArrowRight') lightboxNav(1);
-                    if (e.key === 'ArrowLeft')  lightboxNav(-1);
-                });
-            })();
-            </script>
+            <script id="lightbox-data" type="application/json"><?= json_encode(array_values($lightboxUrls)) ?></script>
 
             <!-- 2.b VIDEOS (si el perfil tiene) -->
             <?php if (!empty($videos)): ?>
@@ -467,7 +412,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
                             <p class="mb-0 mt-1" style="font-size:.88rem;white-space:pre-wrap"><?= nl2br(e($miComentario['comentario'])) ?></p>
                         </div>
                         <form method="POST" action="<?= APP_URL ?>/comentario/<?= (int)$miComentario['id'] ?>/eliminar" class="m-0"
-                              onsubmit="return confirm('¿Eliminar tu comentario? Luego podrás escribir uno nuevo.')">
+                              data-confirm-submit="¿Eliminar tu comentario? Luego podrás escribir uno nuevo.">
                             <?= $csrfField ?>
                             <button type="submit" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-trash me-1"></i>Eliminar comentario
@@ -541,7 +486,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
                                         <div class="d-flex gap-2" style="font-size:.72rem">
                                             <?php if ($esMio): ?>
                                             <form method="POST" action="<?= APP_URL ?>/comentario/<?= (int)$c['id'] ?>/eliminar" class="m-0"
-                                                  onsubmit="return confirm('¿Eliminar tu comentario?')">
+                                                  data-confirm-submit="¿Eliminar tu comentario?">
                                                 <?= $csrfField ?>
                                                 <button type="submit" class="btn btn-link btn-sm p-0 text-danger" style="font-size:.72rem;text-decoration:none">
                                                     <i class="bi bi-trash"></i> Eliminar
@@ -549,7 +494,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
                                             </form>
                                             <?php elseif ($currentUser): ?>
                                             <form method="POST" action="<?= APP_URL ?>/comentario/<?= (int)$c['id'] ?>/reportar" class="m-0"
-                                                  onsubmit="return confirm('¿Reportar este comentario como abusivo o inapropiado?')">
+                                                  data-confirm-submit="¿Reportar este comentario como abusivo o inapropiado?">
                                                 <?= $csrfField ?>
                                                 <button type="submit" class="btn btn-link btn-sm p-0 text-muted" style="font-size:.72rem;text-decoration:none">
                                                     <i class="bi bi-flag"></i> Reportar
@@ -702,22 +647,12 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
                     </p>
                     <?php endif; ?>
                     <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/leaflet/leaflet.css">
-                    <div id="mapa-show" style="height:200px;border-radius:8px;overflow:hidden"></div>
+                    <div id="mapa-show"
+                         style="height:200px;border-radius:8px;overflow:hidden"
+                         data-lat="<?= (float)$perfil['zona_lat'] ?>"
+                         data-lng="<?= (float)$perfil['zona_lng'] ?>"
+                         data-radio="<?= (int)$perfil['zona_radio'] ?>"></div>
                     <script src="<?= APP_URL ?>/public/assets/vendor/leaflet/leaflet.js"></script>
-                    <script>
-                    (function(){
-                        const m = L.map('mapa-show', {zoomControl:false, dragging:false, scrollWheelZoom:false, doubleClickZoom:false, touchZoom:false, keyboard:false, attributionControl:false})
-                            .setView([<?= (float)$perfil['zona_lat'] ?>, <?= (float)$perfil['zona_lng'] ?>], 12);
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(m);
-                        L.circle([<?= (float)$perfil['zona_lat'] ?>, <?= (float)$perfil['zona_lng'] ?>], {
-                            radius: <?= (int)$perfil['zona_radio'] ?> * 1000,
-                            color:'#FF2D75', fillColor:'#FF2D75', fillOpacity:.2, weight:2
-                        }).addTo(m);
-                        const ic = L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:#FF2D75;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>',iconSize:[16,16],iconAnchor:[8,8]});
-                        L.marker([<?= (float)$perfil['zona_lat'] ?>, <?= (float)$perfil['zona_lng'] ?>], {icon:ic}).addTo(m);
-                        setTimeout(()=>m.invalidateSize(),200);
-                    })();
-                    </script>
                 </div>
             </div>
             <?php endif; ?>
@@ -770,3 +705,5 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
         </div>
     </div>
 </div>
+
+<script src="<?= APP_URL ?>/public/assets/js/perfil-show.js" defer></script>

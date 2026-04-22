@@ -125,7 +125,7 @@ SessionManager::delete('form_old');
                        autocomplete="current-password"
                        required
                        data-validate="required|minLen:8">
-                <button type="button" class="show-pass-btn" id="togglePass" title="Mostrar/ocultar">
+                <button type="button" class="show-pass-btn" data-toggle-password="password" data-eye-icon="eyeIcon" title="Mostrar/ocultar">
                     <i class="bi bi-eye" id="eyeIcon"></i>
                 </button>
             </div>
@@ -162,15 +162,6 @@ SessionManager::delete('form_old');
 <script src="<?= APP_URL ?>/public/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 <script src="<?= APP_URL ?>/public/assets/js/validation.js"></script>
 <script src="<?= APP_URL ?>/public/assets/js/app.js"></script>
-<script>
-    // Toggle mostrar/ocultar contraseña
-    document.getElementById('togglePass')?.addEventListener('click', function () {
-        const input   = document.getElementById('password');
-        const icon    = document.getElementById('eyeIcon');
-        const visible = input.type === 'text';
-        input.type    = visible ? 'password' : 'text';
-        icon.className = visible ? 'bi bi-eye' : 'bi bi-eye-slash';
-    });
-</script>
+<script src="<?= APP_URL ?>/public/assets/js/common.js"></script>
 </body>
 </html>

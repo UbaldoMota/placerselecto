@@ -185,52 +185,6 @@
     </div>
 </div>
 
-<?php $extraJs = '<script>
-(function () {
-    const BASE_URL       = ' . json_encode(APP_URL) . ';
-    const selEstado      = document.getElementById("id_estado");
-    const selMunicipio   = document.getElementById("id_municipio");
-    const loading        = document.getElementById("municipio-loading");
-    const preselectedMun = ' . $selMunicipioId . ';
-
-    function cargarMunicipios(idEstado, selectValue) {
-        selMunicipio.innerHTML = "<option value=\"\">— Cargando… —</option>";
-        selMunicipio.disabled  = true;
-        loading.classList.remove("d-none");
-
-        fetch(BASE_URL + "/api/municipios/" + idEstado)
-            .then(r => r.json())
-            .then(data => {
-                loading.classList.add("d-none");
-                selMunicipio.innerHTML = "<option value=\"\">— Selecciona municipio —</option>";
-                if (data.success && data.municipios.length) {
-                    data.municipios.forEach(m => {
-                        const opt = document.createElement("option");
-                        opt.value       = m.id;
-                        opt.textContent = m.nombre;
-                        if (m.id == selectValue) opt.selected = true;
-                        selMunicipio.appendChild(opt);
-                    });
-                    selMunicipio.disabled = false;
-                } else {
-                    selMunicipio.innerHTML = "<option value=\"\">Sin municipios</option>";
-                }
-            })
-            .catch(() => {
-                loading.classList.add("d-none");
-                selMunicipio.innerHTML = "<option value=\"\">Error al cargar</option>";
-            });
-    }
-
-    selEstado.addEventListener("change", function () {
-        const idEstado = parseInt(this.value, 10);
-        if (!idEstado) {
-            selMunicipio.innerHTML = "<option value=\"\">— Primero selecciona estado —</option>";
-            selMunicipio.disabled  = true;
-            return;
-        }
-        cargarMunicipios(idEstado, 0);
-    });
-})();
-</script>';
+<?php
+$extraJs = '<script src="' . APP_URL . '/public/assets/js/municipios-cascada.js" defer></script>';
 ?>
