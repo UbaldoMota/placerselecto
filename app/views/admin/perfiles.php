@@ -144,6 +144,11 @@ $buscar = $filtros['buscar'] ?? '';
                             <span class="badge-estado <?= $sc ?>">
                                 <i class="bi bi-<?= $si ?> me-1"></i><?= $sl ?>
                             </span>
+                            <?php if (!empty($p['oculta'])): ?>
+                            <span class="badge-estado ms-1" style="background:rgba(245,158,11,.15);color:#F59E0B;font-size:.68rem">
+                                <i class="bi bi-eye-slash me-1"></i>Oculto
+                            </span>
+                            <?php endif; ?>
                             <br>
                             <?php if ($verCompleta): ?>
                             <span class="badge-estado" style="background:rgba(16,185,129,.12);color:#10B981;font-size:.68rem;margin-top:.25rem">
@@ -212,6 +217,16 @@ $buscar = $filtros['buscar'] ?? '';
                                     </button>
                                 </form>
                                 <?php endif; ?>
+
+                                <form method="POST" action="<?= APP_URL ?>/admin/perfil/<?= (int)$p['id'] ?>/ocultar">
+                                    <?= $csrfField ?>
+                                    <?php $ocu = !empty($p['oculta']); ?>
+                                    <button class="btn btn-sm" title="<?= $ocu ? 'Mostrar' : 'Ocultar' ?>"
+                                            data-confirm="<?= $ocu ? '¿Volver a mostrar públicamente «' . e($p['nombre']) . '»?' : '¿Ocultar «' . e($p['nombre']) . '» de los listados públicos? (no se elimina)' ?>"
+                                            style="background:<?= $ocu ? 'rgba(245,158,11,.15)' : 'rgba(100,116,139,.1)' ?>;color:<?= $ocu ? '#F59E0B' : '#64748b' ?>;border:1px solid <?= $ocu ? 'rgba(245,158,11,.3)' : 'rgba(100,116,139,.25)' ?>">
+                                        <i class="bi bi-<?= $ocu ? 'eye-fill' : 'eye-slash' ?>"></i>
+                                    </button>
+                                </form>
 
                                 <form method="POST" action="<?= APP_URL ?>/admin/perfil/<?= (int)$p['id'] ?>/eliminar">
                                     <?= $csrfField ?>

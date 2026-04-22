@@ -235,7 +235,7 @@ class PerfilModel extends Model
      */
     public function listarIdsPublicos(array $filtros = [], int $limit = 500): array
     {
-        $where  = ["p.estado = 'publicado'"];
+        $where  = ["p.estado = 'publicado'", "p.oculta = 0"];
         $params = [];
 
         if (!empty($filtros['id_categoria'])) {
@@ -285,7 +285,7 @@ class PerfilModel extends Model
 
     public function listarPublicos(array $filtros = [], int $page = 1): array
     {
-        $where  = ["p.estado = 'publicado'"];
+        $where  = ["p.estado = 'publicado'", "p.oculta = 0"];
         $params = [];
 
         if (!empty($filtros['id_categoria'])) {

@@ -157,7 +157,8 @@ class PerfilesController extends Controller
         $esAdmin  = ($user['rol'] ?? '') === 'admin';
         $esDuenio = $user && (int)$user['id'] === (int)$perfil['id_usuario'];
 
-        if ($perfil['estado'] !== 'publicado' && !$esDuenio && !$esAdmin) {
+        $noVisible = $perfil['estado'] !== 'publicado' || !empty($perfil['oculta']);
+        if ($noVisible && !$esDuenio && !$esAdmin) {
             http_response_code(404);
             require VIEWS_PATH . '/partials/404.php';
             exit;
@@ -176,7 +177,7 @@ class PerfilesController extends Controller
              FROM perfiles p
              LEFT JOIN estados    e ON e.id = p.id_estado
              LEFT JOIN municipios m ON m.id = p.id_municipio
-             WHERE p.estado = 'publicado'
+             WHERE p.estado = 'publicado' AND p.oculta = 0
                AND p.id_categoria = ?
                AND p.id != ?
              ORDER BY p.destacado DESC, p.fecha_publicacion DESC

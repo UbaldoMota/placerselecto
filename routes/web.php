@@ -196,6 +196,7 @@ return [
     ['GET',  '/admin/perfil/{id}/video',      'AdminController', 'serveProfileVideo', ['auth', 'admin']],
     ['POST', '/admin/perfil/{id}/publicar',   'AdminController', 'publishProfile', ['auth', 'admin', 'csrf']],
     ['POST', '/admin/perfil/{id}/rechazar',   'AdminController', 'rejectProfile',  ['auth', 'admin', 'csrf']],
+    ['POST', '/admin/perfil/{id}/ocultar',    'AdminController', 'togglePerfilOculto', ['auth', 'admin', 'csrf']],
     ['POST', '/admin/perfil/{id}/eliminar',   'AdminController', 'deleteProfile',  ['auth', 'admin', 'csrf']],
 
     // Toggle sin-anticipo (usuario autenticado)

@@ -791,6 +791,49 @@ class AdminController extends Controller
         $this->redirect('/admin/perfiles');
     }
 
+    /**
+     * POST /admin/perfil/{id}/ocultar
+     * Toggle de visibilidad: oculta o muestra un perfil sin cambiar su estado.
+     */
+    public function togglePerfilOculto(array $params = []): void
+    {
+        $this->requireAdmin();
+
+        $id     = (int)($params['id'] ?? 0);
+        $perfil = $this->perfiles->find($id);
+
+        if (!$perfil) {
+            SessionManager::flash('error', 'Perfil no encontrado.');
+            $this->redirect('/admin/perfiles');
+        }
+
+        $nuevaOcul = empty($perfil['oculta']) ? 1 : 0;
+        $this->perfiles->update($id, ['oculta' => $nuevaOcul]);
+
+        if ($nuevaOcul === 1) {
+            $this->notifs->crear((int)$perfil['id_usuario'], [
+                'tipo'    => 'perfil_oculto',
+                'titulo'  => 'Tu perfil fue ocultado',
+                'mensaje' => '"' . mb_substr($perfil['nombre'], 0, 80) . '" ya no aparece en los listados públicos.',
+                'url'     => '/perfil/' . $id,
+                'icono'   => 'eye-slash-fill',
+                'color'   => 'warning',
+            ]);
+            SessionManager::flash('success', 'Perfil ocultado. Ya no aparece en listados públicos.');
+        } else {
+            $this->notifs->crear((int)$perfil['id_usuario'], [
+                'tipo'    => 'perfil_visible',
+                'titulo'  => 'Tu perfil es visible de nuevo',
+                'mensaje' => '"' . mb_substr($perfil['nombre'], 0, 80) . '" volvió a los listados públicos.',
+                'url'     => '/perfil/' . $id,
+                'icono'   => 'eye-fill',
+                'color'   => 'success',
+            ]);
+            SessionManager::flash('success', 'Perfil visible de nuevo.');
+        }
+        $this->redirect('/admin/perfiles');
+    }
+
     public function rejectDocument(array $params = []): void
     {
         $this->requireAdmin();
