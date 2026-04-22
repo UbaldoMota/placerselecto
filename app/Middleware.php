@@ -70,8 +70,10 @@ class Middleware
                     exit;
                 }
 
-                // Rotar token después de cada request POST exitoso
-                self::regenerateCsrfToken();
+                // NOTA: NO rotar token después de cada POST.
+                // La rotación agresiva rompía forms "espectadores" en la misma página
+                // (logout en navbar, comentarios, reportes, etc.) quedando con token viejo.
+                // El token se regenera por TTL (1h) o al cambiar la sesión (login/logout).
             }
 
             $next();

@@ -99,7 +99,8 @@
       "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -h 127.0.0.1 clasificados_adultos)",
       "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -h 127.0.0.1 -N -e 'ALTER TABLE perfiles ADD COLUMN oculta TINYINT\\(1\\) NOT NULL DEFAULT 0 AFTER estado' clasificados_adultos)",
       "Bash(/c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l app/views/admin/perfiles.php)",
-      "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -h 127.0.0.1 -N -e 'DESCRIBE reportes' clasificados_adultos)"
+      "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -h 127.0.0.1 -N -e 'DESCRIBE reportes' clasificados_adultos)",
+      "Bash(/c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l /c/laragon/www/Publicidad/app/Middleware.php)"
     ]
   }
 }

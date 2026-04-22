@@ -48,7 +48,7 @@ return [
 
     ['GET',  '/login',                   'AuthController',     'showLogin',       ['guest']],
     ['POST', '/login',                   'AuthController',     'login',           ['guest', 'csrf']],
-    ['POST', '/logout',                  'AuthController',     'logout',          ['auth']],
+    ['POST', '/logout',                  'AuthController',     'logout',          ['auth', 'csrf']],
     ['GET',  '/recuperar-password',      'AuthController',     'showRecover',     ['guest']],
     ['POST', '/recuperar-password',      'AuthController',     'recoverPassword', ['guest', 'csrf']],
 
