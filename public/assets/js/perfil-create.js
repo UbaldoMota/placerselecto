@@ -119,9 +119,15 @@
         const form     = document.querySelector("form[data-validate-form]");
         const hiddenIn = document.getElementById("descripcion");
         if (form && hiddenIn) {
-            form.addEventListener("submit", function () {
-                hiddenIn.value = quill.root.innerHTML;
-            });
+            // Sincronizar en tiempo real (cualquier cambio en Quill se refleja en el input)
+            function syncHidden() {
+                const text = quill.getText().trim();
+                hiddenIn.value = text === '' ? '' : quill.root.innerHTML;
+            }
+            quill.on('text-change', syncHidden);
+            // Sincronizar también justo antes del submit por si acaso
+            form.addEventListener("submit", syncHidden, { capture: true });
+            syncHidden();
         }
     }
 
