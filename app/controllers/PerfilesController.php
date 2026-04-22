@@ -910,11 +910,28 @@ class PerfilesController extends Controller
 
         $user = $this->currentUser();
         $db   = Database::getInstance()->getConnection();
-        $stmt = $db->prepare(
-            "INSERT INTO reportes (id_anuncio, id_perfil, id_usuario, motivo, descripcion, url_referencia, ip_reporte)
-             VALUES (NULL, ?, ?, ?, ?, ?, ?)"
-        );
-        $stmt->execute([$id, (int)$user['id'], $motivo, $desc, $urlRef, Security::getClientIp()]);
+
+        // Detectar si existe la columna url_referencia (migración pendiente en algunos entornos)
+        $tieneUrlRef = $db->query(
+            "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME   = 'reportes'
+                AND COLUMN_NAME  = 'url_referencia'"
+        )->fetchColumn() > 0;
+
+        if ($tieneUrlRef) {
+            $stmt = $db->prepare(
+                "INSERT INTO reportes (id_anuncio, id_perfil, id_usuario, motivo, descripcion, url_referencia, ip_reporte)
+                 VALUES (NULL, ?, ?, ?, ?, ?, ?)"
+            );
+            $stmt->execute([$id, (int)$user['id'], $motivo, $desc, $urlRef, Security::getClientIp()]);
+        } else {
+            $stmt = $db->prepare(
+                "INSERT INTO reportes (id_anuncio, id_perfil, id_usuario, motivo, descripcion, ip_reporte)
+                 VALUES (NULL, ?, ?, ?, ?, ?)"
+            );
+            $stmt->execute([$id, (int)$user['id'], $motivo, $desc, Security::getClientIp()]);
+        }
 
         (new NotificacionModel())->crearParaAdmins([
             'tipo'    => 'reporte_nuevo',
