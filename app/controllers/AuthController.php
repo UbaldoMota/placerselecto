@@ -51,7 +51,14 @@ class AuthController extends Controller
         SessionManager::delete('age_redirect');
 
         // Seguridad: nunca redirigir a un recurso/endpoint de fondo
-        if (str_starts_with($dest, '/img/') || str_starts_with($dest, '/api/')) {
+        if (str_starts_with($dest, '/img/')
+         || str_starts_with($dest, '/video/')
+         || str_starts_with($dest, '/api/')
+         || str_starts_with($dest, '/tile/')
+         || str_starts_with($dest, '/public/')
+         || str_starts_with($dest, '/assets/')
+         || str_starts_with($dest, '/sse/')
+         || preg_match('/\.(css|js|map|png|jpe?g|webp|gif|svg|ico|woff2?|ttf|eot|json|xml|txt)$/i', $dest)) {
             $dest = '/';
         }
 

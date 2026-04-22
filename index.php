@@ -113,14 +113,9 @@ $necesitaCamara = preg_match('#/verificar/(camara|video)$#', $uri)
                || $uri === '/verificacion/camara';
 header('Permissions-Policy: geolocation=(), microphone=()' . ($necesitaCamara ? ', camera=self' : ', camera=()'));
 
-// Content Security Policy (ajustar en producción)
-if (APP_ENV === 'production') {
-    header("Content-Security-Policy: default-src 'self'; " .
-           "script-src 'self' https://cdn.jsdelivr.net; " .
-           "style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; " .
-           "img-src 'self' data: blob:; " .
-           "font-src 'self' https://cdn.jsdelivr.net;");
-}
+// Content Security Policy permisivo (el hosting puede aplicar otro encima)
+// Ya no definimos uno restrictivo aquí; confiamos en el del hosting o en el proxy de tiles.
+
 
 // Remover cabeceras que revelan tecnología
 header_remove('X-Powered-By');
@@ -139,10 +134,16 @@ $currentUri = '/' . ltrim($currentUri ?: '/', '/');
 
 if (!SessionManager::get('age_verified') && !in_array($currentUri, $exemptAgeRoutes, true)) {
     // Guardar la URL de destino para redirigir tras confirmar edad.
-    // Excluir recursos/endpoints de fondo (/img/, /api/) — no son páginas navegables
-    // y sobreescribirían el destino real al hacerse en background (polling, etc.).
+    // Excluir recursos/endpoints de fondo y archivos estáticos — no son páginas navegables
+    // y sobreescribirían el destino real al hacerse en background (polling, preloads, etc.).
     $esRecurso = str_starts_with($currentUri, '/img/')
-              || str_starts_with($currentUri, '/api/');
+              || str_starts_with($currentUri, '/video/')
+              || str_starts_with($currentUri, '/api/')
+              || str_starts_with($currentUri, '/tile/')
+              || str_starts_with($currentUri, '/public/')
+              || str_starts_with($currentUri, '/assets/')
+              || str_starts_with($currentUri, '/sse/')
+              || preg_match('/\.(css|js|map|png|jpe?g|webp|gif|svg|ico|woff2?|ttf|eot|json|xml|txt)$/i', $currentUri);
 
     if (!$esRecurso) {
         SessionManager::set('age_redirect', $currentUri);
