@@ -1,0 +1,44 @@
+# Credenciales (cada entorno tiene su propio archivo)
+config/env.development.php
+config/env.production.php
+config/env.local.php
+
+# Logs
+logs/*.log
+logs/*.txt
+
+# Uploads (contenido de usuarios — no se versiona)
+uploads/anuncios/*
+uploads/videos/*
+uploads/verificaciones/*
+uploads/perfiles/*
+!uploads/**/.htaccess
+!uploads/**/index.html
+
+# Archivos temporales / de diagnóstico
+diagnostico.php
+debug.php
+check_bom.php
+dump_schema.php
+instalar.php
+schema_local.txt
+schema_server.txt
+config_server.php
+htaccess_server.txt
+config_bom.php
+*.bak
+*.old
+error.log
+error_log
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Backups locales
+Publicidad.zip
+*.zip
+*.tar.gz

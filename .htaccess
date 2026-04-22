@@ -1,0 +1,48 @@
+# .htaccess - Funciona en local (subdir Publicidad) y en producción (raíz dominio)
+
+Options -Indexes
+Options -MultiViews
+AddDefaultCharset UTF-8
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # No fijar RewriteBase: Apache infiere automáticamente
+    # En local (subdir) y en producción (raíz) ambos funcionan.
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+<FilesMatch "\.(env|env\.local\.php|env\.production\.php|env\.development\.php|log|sql|bak|sh|json|lock|md|htaccess|gitignore|gitattributes|yml)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteRule ^(app|config|logs|routes|\.git)/.*$ - [F,L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Inyectar unsafe-inline en CSP del hosting (sin fallar si no aplica)
+    Header edit Content-Security-Policy "script-src" "script-src 'unsafe-inline' 'unsafe-eval'"
+
+    Header set X-Frame-Options "DENY"
+    Header set X-Content-Type-Options "nosniff"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png  "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType text/css   "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+</IfModule>
+
+ServerSignature Off
