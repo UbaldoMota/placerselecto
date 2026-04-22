@@ -50,10 +50,10 @@
     });
 
     // ─── Barra de progreso al enviar ───
-    const form = btnSubir.closest('form');
+    const form = btnSubir ? btnSubir.closest('form') : document.querySelector('form[enctype="multipart/form-data"]');
     if (form) {
         form.addEventListener('submit', function(ev) {
-            if (archivos.files.length === 0) return;
+            if (!input.files || input.files.length === 0) return;
             ev.preventDefault();
             enviarConProgreso(form);
         });
