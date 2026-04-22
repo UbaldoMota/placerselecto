@@ -18,9 +18,11 @@
     const markAll   = document.getElementById('notif-mark-all');
     const bellBtn   = document.getElementById('notif-bell-btn');
 
-    const ENDPOINT   = window.APP_URL_JS + '/api/notificaciones/pendientes';
-    const CSRF_META  = document.querySelector('meta[name="csrf-token"]');
-    const CSRF_TOKEN = CSRF_META ? CSRF_META.getAttribute('content') : '';
+    const APP_URL_META = document.querySelector('meta[name="app-url"]');
+    const APP_URL      = APP_URL_META ? APP_URL_META.getAttribute('content') : '';
+    const ENDPOINT     = APP_URL + '/api/notificaciones/pendientes';
+    const CSRF_META    = document.querySelector('meta[name="csrf-token"]');
+    const CSRF_TOKEN   = CSRF_META ? CSRF_META.getAttribute('content') : '';
 
     const BASE_INTERVAL = 30000;  // 30s
     const MAX_INTERVAL  = 90000;  // 90s
@@ -110,7 +112,7 @@
         const title  = escapeHtml(n.titulo || '');
         const msg    = escapeHtml(n.mensaje || '');
         const when   = escapeHtml(n.tiempo_rel || '');
-        const href   = n.url ? window.APP_URL_JS + n.url : '#';
+        const href   = n.url ? APP_URL + n.url : '#';
 
         return `
 <a href="${href}" data-notif-id="${n.id}"
@@ -154,7 +156,7 @@
         try {
             const fd = new FormData();
             fd.append('_csrf_token', CSRF_TOKEN);
-            fetch(window.APP_URL_JS + '/notificacion/' + encodeURIComponent(id) + '/leer', {
+            fetch(APP_URL + '/notificacion/' + encodeURIComponent(id) + '/leer', {
                 method: 'POST',
                 body: fd,
                 credentials: 'same-origin',
@@ -169,7 +171,7 @@
         try {
             const fd = new FormData();
             fd.append('_csrf_token', CSRF_TOKEN);
-            const res = await fetch(window.APP_URL_JS + '/notificaciones/leer-todas', {
+            const res = await fetch(APP_URL + '/notificaciones/leer-todas', {
                 method: 'POST',
                 body: fd,
                 credentials: 'same-origin',

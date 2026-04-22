@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <meta name="csrf-token" content="<?= e(Middleware::generateCsrfToken()) ?>">
+    <meta name="app-url" content="<?= e(APP_URL) ?>">
 
     <title><?= e($pageTitle ?? 'Inicio') ?> | <?= e(APP_NAME) ?></title>
     <meta name="description" content="<?= e($pageDescription ?? 'Plataforma de clasificados para adultos. Solo mayores de 18 años.') ?>">
@@ -124,7 +125,6 @@
     <!-- Bootstrap JS -->
     <script src="<?= APP_URL ?>/public/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
     <!-- App JS -->
-    <script>window.APP_URL_JS = <?= json_encode(APP_URL) ?>;</script>
     <script src="<?= APP_URL ?>/public/assets/js/validation.js"></script>
     <script src="<?= APP_URL ?>/public/assets/js/app.js"></script>
     <?php if ($currentUser): ?>
