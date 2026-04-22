@@ -26,6 +26,7 @@ schema_server.txt
 config_server.php
 htaccess_server.txt
 config_bom.php
+.deploy-config
 *.bak
 *.old
 error.log

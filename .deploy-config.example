@@ -1,0 +1,7 @@
+REM Renombra este archivo a .deploy-config y rellena tus datos.
+REM .deploy-config esta en .gitignore por seguridad.
+
+set CPANEL_HOST=web2.viceshared.com:2083
+set CPANEL_USER=placerse
+set CPANEL_TOKEN=PEGA_TU_TOKEN_AQUI
+set REPO_PATH=/home/placerse/repositories/placerselecto

@@ -18,7 +18,7 @@
                     Perfiles para <span class="text-gradient">adultos</span> en México
                 </h1>
                 <p class="text-muted mb-3" style="font-size:.82rem">
-                    Plataforma segura, verificada y 100% discreta
+                    Plataforma segura, verificada y 100% discreta — TEST DEPLOY
                 </p>
                 <!-- Pills (debajo del texto, separadas de los botones) -->
                 <div class="d-flex flex-wrap gap-2">
