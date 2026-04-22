@@ -94,7 +94,8 @@
       "Bash(grep -n '_old_input\\\\|$old ' /c/laragon/www/Publicidad/app/controllers/PerfilesController.php)",
       "Bash(/c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l /c/laragon/www/Publicidad/app/controllers/ApiController.php)",
       "Bash(/c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l /c/laragon/www/Publicidad/index.php)",
-      "Bash(/c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l /c/laragon/www/Publicidad/app/controllers/AuthController.php)"
+      "Bash(/c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l /c/laragon/www/Publicidad/app/controllers/AuthController.php)",
+      "Bash(grep -n 'csrfField\\\\|$csrfField' /c/laragon/www/Publicidad/app/Controller.php)"
     ]
   }
 }
