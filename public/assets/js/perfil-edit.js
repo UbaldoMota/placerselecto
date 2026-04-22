@@ -103,15 +103,44 @@
     const btnEmoji = document.querySelector('.ql-emoji');
     if (btnEmoji) btnEmoji.innerHTML = '😊';
 
-    const form     = document.querySelector('form[data-validate-form]');
-    const hiddenIn = document.getElementById('descripcion');
+    const form       = document.querySelector('form[data-validate-form]');
+    const hiddenIn   = document.getElementById('descripcion');
+    const editorWrap = document.getElementById('descripcion-editor');
     if (form && hiddenIn) {
         function syncHidden() {
             const text = quill.getText().trim();
             hiddenIn.value = text === '' ? '' : quill.root.innerHTML;
+            hideError();
+        }
+        function showError(msg) {
+            if (editorWrap) editorWrap.style.border = '2px solid var(--color-danger,#dc3545)';
+            let err = document.getElementById('descripcion-error');
+            if (!err) {
+                err = document.createElement('div');
+                err.id = 'descripcion-error';
+                err.style.cssText = 'color:var(--color-danger,#dc3545);font-size:.78rem;margin-top:.35rem';
+                editorWrap?.parentElement?.insertBefore(err, editorWrap.nextSibling);
+            }
+            err.textContent = msg;
+        }
+        function hideError() {
+            if (editorWrap) editorWrap.style.border = '';
+            const err = document.getElementById('descripcion-error');
+            if (err) err.remove();
         }
         quill.on('text-change', syncHidden);
-        form.addEventListener('submit', syncHidden, { capture: true });
+        form.addEventListener('submit', function (ev) {
+            syncHidden();
+            const text = quill.getText().trim();
+            if (text.length < 10) {
+                ev.preventDefault();
+                ev.stopImmediatePropagation();
+                showError(text.length === 0
+                    ? 'La descripción es obligatoria.'
+                    : 'La descripción debe tener al menos 10 caracteres.');
+                editorWrap?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, { capture: true });
         syncHidden();
     }
 })();
