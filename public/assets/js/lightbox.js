@@ -36,16 +36,19 @@
     }
 
     document.addEventListener('click', function(ev){
-        const openEl = ev.target.closest('[data-lightbox-open]');
-        if (openEl) {
-            ev.preventDefault();
-            open(parseInt(openEl.dataset.lightboxOpen, 10));
-            return;
-        }
-        if (ev.target === lightboxEl) { close(); return; }
+        // Controles internos del lightbox
         if (ev.target.closest('[data-lightbox="close"]')) { close(); return; }
         const navEl = ev.target.closest('[data-lightbox-nav]');
-        if (navEl) nav(parseInt(navEl.dataset.lightboxNav, 10), ev);
+        if (navEl) { nav(parseInt(navEl.dataset.lightboxNav, 10), ev); return; }
+        if (ev.target === lightboxEl) { close(); return; }
+
+        // Abrir lightbox SOLO si no fue click en un botón/form/input dentro del item
+        const openEl = ev.target.closest('[data-lightbox-open]');
+        if (!openEl) return;
+        const interactive = ev.target.closest('button, a, form, input, label, select, [data-stop-propagation]');
+        if (interactive && openEl.contains(interactive)) return;
+        ev.preventDefault();
+        open(parseInt(openEl.dataset.lightboxOpen, 10));
     });
     document.addEventListener('keydown', function(e) {
         if (!lightboxEl.classList.contains('is-open')) return;
