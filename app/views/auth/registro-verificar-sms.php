@@ -46,6 +46,8 @@
 </style>
 
 
+<?php require VIEWS_PATH . '/partials/global-loader.php'; ?>
+
 <?php require VIEWS_PATH . '/partials/toasts.php'; ?>
 
 <div class="auth-card mx-3">
@@ -132,5 +134,6 @@
 <script src="<?= APP_URL ?>/public/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 <script src="<?= APP_URL ?>/public/assets/js/app.js"></script>
 <script src="<?= APP_URL ?>/public/assets/js/common.js"></script>
+<script src="<?= APP_URL ?>/public/assets/js/loader.js"></script>
 </body>
 </html>

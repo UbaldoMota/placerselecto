@@ -26,6 +26,9 @@
 <?php $showAgeGate = $GLOBALS['show_age_gate'] ?? false; ?>
 <body>
 
+    <!-- Global loader overlay -->
+    <?php require VIEWS_PATH . '/partials/global-loader.php'; ?>
+
     <!-- Toasts (flash messages — se cierran solo al hacer clic) -->
     <?php require VIEWS_PATH . '/partials/toasts.php'; ?>
 
@@ -128,6 +131,7 @@
     <script src="<?= APP_URL ?>/public/assets/js/validation.js"></script>
     <script src="<?= APP_URL ?>/public/assets/js/app.js"></script>
     <script src="<?= APP_URL ?>/public/assets/js/common.js"></script>
+    <script src="<?= APP_URL ?>/public/assets/js/loader.js"></script>
     <?php if ($currentUser): ?>
     <script src="<?= APP_URL ?>/public/assets/js/notifications.js" defer></script>
     <?php endif; ?>
