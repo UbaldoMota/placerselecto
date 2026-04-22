@@ -10,11 +10,11 @@ echo            DEPLOY PLACERSELECTO
 echo ================================================
 echo.
 
-if not exist ".deploy-config" (
-    echo [ERROR] Falta .deploy-config
+if not exist "deploy-config.bat" (
+    echo [ERROR] Falta deploy-config.bat
     pause & exit /b 1
 )
-call .deploy-config
+call deploy-config.bat
 
 echo Cambios detectados:
 echo ----------------------------------------------
