@@ -142,6 +142,48 @@ class ApiController extends Controller
     }
 
     // ---------------------------------------------------------
+    // GET /api/geosearch?q=xxx — Proxy de Nominatim (geocoding)
+    // Evade CSP connect-src que solo permite 'self'.
+    // ---------------------------------------------------------
+    public function geosearch(array $params = []): void
+    {
+        Security::setJsonHeaders();
+        $q = trim((string)($_GET['q'] ?? ''));
+        if ($q === '' || mb_strlen($q) > 200) {
+            $this->json(['success' => false, 'items' => []]);
+            return;
+        }
+
+        $url = 'https://nominatim.openstreetmap.org/search?'
+             . http_build_query([
+                 'q'            => $q,
+                 'format'       => 'json',
+                 'limit'        => 1,
+                 'countrycodes' => 'mx,us,co,ar,es,pe,ve,cl',
+             ]);
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_USERAGENT      => 'PlacerSelecto/1.0 (+' . APP_URL . ')',
+            CURLOPT_HTTPHEADER     => ['Accept-Language: es'],
+        ]);
+        $data = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($code !== 200 || !$data) {
+            $this->json(['success' => false, 'items' => []]);
+            return;
+        }
+
+        $items = json_decode($data, true) ?: [];
+        $this->json(['success' => true, 'items' => $items]);
+    }
+
+    // ---------------------------------------------------------
     // GET /tile/{z}/{x}/{y}  — Proxy de tiles OpenStreetMap
     // Sirve las imágenes desde el propio dominio para cumplir CSP img-src 'self'.
     // ---------------------------------------------------------

@@ -233,5 +233,7 @@ return [
 
     // Proxy de tiles OpenStreetMap — evade CSP img-src
     ['GET',  '/tile/{z}/{x}/{y}',        'ApiController',      'tile',         []],
+    // Proxy de Nominatim — evade CSP connect-src
+    ['GET',  '/api/geosearch',           'ApiController',      'geosearch',    []],
 
 ];

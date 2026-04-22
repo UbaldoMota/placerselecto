@@ -123,12 +123,11 @@
     function buscarZona() {
         const q = document.getElementById('mapSearch').value.trim();
         if (!q) return;
-        fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&limit=1&countrycodes=mx,us,co,ar,es,pe,ve,cl', {
-            headers: {'Accept-Language': 'es'}
-        })
+        fetch(tileBase + '/api/geosearch?q=' + encodeURIComponent(q))
         .then(r => r.json())
-        .then(data => {
-            if (data && data.length) {
+        .then(resp => {
+            const data = (resp && resp.items) || [];
+            if (data.length) {
                 const lat = parseFloat(data[0].lat).toFixed(7);
                 const lng = parseFloat(data[0].lon).toFixed(7);
                 setZona(lat, lng);
