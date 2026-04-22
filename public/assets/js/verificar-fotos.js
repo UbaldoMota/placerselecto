@@ -48,4 +48,55 @@
         dropZone.style.borderColor = 'var(--color-border)';
         mostrarPreviews(e.dataTransfer.files);
     });
+
+    // ─── Barra de progreso al enviar ───
+    const form = btnSubir.closest('form');
+    if (form) {
+        form.addEventListener('submit', function(ev) {
+            if (archivos.files.length === 0) return;
+            ev.preventDefault();
+            enviarConProgreso(form);
+        });
+    }
+
+    function enviarConProgreso(form) {
+        const wrap = crearBarraProgreso(form);
+        btnSubir.disabled = true;
+        btnSubir.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando…';
+
+        const fd  = new FormData(form);
+        const xhr = new XMLHttpRequest();
+        xhr.open(form.method || 'POST', form.action);
+        xhr.upload.addEventListener('progress', function(e) {
+            if (e.lengthComputable) {
+                const pct = Math.round((e.loaded / e.total) * 100);
+                wrap.bar.style.width = pct + '%';
+                wrap.lbl.textContent = pct + '%';
+            }
+        });
+        xhr.addEventListener('load', function() {
+            wrap.bar.style.width = '100%';
+            wrap.lbl.textContent = '100%';
+            window.location.href = xhr.responseURL || form.action;
+        });
+        xhr.addEventListener('error', function() {
+            wrap.wrap.remove();
+            btnSubir.disabled = false;
+            btnSubir.innerHTML = '<i class="bi bi-upload me-2"></i>Enviar fotos de verificación';
+            alert('Error al subir las fotos. Inténtalo de nuevo.');
+        });
+        xhr.send(fd);
+    }
+
+    function crearBarraProgreso(form) {
+        let wrap = document.getElementById('upload-progress');
+        if (wrap) wrap.remove();
+        wrap = document.createElement('div');
+        wrap.id = 'upload-progress';
+        wrap.style.cssText = 'margin-top:1rem';
+        wrap.innerHTML = '<div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.3rem"><span>Subiendo fotos…</span><span id="up-lbl">0%</span></div>'
+            + '<div style="height:8px;background:var(--color-bg-alt,#f1f3f5);border-radius:6px;overflow:hidden"><div id="up-bar" style="height:100%;width:0%;background:var(--color-primary);transition:width .2s"></div></div>';
+        form.appendChild(wrap);
+        return { wrap, bar: wrap.querySelector('#up-bar'), lbl: wrap.querySelector('#up-lbl') };
+    }
 })();
