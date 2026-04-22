@@ -54,6 +54,22 @@ SessionManager::delete('form_old');
 </head>
 <body>
 
+<a href="<?= APP_URL ?>" class="back-home-btn" title="Volver al inicio">
+    <i class="bi bi-arrow-left"></i>
+    <span>Inicio</span>
+</a>
+<style>
+.back-home-btn{position:fixed;top:1rem;left:1rem;display:inline-flex;align-items:center;gap:.4rem;
+    background:var(--color-bg-card,#fff);border:1px solid var(--color-border,#e5e5e5);
+    color:var(--color-text,#1a1a1a);text-decoration:none;font-size:.82rem;font-weight:500;
+    padding:.45rem .9rem;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.06);
+    transition:transform .15s,box-shadow .15s;z-index:100}
+.back-home-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.1);color:var(--color-primary)}
+.back-home-btn i{font-size:1rem}
+@media(max-width:576px){.back-home-btn span{display:none}.back-home-btn{padding:.5rem .6rem}}
+</style>
+
+
 <!-- Flash messages -->
 <?php require VIEWS_PATH . '/partials/toasts.php'; ?>
 
