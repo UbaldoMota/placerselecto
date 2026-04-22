@@ -93,5 +93,4 @@
         L.marker([lat, lng], {icon:ic}).addTo(m);
         setTimeout(() => m.invalidateSize(), 200);
     }
-    }
 })();
