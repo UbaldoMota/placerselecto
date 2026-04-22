@@ -2,6 +2,9 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/placerse/public_html/
+    - export REPOPATH=/home/placerse/repositories/placerselecto
+    - cd $REPOPATH && git fetch --all
+    - cd $REPOPATH && git reset --hard origin/main
     - /bin/cp -R app $DEPLOYPATH
     - /bin/cp -R config $DEPLOYPATH
     - /bin/cp -R public $DEPLOYPATH
