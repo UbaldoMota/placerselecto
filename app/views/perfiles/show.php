@@ -701,9 +701,9 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
                         <span class="ms-1" style="color:var(--color-primary)">· <?= (int)$perfil['zona_radio'] ?> km de radio</span>
                     </p>
                     <?php endif; ?>
-                    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+                    <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/leaflet/leaflet.css">
                     <div id="mapa-show" style="height:200px;border-radius:8px;overflow:hidden"></div>
-                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                    <script src="<?= APP_URL ?>/public/assets/vendor/leaflet/leaflet.js"></script>
                     <script>
                     (function(){
                         const m = L.map('mapa-show', {zoomControl:false, dragging:false, scrollWheelZoom:false, doubleClickZoom:false, touchZoom:false, keyboard:false, attributionControl:false})

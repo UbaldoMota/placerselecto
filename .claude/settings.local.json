@@ -65,7 +65,9 @@
       "Bash(xxd /c/laragon/www/Publicidad/config_server.php)",
       "Bash(/c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -r 'echo bin2hex\\(random_bytes\\(10\\)\\) . \"-Ps!\";')",
       "Bash(/c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -r 'echo password_hash\\('\\\\''__TRACKED_VAR__'\\\\'', PASSWORD_BCRYPT, ['\\\\''cost'\\\\'' => 12]\\);')",
-      "Bash(xxd /c/laragon/www/Publicidad/index.php)"
+      "Bash(xxd /c/laragon/www/Publicidad/index.php)",
+      "Bash(awk '/\\\\/\\\\* latin \\\\*\\\\//,/}/' inter.css)",
+      "Bash(cd *)"
     ]
   }
 }

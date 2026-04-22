@@ -6,8 +6,8 @@ $selEstadoId    = (int)($perfil['id_estado']    ?? 0);
 $selMunicipioId = (int)($perfil['id_municipio'] ?? 0);
 ?>
 <!-- Quill — CSS y JS en body (el layout no soporta extraCss antes de la vista) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css">
-<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+<link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/quill/quill.snow.css">
+<script src="<?= APP_URL ?>/public/assets/vendor/quill/quill.min.js"></script>
 <style>
 .ql-toolbar.ql-snow{background:#F5F5F5!important;border:1px solid #E5E5E5!important;border-bottom:none!important;padding:.45rem .6rem!important;border-radius:8px 8px 0 0!important}
 .ql-toolbar.ql-snow button{background:transparent!important;border:none!important}

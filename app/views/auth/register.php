@@ -13,8 +13,8 @@ SessionManager::delete('form_old');
     <meta name="robots" content="noindex, nofollow">
     <meta name="csrf-token" content="<?= e(Middleware::generateCsrfToken()) ?>">
     <title><?= e($pageTitle ?? 'Registro') ?> | <?= e(APP_NAME) ?></title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/bootstrap-icons/bootstrap-icons.min.css">
     <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/css/app.css">
     <style>
         body {
@@ -207,7 +207,7 @@ SessionManager::delete('form_old');
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= APP_URL ?>/public/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 <script src="<?= APP_URL ?>/public/assets/js/validation.js"></script>
 <script src="<?= APP_URL ?>/public/assets/js/app.js"></script>
 <script>

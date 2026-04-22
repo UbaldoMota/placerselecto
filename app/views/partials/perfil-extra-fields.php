@@ -25,7 +25,7 @@ $tieneEm = $vEm !== '';
 $tieneZona = $vLat !== '' && $vLng !== '';
 ?>
 <!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/leaflet/leaflet.css">
 
 <style>
 .contact-method{border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;transition:border-color .2s}
@@ -198,7 +198,7 @@ $tieneZona = $vLat !== '' && $vLng !== '';
 <!-- ══════════════════════════════════════════
      JS — Leaflet + lógica de contacto
 ══════════════════════════════════════════ -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="<?= APP_URL ?>/public/assets/vendor/leaflet/leaflet.js"></script>
 <script>
 (function(){
     /* ── Contact method toggles ── */
