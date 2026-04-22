@@ -78,7 +78,9 @@
             zoomControl:false, dragging:false, scrollWheelZoom:false,
             doubleClickZoom:false, touchZoom:false, keyboard:false, attributionControl:false
         }).setView([lat, lng], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(m);
+        const uM = document.querySelector('meta[name="app-url"]');
+        const tb = uM ? uM.getAttribute('content') : '';
+        L.tileLayer(tb + '/tile/{z}/{x}/{y}.png').addTo(m);
         L.circle([lat, lng], {
             radius: radio * 1000, color:'#FF2D75',
             fillColor:'#FF2D75', fillOpacity:.2, weight:2

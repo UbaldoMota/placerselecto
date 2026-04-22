@@ -90,7 +90,9 @@
       "Bash(mv /tmp/pvc.php app/views/perfiles/verificar-camara.php)",
       "Bash(head -321 app/views/ads/index.php)",
       "Bash(mv /tmp/adsix.php app/views/ads/index.php)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(grep -n '_old_input\\\\|$old ' /c/laragon/www/Publicidad/app/controllers/PerfilesController.php)",
+      "Bash(/c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l /c/laragon/www/Publicidad/app/controllers/ApiController.php)"
     ]
   }
 }

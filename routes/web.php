@@ -231,4 +231,7 @@ return [
     ['GET',  '/api/anuncio/{id}',        'ApiController',      'getAd',        []],
     ['POST', '/api/anuncio/{id}/like',   'ApiController',      'likeAd',       ['auth']],
 
+    // Proxy de tiles OpenStreetMap — evade CSP img-src
+    ['GET',  '/tile/{z}/{x}/{y}',        'ApiController',      'tile',         []],
+
 ];

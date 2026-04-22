@@ -140,4 +140,51 @@ class ApiController extends Controller
         Security::setJsonHeaders();
         $this->json(['success' => true, 'message' => 'Función disponible próximamente.']);
     }
+
+    // ---------------------------------------------------------
+    // GET /tile/{z}/{x}/{y}  — Proxy de tiles OpenStreetMap
+    // Sirve las imágenes desde el propio dominio para cumplir CSP img-src 'self'.
+    // ---------------------------------------------------------
+    public function tile(array $params = []): void
+    {
+        $z = (int)($params['z'] ?? -1);
+        $x = (int)($params['x'] ?? -1);
+        // "y" puede traer extensión ".png" — limpiarla
+        $yRaw = (string)($params['y'] ?? '');
+        $y = (int)preg_replace('/\.png$/', '', $yRaw);
+
+        // Validar rangos razonables
+        if ($z < 0 || $z > 19 || $x < 0 || $y < 0) {
+            http_response_code(400);
+            exit;
+        }
+
+        // Rotación de servidores a, b, c
+        $servers = ['a', 'b', 'c'];
+        $srv     = $servers[($x + $y) % 3];
+        $url     = "https://{$srv}.tile.openstreetmap.org/{$z}/{$x}/{$y}.png";
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_USERAGENT      => 'PlacerSelecto/1.0 (+' . APP_URL . ')',
+            CURLOPT_HTTPHEADER     => ['Referer: ' . APP_URL],
+        ]);
+        $data = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($code !== 200 || !$data) {
+            http_response_code(502);
+            exit;
+        }
+
+        header('Content-Type: image/png');
+        header('Cache-Control: public, max-age=86400'); // 24h
+        header('Content-Length: ' . strlen($data));
+        echo $data;
+        exit;
+    }
 }

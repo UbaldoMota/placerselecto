@@ -54,7 +54,9 @@
     function startMap() {
     const mapa = L.map('mapa-zona').setView([initLat, initLng], initZoom);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const urlMetaMap = document.querySelector('meta[name="app-url"]');
+    const tileBase   = urlMetaMap ? urlMetaMap.getAttribute('content') : '';
+    L.tileLayer(tileBase + '/tile/{z}/{x}/{y}.png', {
         attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
         maxZoom: 18
     }).addTo(mapa);
