@@ -21,11 +21,15 @@
         if (img) img.src = urls[current] || '';
         if (ctr) ctr.textContent = total > 1 ? (current + 1) + ' / ' + total : '';
         lightboxEl.classList.add('is-open');
+        document.body.classList.add('lightbox-open');
         document.querySelectorAll('.lightbox__nav').forEach(b => {
             b.style.display = total > 1 ? '' : 'none';
         });
     }
-    function close() { lightboxEl.classList.remove('is-open'); }
+    function close() {
+        lightboxEl.classList.remove('is-open');
+        document.body.classList.remove('lightbox-open');
+    }
     function nav(dir, e) {
         if (e) e.stopPropagation();
         current = (current + dir + total) % total;

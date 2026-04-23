@@ -13,7 +13,7 @@ $estadoMap = [
 ];
 [$estadoCls, $estadoLbl] = $estadoMap[$perfil['estado']] ?? ['', $perfil['estado']];
 
-// URLs para el lightbox — solo fotos de galería visibles (no ocultas)
+// URLs para el lightbox — galería visible + fotos de verificación (admin)
 $lightboxUrls = [];
 $lightboxMap  = []; // foto id => lightbox index
 foreach ($fotosGaleria as $f) {
@@ -25,6 +25,12 @@ foreach ($fotosGaleria as $f) {
 // Fallback si no hay fotos de galería visibles
 if (empty($lightboxUrls) && !empty($perfil['imagen_token'])) {
     $lightboxUrls = [APP_URL . '/img/' . $perfil['imagen_token']];
+}
+// Agregar fotos de verificación al mismo lightbox
+$verifMap = []; // foto id => lightbox index
+foreach ($fotosVer as $fv) {
+    $verifMap[$fv['id']] = count($lightboxUrls);
+    $lightboxUrls[]      = APP_URL . '/img/' . $fv['token'];
 }
 
 $tieneFotosVer = count($fotosVer) > 0;
@@ -423,12 +429,13 @@ $ambosListos   = $tieneFotosVer && $tieneVideoVer;
                 <div class="card-body" style="font-size:.83rem">
                     <?php if (!empty($fotosVer)): ?>
                         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:.5rem">
-                            <?php foreach ($fotosVer as $fv): ?>
-                            <a href="<?= APP_URL ?>/img/<?= e($fv['token']) ?>" target="_blank" rel="noopener">
-                                <img src="<?= APP_URL ?>/img/<?= e($fv['token']) ?>"
-                                     style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:1px solid var(--color-border)"
-                                     loading="lazy">
-                            </a>
+                            <?php foreach ($fotosVer as $fv):
+                                $vIdx = $verifMap[$fv['id']] ?? null;
+                            ?>
+                            <img src="<?= APP_URL ?>/img/<?= e($fv['token']) ?>"
+                                 style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:1px solid var(--color-border);cursor:zoom-in"
+                                 loading="lazy"
+                                 <?= $vIdx !== null ? 'data-lightbox-open="' . $vIdx . '"' : '' ?>>
                             <?php endforeach; ?>
                         </div>
                         <p class="text-muted mt-2 mb-0" style="font-size:.74rem">

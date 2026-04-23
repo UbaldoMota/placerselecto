@@ -1203,6 +1203,19 @@ h1, h2, h3, h4, h5, h6 {
     visibility: visible;
     opacity: 1;
     pointer-events: auto;
+    z-index: 10400; /* por encima del loader (10500 solo para redirecciones) */
+}
+/* Mientras el lightbox está abierto, bloquear scroll y hover del body */
+body.lightbox-open {
+    overflow: hidden;
+}
+body.lightbox-open .foto-galeria__item img,
+body.lightbox-open .foto-galeria--1 img,
+body.lightbox-open .foto-galeria__item:hover img,
+body.lightbox-open .foto-thumb img {
+    pointer-events: none;
+    transition: none !important;
+    opacity: 1 !important;
 }
 .lightbox__img {
     max-width: 100%;
