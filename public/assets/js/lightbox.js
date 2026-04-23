@@ -36,11 +36,14 @@
     }
 
     document.addEventListener('click', function(ev){
-        // Controles internos del lightbox
-        if (ev.target.closest('[data-lightbox="close"]')) { close(); return; }
-        const navEl = ev.target.closest('[data-lightbox-nav]');
-        if (navEl) { nav(parseInt(navEl.dataset.lightboxNav, 10), ev); return; }
-        if (ev.target === lightboxEl) { close(); return; }
+        // Si el click fue DENTRO del lightbox mismo
+        if (lightboxEl.contains(ev.target)) {
+            if (ev.target.closest('[data-lightbox="close"]')) { close(); ev.stopPropagation(); return; }
+            const navEl = ev.target.closest('[data-lightbox-nav]');
+            if (navEl) { nav(parseInt(navEl.dataset.lightboxNav, 10), ev); ev.stopPropagation(); return; }
+            if (ev.target === lightboxEl) { close(); ev.stopPropagation(); return; }
+            return; // click en la imagen dentro del lightbox — no hacer nada
+        }
 
         // Abrir lightbox SOLO si no fue click en un botón/form/input dentro del item
         const openEl = ev.target.closest('[data-lightbox-open]');
@@ -48,6 +51,7 @@
         const interactive = ev.target.closest('button, a, form, input, label, select, [data-stop-propagation]');
         if (interactive && openEl.contains(interactive)) return;
         ev.preventDefault();
+        ev.stopPropagation();
         open(parseInt(openEl.dataset.lightboxOpen, 10));
     });
     document.addEventListener('keydown', function(e) {
