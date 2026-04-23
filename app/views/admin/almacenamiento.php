@@ -2,7 +2,8 @@
 /** @var array $resumen @var array $total @var array $top
  *  @var int $limitMb @var int $warnPct @var int $limitB @var float $usedPct
  *  @var bool $isWarn @var bool $isOver
- *  @var string $catFilter @var array $archivos */
+ *  @var string $catFilter @var array $archivos
+ *  @var int $totalArchivos @var int $paginaActual @var int $totalPaginas @var int $perPage */
 ?>
 <div class="container-fluid px-4 py-4" style="max-width:1200px">
 
@@ -157,10 +158,20 @@
         $imgExts = ['jpg','jpeg','png','webp','gif'];
         $vidExts = ['mp4','webm','mov'];
     ?>
+    <?php
+        // Rango mostrado actualmente
+        $desde = $totalArchivos > 0 ? (($paginaActual - 1) * $perPage) + 1 : 0;
+        $hasta = min($paginaActual * $perPage, $totalArchivos);
+    ?>
     <!-- Header con toggle lista/galería -->
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
         <h2 class="h6 fw-bold mb-0" style="text-transform:uppercase;letter-spacing:.06em;font-size:.82rem">
-            <?= e($label) ?> — <?= number_format(count($archivos)) ?> archivos
+            <?= e($label) ?> — <?= number_format($totalArchivos) ?> archivos
+            <?php if ($totalPaginas > 1): ?>
+                <span class="text-muted fw-normal" style="text-transform:none;letter-spacing:0">
+                    · mostrando <?= number_format($desde) ?>–<?= number_format($hasta) ?>
+                </span>
+            <?php endif; ?>
         </h2>
         <div class="d-flex gap-2">
             <div class="btn-group" role="group">
@@ -258,6 +269,8 @@
     <script src="<?= APP_URL ?>/public/assets/js/storage-lb.js" defer></script>
     <?php endif; ?>
 
+    <?php require VIEWS_PATH . '/admin/_storage-pagination.php'; ?>
+
     <?php else: ?>
     <!-- LISTA -->
     <div class="card">
@@ -296,6 +309,9 @@
             </table>
         </div>
     </div>
+
+    <?php require VIEWS_PATH . '/admin/_storage-pagination.php'; ?>
+
     <?php endif; ?>
     <?php endif; ?>
 

@@ -51,8 +51,25 @@ class StorageScannerModel
         return ['files' => $files, 'bytes' => $bytes];
     }
 
-    /** Listado de archivos de una categoría, ordenados por tamaño DESC. */
-    public function listar(string $categoria, int $limit = 200): array
+    /**
+     * Listado de archivos de una categoría, ordenados por tamaño DESC.
+     * Sin paginación cuando $offset=0 y $limit=0 (compatibilidad retro).
+     */
+    public function listar(string $categoria, int $limit = 0, int $offset = 0): array
+    {
+        $list = $this->listarTodo($categoria);
+        if ($limit <= 0 && $offset <= 0) return $list;
+        return array_slice($list, max(0, $offset), $limit > 0 ? $limit : null);
+    }
+
+    /** Total de archivos de una categoría (para paginación). */
+    public function contarCategoria(string $categoria): int
+    {
+        return count($this->listarTodo($categoria));
+    }
+
+    /** Helper interno: todos los archivos de la categoría ordenados por tamaño DESC. */
+    private function listarTodo(string $categoria): array
     {
         if (!isset(self::CATEGORIAS[$categoria])) return [];
         $meta = self::CATEGORIAS[$categoria];
@@ -63,7 +80,6 @@ class StorageScannerModel
         $it = new DirectoryIterator($dir);
         foreach ($it as $f) {
             if ($f->isDot() || !$f->isFile()) continue;
-            // Excluir .htaccess y ocultos
             if (str_starts_with($f->getFilename(), '.')) continue;
             $list[] = [
                 'nombre' => $f->getFilename(),
@@ -73,7 +89,7 @@ class StorageScannerModel
             ];
         }
         usort($list, fn($a, $b) => $b['bytes'] <=> $a['bytes']);
-        return array_slice($list, 0, $limit);
+        return $list;
     }
 
     /** Los N archivos más grandes del sistema. */

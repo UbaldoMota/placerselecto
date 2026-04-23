@@ -1753,25 +1753,41 @@ class AdminController extends Controller
 
         $categoriaFilter = $this->getParam('cat', '');
         $vista   = $this->getParam('vista', 'lista'); // lista | galeria
-        $archivos = [];
+
+        // Paginación: 60 en galería (grid), 100 en lista (tabla).
+        $perPage    = $vista === 'galeria' ? 60 : 100;
+        $pageParam  = max(1, (int)$this->getParam('page', '1'));
+        $archivos   = [];
+        $totalArchivos = 0;
+        $totalPaginas  = 1;
+
         if ($categoriaFilter && isset(StorageScannerModel::CATEGORIAS[$categoriaFilter])) {
-            $archivos = $scanner->listar($categoriaFilter, 300);
+            $totalArchivos = $scanner->contarCategoria($categoriaFilter);
+            $totalPaginas  = max(1, (int)ceil($totalArchivos / $perPage));
+            $page          = min($pageParam, $totalPaginas);
+            $offset        = ($page - 1) * $perPage;
+            $archivos      = $scanner->listar($categoriaFilter, $perPage, $offset);
+            $pageParam     = $page;
         }
 
         $this->render('admin/almacenamiento', [
-            'pageTitle' => 'Almacenamiento',
-            'resumen'   => $resumen,
-            'total'     => $total,
-            'top'       => $top,
-            'limitMb'   => $limitMb,
-            'warnPct'   => $warnPct,
-            'limitB'    => $limitB,
-            'usedPct'   => $usedPct,
-            'isWarn'    => $isWarn,
-            'isOver'    => $isOver,
-            'catFilter' => $categoriaFilter,
-            'vista'     => $vista,
-            'archivos'  => $archivos,
+            'pageTitle'     => 'Almacenamiento',
+            'resumen'       => $resumen,
+            'total'         => $total,
+            'top'           => $top,
+            'limitMb'       => $limitMb,
+            'warnPct'       => $warnPct,
+            'limitB'        => $limitB,
+            'usedPct'       => $usedPct,
+            'isWarn'        => $isWarn,
+            'isOver'        => $isOver,
+            'catFilter'     => $categoriaFilter,
+            'vista'         => $vista,
+            'archivos'      => $archivos,
+            'totalArchivos' => $totalArchivos,
+            'paginaActual'  => $pageParam,
+            'totalPaginas'  => $totalPaginas,
+            'perPage'       => $perPage,
         ]);
     }
 
