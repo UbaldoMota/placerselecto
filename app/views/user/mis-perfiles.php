@@ -158,7 +158,7 @@ $docRechazado     = $docEstado === 'rechazado';
     <div class="row g-4">
         <?php foreach ($perfiles as $p):
             $imgUrl = !empty($p['imagen_token'])
-                ? APP_URL . '/img/' . $p['imagen_token']
+                ? APP_URL . '/img/' . $p['imagen_token'] . '?size=thumb'
                 : null;
 
             $estadoMap = [

@@ -35,7 +35,7 @@ $disponibles     = $maxFotos - $yaSubidas;
         <?php $esPrincipal = (int)$f['orden'] === 0; ?>
         <div class="foto-thumb <?= $esPrincipal ? 'foto-thumb--principal' : '' ?>"
              id="db-foto-<?= (int)$f['id'] ?>">
-            <img src="<?= APP_URL ?>/img/<?= e($f['token']) ?>" alt="Foto">
+            <img src="<?= APP_URL ?>/img/<?= e($f["token"]) ?>?size=thumb" alt="Foto">
 
             <!-- Botón eliminar -->
             <button type="button"

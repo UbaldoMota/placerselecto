@@ -103,7 +103,7 @@ $confTotal   = count($confiabilidad['indicadores'] ?? []);
                                 <tbody>
                                     <?php foreach (array_slice($misPerfiles, 0, 5) as $p):
                                         $imgUrl = !empty($p['imagen_token'])
-                                            ? APP_URL . '/img/' . $p['imagen_token']
+                                            ? APP_URL . '/img/' . $p['imagen_token'] . '?size=thumb'
                                             : null;
                                         $estadoMap = [
                                             'pendiente' => ['badge-pendiente','En revisión'],

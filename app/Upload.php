@@ -113,8 +113,94 @@ class Upload
         // 12. Establecer permisos restrictivos
         chmod($destPath, 0644);
 
+        // 13. Generar variantes (thumb 300, medium 800) + WebP de cada una
+        $this->generateVariants($destPath, $mimeType);
+
         $this->savedFilename = $filename;
         return true;
+    }
+
+    /**
+     * Genera thumbnails 300 / 800 y una versión WebP de cada tamaño.
+     * Se escriben al lado del archivo original con sufijo:
+     *   {stem}_thumb.{ext}   (~300px largo lado)
+     *   {stem}_thumb.webp
+     *   {stem}_medium.{ext}  (~800px largo lado)
+     *   {stem}_medium.webp
+     *   {stem}.webp          (full en webp — mismo tamaño que el original)
+     */
+    private function generateVariants(string $fullPath, string $mimeType): void
+    {
+        $info = @getimagesize($fullPath);
+        if ($info === false) return;
+        [$w, $h] = $info;
+
+        $dir  = dirname($fullPath);
+        $stem = pathinfo($fullPath, PATHINFO_FILENAME);
+
+        $src = match ($mimeType) {
+            'image/jpeg' => @imagecreatefromjpeg($fullPath),
+            'image/png'  => @imagecreatefrompng($fullPath),
+            'image/webp' => @imagecreatefromwebp($fullPath),
+            default      => null,
+        };
+        if (!$src) return;
+
+        // WebP del original (mismo tamaño). Si ya era webp, no duplicamos.
+        if ($mimeType !== 'image/webp' && function_exists('imagewebp')) {
+            @imagewebp($src, $dir . '/' . $stem . '.webp', 82);
+        }
+
+        // Variantes
+        $variantes = ['thumb' => 300, 'medium' => 800];
+        $ext = pathinfo($fullPath, PATHINFO_EXTENSION);
+
+        foreach ($variantes as $nombre => $maxLado) {
+            $escala = min($maxLado / $w, $maxLado / $h, 1);
+            if ($escala >= 1) {
+                // Imagen ya es menor que el tamaño — copiar original como variante
+                @copy($fullPath, $dir . '/' . $stem . '_' . $nombre . '.' . $ext);
+                if ($mimeType !== 'image/webp' && function_exists('imagewebp')) {
+                    @imagewebp($src, $dir . '/' . $stem . '_' . $nombre . '.webp', 82);
+                }
+                continue;
+            }
+
+            $nw = (int)round($w * $escala);
+            $nh = (int)round($h * $escala);
+            $dst = imagecreatetruecolor($nw, $nh);
+
+            // Preservar transparencia en PNG/WEBP
+            if ($mimeType === 'image/png' || $mimeType === 'image/webp') {
+                imagealphablending($dst, false);
+                imagesavealpha($dst, true);
+                $transparent = imagecolorallocatealpha($dst, 0, 0, 0, 127);
+                imagefilledrectangle($dst, 0, 0, $nw, $nh, $transparent);
+            }
+
+            imagecopyresampled($dst, $src, 0, 0, 0, 0, $nw, $nh, $w, $h);
+
+            // Guardar en formato original
+            $outOrig = $dir . '/' . $stem . '_' . $nombre . '.' . $ext;
+            match ($mimeType) {
+                'image/jpeg' => @imagejpeg($dst, $outOrig, 82),
+                'image/png'  => @imagepng($dst, $outOrig, 6),
+                'image/webp' => @imagewebp($dst, $outOrig, 82),
+                default      => null,
+            };
+            @chmod($outOrig, 0644);
+
+            // Guardar también en WebP (si no era ya)
+            if ($mimeType !== 'image/webp' && function_exists('imagewebp')) {
+                $outWebp = $dir . '/' . $stem . '_' . $nombre . '.webp';
+                @imagewebp($dst, $outWebp, 80);
+                @chmod($outWebp, 0644);
+            }
+
+            imagedestroy($dst);
+        }
+
+        imagedestroy($src);
     }
 
     /**

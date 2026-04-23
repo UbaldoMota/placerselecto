@@ -84,7 +84,7 @@ $buscar = $filtros['buscar'] ?? '';
                     <?php else: ?>
                     <?php foreach ($perfiles as $p):
                         $imgUrl = !empty($p['imagen_token'])
-                            ? APP_URL . '/img/' . $p['imagen_token']
+                            ? APP_URL . '/img/' . $p['imagen_token'] . '?size=thumb'
                             : null;
                     ?>
                     <tr>

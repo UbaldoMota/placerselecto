@@ -51,7 +51,7 @@ $idMunicipio  = (int)($filtros['id_municipio'] ?? 0);
     ?>
     <div class="perfil-list">
         <?php foreach ($perfiles as $p):
-            $imgUrl = !empty($p['imagen_token']) ? APP_URL . '/img/' . $p['imagen_token'] : null;
+            $imgUrl = !empty($p['imagen_token']) ? APP_URL . '/img/' . $p['imagen_token'] . '?size=medium' : null;
             $descTxt = trim(strip_tags($p['descripcion'] ?? ''));
             $descCorta = mb_strlen($descTxt) > 180 ? mb_substr($descTxt, 0, 180) . '…' : $descTxt;
             $tieneWA = !empty($p['whatsapp']);

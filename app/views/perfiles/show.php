@@ -521,7 +521,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
                 <div class="row g-3">
                     <?php foreach ($relacionados as $rel):
                         $relImg = !empty($rel['imagen_token'])
-                            ? APP_URL . '/img/' . $rel['imagen_token']
+                            ? APP_URL . '/img/' . $rel['imagen_token'] . '?size=thumb'
                             : null;
                     ?>
                     <div class="col-6 col-sm-3">

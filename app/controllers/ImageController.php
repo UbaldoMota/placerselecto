@@ -100,9 +100,21 @@ class ImageController extends Controller
 
         // 4. Construir ruta física (solo basename — anti path-traversal)
         $filename = basename($foto['nombre_archivo']);
-        $path     = UPLOADS_PATH . '/anuncios/' . $filename;
+        $baseDir  = UPLOADS_PATH . '/anuncios/';
 
-        if (!file_exists($path) || !is_file($path)) {
+        // 4a. Tamaño pedido: ?size=thumb|medium|full (default: full)
+        $size = strtolower((string)($_GET['size'] ?? 'full'));
+        if (!in_array($size, ['thumb', 'medium', 'full'], true)) {
+            $size = 'full';
+        }
+
+        // 4b. ¿Cliente acepta WebP?
+        $accept    = strtolower($_SERVER['HTTP_ACCEPT'] ?? '');
+        $wantsWebp = str_contains($accept, 'image/webp');
+
+        // 4c. Buscar variante con fallback en cascada
+        $path = $this->resolveImageVariant($baseDir, $filename, $size, $wantsWebp);
+        if (!$path) {
             $this->abort(404);
         }
 
@@ -116,18 +128,58 @@ class ImageController extends Controller
             $this->abort(415);
         }
 
-        // 6. Cabeceras de seguridad
-        header('Content-Type: '      . $mimeType);
-        header('Content-Length: '    . filesize($path));
-        header('Cache-Control: private, max-age=7200');
+        // 6. Conditional GET con ETag — si el cliente ya tiene esa versión, 304
+        $etag = '"' . md5($token . ':' . $size . ':' . filemtime($path) . ':' . filesize($path)) . '"';
+        if (($_SERVER['HTTP_IF_NONE_MATCH'] ?? '') === $etag) {
+            header('ETag: ' . $etag);
+            header('Cache-Control: public, max-age=31536000, immutable');
+            http_response_code(304);
+            exit;
+        }
+
+        // 7. Cabeceras (el token es único e inmutable → cache agresivo 1 año)
+        header('Content-Type: '   . $mimeType);
+        header('Content-Length: ' . filesize($path));
+        header('Cache-Control: public, max-age=31536000, immutable');
+        header('ETag: ' . $etag);
+        header('Vary: Accept');
         header('X-Content-Type-Options: nosniff');
         header('X-Frame-Options: DENY');
-        // No exponer nombre real — usar nombre genérico
         header('Content-Disposition: inline; filename="foto.jpg"');
 
-        // Evitar que el layout se inyecte
         readfile($path);
         exit;
+    }
+
+    /**
+     * Resuelve la variante a servir con fallback en cascada:
+     *  1. {stem}_{size}.webp (si cliente acepta webp y variante existe)
+     *  2. {stem}_{size}.{ext} (variante en formato original)
+     *  3. {stem}.webp (full en webp)
+     *  4. {stem}.{ext} (archivo original tal cual)
+     */
+    private function resolveImageVariant(string $baseDir, string $filename, string $size, bool $wantsWebp): ?string
+    {
+        $ext    = pathinfo($filename, PATHINFO_EXTENSION);
+        $stem   = pathinfo($filename, PATHINFO_FILENAME);
+        $sufijo = $size === 'full' ? '' : '_' . $size;
+
+        $candidatos = [];
+        if ($wantsWebp && $sufijo !== '') {
+            $candidatos[] = $baseDir . $stem . $sufijo . '.webp';
+        }
+        if ($sufijo !== '') {
+            $candidatos[] = $baseDir . $stem . $sufijo . '.' . $ext;
+        }
+        if ($wantsWebp) {
+            $candidatos[] = $baseDir . $stem . '.webp';
+        }
+        $candidatos[] = $baseDir . $filename;
+
+        foreach ($candidatos as $p) {
+            if (is_file($p)) return $p;
+        }
+        return null;
     }
 
     /**

@@ -146,7 +146,7 @@
         <div class="row g-3">
             <?php foreach ($perfiles as $p):
                 $imgUrl = !empty($p['imagen_token'])
-                    ? APP_URL . '/img/' . $p['imagen_token']
+                    ? APP_URL . '/img/' . $p['imagen_token'] . '?size=medium'
                     : null;
             ?>
             <div class="col-6 col-sm-4 col-md-3">
