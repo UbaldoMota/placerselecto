@@ -9,6 +9,13 @@
     const urlsData   = document.getElementById('lightbox-data');
     if (!lightboxEl || !urlsData) return;
 
+    // Reubicar el lightbox a <body> para escapar stacking contexts creados por
+    // ancestros con transform/filter/backdrop-filter (p. ej. .card:hover con translateY).
+    // Sin esto, el "position: fixed" queda confinado al card en lugar del viewport.
+    if (lightboxEl.parentElement !== document.body) {
+        document.body.appendChild(lightboxEl);
+    }
+
     let urls;
     try { urls = JSON.parse(urlsData.textContent || '[]'); } catch (_) { urls = []; }
     const total = urls.length;

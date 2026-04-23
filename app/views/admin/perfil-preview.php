@@ -203,17 +203,6 @@ $ambosListos   = $tieneFotosVer && $tieneVideoVer;
                 </div>
                 <?php endif; ?>
 
-                <!-- Lightbox -->
-                <div id="lightbox" class="lightbox">
-                    <button class="lightbox__close" data-lightbox="close" title="Cerrar">&times;</button>
-                    <button class="lightbox__nav lightbox__prev" data-lightbox-nav="-1" title="Anterior">&#8249;</button>
-                    <img id="lightbox-img" class="lightbox__img" src="" alt="">
-                    <button class="lightbox__nav lightbox__next" data-lightbox-nav="1" title="Siguiente">&#8250;</button>
-                    <div class="lightbox__counter" id="lightbox-counter"></div>
-                </div>
-                <script id="lightbox-data" type="application/json"><?= json_encode(array_values($lightboxUrls)) ?></script>
-                <script src="<?= APP_URL ?>/public/assets/js/lightbox.js" defer></script>
-
                 <div class="card-body p-4">
                     <!-- Meta -->
                     <div class="d-flex flex-wrap gap-3 mb-3" style="font-size:.8rem">
@@ -540,3 +529,14 @@ $ambosListos   = $tieneFotosVer && $tieneVideoVer;
         </div>
     </div>
 </div>
+
+<!-- Lightbox (fuera del container para escapar stacking contexts de cards con transform) -->
+<div id="lightbox" class="lightbox">
+    <button class="lightbox__close" data-lightbox="close" title="Cerrar">&times;</button>
+    <button class="lightbox__nav lightbox__prev" data-lightbox-nav="-1" title="Anterior">&#8249;</button>
+    <img id="lightbox-img" class="lightbox__img" src="" alt="">
+    <button class="lightbox__nav lightbox__next" data-lightbox-nav="1" title="Siguiente">&#8250;</button>
+    <div class="lightbox__counter" id="lightbox-counter"></div>
+</div>
+<script id="lightbox-data" type="application/json"><?= json_encode(array_values($lightboxUrls)) ?></script>
+<script src="<?= APP_URL ?>/public/assets/js/lightbox.js" defer></script>
