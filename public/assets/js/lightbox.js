@@ -35,24 +35,24 @@
         if (ctr) ctr.textContent = (current + 1) + ' / ' + total;
     }
 
-    document.addEventListener('click', function(ev){
-        // Si el click fue DENTRO del lightbox mismo
-        if (lightboxEl.contains(ev.target)) {
-            if (ev.target.closest('[data-lightbox="close"]')) { close(); ev.stopPropagation(); return; }
-            const navEl = ev.target.closest('[data-lightbox-nav]');
-            if (navEl) { nav(parseInt(navEl.dataset.lightboxNav, 10), ev); ev.stopPropagation(); return; }
-            if (ev.target === lightboxEl) { close(); ev.stopPropagation(); return; }
-            return; // click en la imagen dentro del lightbox — no hacer nada
-        }
+    // Listener SOLO en los triggers específicos (no global) — evita conflictos con otros scripts
+    document.querySelectorAll('[data-lightbox-open]').forEach(el => {
+        el.addEventListener('click', function(ev){
+            const interactive = ev.target.closest('button, a, form, input, label, select, [data-stop-propagation]');
+            if (interactive && el.contains(interactive)) return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            open(parseInt(el.dataset.lightboxOpen, 10));
+        });
+    });
 
-        // Abrir lightbox SOLO si no fue click en un botón/form/input dentro del item
-        const openEl = ev.target.closest('[data-lightbox-open]');
-        if (!openEl) return;
-        const interactive = ev.target.closest('button, a, form, input, label, select, [data-stop-propagation]');
-        if (interactive && openEl.contains(interactive)) return;
-        ev.preventDefault();
+    // Controles dentro del lightbox
+    lightboxEl.addEventListener('click', function(ev){
         ev.stopPropagation();
-        open(parseInt(openEl.dataset.lightboxOpen, 10));
+        if (ev.target.closest('[data-lightbox="close"]')) { close(); return; }
+        const navEl = ev.target.closest('[data-lightbox-nav]');
+        if (navEl) { nav(parseInt(navEl.dataset.lightboxNav, 10), ev); return; }
+        if (ev.target === lightboxEl) { close(); return; }
     });
     document.addEventListener('keydown', function(e) {
         if (!lightboxEl.classList.contains('is-open')) return;
