@@ -44,23 +44,78 @@
             estadoCamara.style.display = 'flex';
             estadoCamara.innerHTML = '<div class="spinner-border text-secondary" style="width:2rem;height:2rem"></div><span style="font-size:.85rem">Solicitando acceso a la cámara…</span>';
         }
+
+        // Comprobaciones previas — iOS/Android ignoran getUserMedia sin HTTPS
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            mostrarAlertaError('Tu navegador no soporta acceso a la cámara. Usa un navegador actualizado (Chrome, Safari, Edge).');
+            return;
+        }
+        if (!window.isSecureContext) {
+            mostrarAlertaError('Se requiere conexión HTTPS para acceder a la cámara.');
+            return;
+        }
+
+        // Constraint con facingMode para móviles — pide cámara frontal
+        const constraints = {
+            video: {
+                facingMode: { ideal: 'user' },
+                width:  { ideal: 1280 },
+                height: { ideal: 720 }
+            },
+            audio: false
+        };
+
         try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-            if (estadoCamara) estadoCamara.style.display = 'none';
-            videoEl.style.display = 'block';
-            videoEl.srcObject     = stream;
-            btnActivar.style.display = 'none';
-            btnIniciar.style.display = 'inline-flex';
-        } catch (err) {
-            btnActivar.disabled = false;
-            btnActivar.innerHTML = '<i class="bi bi-camera-video me-2"></i>Activar cámara';
-            if (estadoCamara) {
-                estadoCamara.innerHTML = '<i class="bi bi-camera-video-off" style="font-size:3rem;color:#555"></i><span style="font-size:.85rem;color:#888">Haz clic en "Activar cámara" para continuar</span>';
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+        } catch (err1) {
+            // Fallback: sin facingMode (puede fallar en escritorio sin cam frontal)
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            } catch (err2) {
+                const msg = interpretarErrorCamara(err2);
+                mostrarAlertaError(msg);
+                return;
             }
-            if (alertaCamara) {
-                alertaCamara.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i><strong>No fue posible acceder a la cámara.</strong> Acepta el permiso cuando el navegador lo pida y vuelve a intentarlo.';
-                alertaCamara.style.display = 'block';
-            }
+        }
+
+        if (estadoCamara) estadoCamara.style.display = 'none';
+        videoEl.style.display = 'block';
+        videoEl.setAttribute('playsinline', '');
+        videoEl.setAttribute('muted', '');
+        videoEl.muted = true;
+        videoEl.srcObject = stream;
+        try { await videoEl.play(); } catch (_) { /* algunos browsers ya autoplay */ }
+        btnActivar.style.display = 'none';
+        btnIniciar.style.display = 'inline-flex';
+    }
+
+    function mostrarAlertaError(msg) {
+        btnActivar.disabled = false;
+        btnActivar.innerHTML = '<i class="bi bi-camera-video me-2"></i>Activar cámara';
+        if (estadoCamara) {
+            estadoCamara.innerHTML = '<i class="bi bi-camera-video-off" style="font-size:3rem;color:#555"></i><span style="font-size:.85rem;color:#888">Haz clic en "Activar cámara" para continuar</span>';
+        }
+        if (alertaCamara) {
+            alertaCamara.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i>' + msg;
+            alertaCamara.style.display = 'block';
+        }
+    }
+
+    function interpretarErrorCamara(err) {
+        const name = err && err.name ? err.name : '';
+        switch (name) {
+            case 'NotAllowedError':
+            case 'SecurityError':
+                return '<strong>Permiso denegado.</strong> Da acceso a la cámara desde la configuración del navegador y recarga la página.';
+            case 'NotFoundError':
+            case 'OverconstrainedError':
+                return '<strong>No se encontró cámara.</strong> Verifica que tu dispositivo tenga cámara frontal disponible.';
+            case 'NotReadableError':
+                return '<strong>Cámara ocupada.</strong> Otra app puede estar usándola. Ciérrala y vuelve a intentar.';
+            case 'AbortError':
+                return 'La activación fue interrumpida. Vuelve a intentar.';
+            default:
+                return '<strong>No fue posible acceder a la cámara.</strong> Acepta el permiso cuando el navegador lo pida. (' + (err.message || name) + ')';
         }
     }
 
