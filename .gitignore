@@ -44,3 +44,4 @@ Thumbs.db
 Publicidad.zip
 *.zip
 *.tar.gz
+env_production_server.php
