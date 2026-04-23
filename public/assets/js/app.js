@@ -310,6 +310,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         document.querySelectorAll('form[data-upload-form]').forEach(function(form){
             form.addEventListener('submit', function(ev){
+                // Si otro handler (ej. validation.js) ya bloqueó el submit,
+                // NO enviar por XHR — el formulario es inválido.
+                if (ev.defaultPrevented) return;
+
                 // Solo interceptar si hay archivos (foto o video) seleccionados
                 var files = form.querySelectorAll('input[type="file"]');
                 var hasFile = false;
