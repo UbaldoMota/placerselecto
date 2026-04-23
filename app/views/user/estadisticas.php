@@ -139,7 +139,7 @@ $maxCombinado  = max($maxVistasGraf, $maxWaGraf, 1);
 
     <div class="d-flex flex-column gap-3">
     <?php foreach ($porPerfil as $p):
-        $imgUrl   = !empty($p['imagen_token']) ? APP_URL . '/img/' . $p['imagen_token'] : null;
+        $imgUrl   = !empty($p['imagen_token']) ? APP_URL . '/img/' . $p['imagen_token'] . '?size=thumb' : null;
         $serie    = $seriesPerfil[(int)$p['id']] ?? [];
         $maxS     = max(1, ...array_merge([1], array_column($serie, 'visitas'), array_column($serie, 'clicks_whatsapp')));
         $estadoMap = [

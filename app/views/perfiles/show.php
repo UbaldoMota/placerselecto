@@ -8,16 +8,19 @@ $tieneEM  = !empty($perfil['email_contacto']);
 $tieneZona= !empty($perfil['zona_lat']) && !empty($perfil['zona_lng']);
 $tieneContacto = $tieneWA || $tieneTG || $tieneEM;
 
-// Construir URLs para galería y lightbox
+// URLs para galería (medium) y lightbox (full)
 $totalFotos   = count($fotos);
+$gridUrls     = array_map(fn($f) => APP_URL . '/img/' . $f['token'] . '?size=medium', $fotos);
 $lightboxUrls = array_map(fn($f) => APP_URL . '/img/' . $f['token'], $fotos);
 
 // Fallback legacy
 if ($totalFotos === 0 && !empty($perfil['imagen_token'])) {
+    $gridUrls     = [APP_URL . '/img/' . $perfil['imagen_token'] . '?size=medium'];
     $lightboxUrls = [APP_URL . '/img/' . $perfil['imagen_token']];
     $totalFotos   = 1;
 } elseif ($totalFotos === 0 && !empty($perfil['imagen_principal'])) {
-    $lightboxUrls = [APP_URL . '/uploads/anuncios/' . basename($perfil['imagen_principal'])];
+    $gridUrls     = [APP_URL . '/uploads/anuncios/' . basename($perfil['imagen_principal'])];
+    $lightboxUrls = $gridUrls;
     $totalFotos   = 1;
 }
 
@@ -257,7 +260,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
             <div class="card mb-3">
                 <?php if ($totalFotos === 1): ?>
                 <div class="foto-galeria--1">
-                    <img src="<?= e($lightboxUrls[0]) ?>"
+                    <img src="<?= e($gridUrls[0]) ?>"
                          alt="<?= e($perfil['nombre']) ?>"
                          loading="eager"
                          data-lightbox-open="0"
@@ -265,7 +268,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
                 </div>
                 <?php else: ?>
                 <div class="foto-galeria--multi">
-                    <?php foreach ($lightboxUrls as $i => $url): ?>
+                    <?php foreach ($gridUrls as $i => $url): ?>
                     <div class="foto-galeria__item" data-lightbox-open="<?= $i ?>">
                         <img src="<?= e($url) ?>"
                              alt="<?= e($perfil['nombre']) ?> — foto <?= $i + 1 ?>"

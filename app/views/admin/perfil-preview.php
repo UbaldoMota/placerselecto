@@ -108,7 +108,7 @@ $ambosListos   = $tieneFotosVer && $tieneVideoVer;
                 ?>
                 <div style="position:relative<?= $oculta ? ';opacity:.55' : '' ?>">
                     <div class="foto-galeria--1">
-                        <img src="<?= APP_URL . '/img/' . e($f['token']) ?>"
+                        <img src="<?= APP_URL . "/img/" . e($f["token"]) . "?size=medium" ?>"
                              alt="<?= e($perfil['nombre']) ?>"
                              loading="eager"
                              <?= $lbIdx !== null ? 'data-lightbox-open="' . $lbIdx . '" style="cursor:zoom-in"' : '' ?>>
@@ -146,7 +146,7 @@ $ambosListos   = $tieneFotosVer && $tieneVideoVer;
                     <div class="foto-galeria__item"
                          style="position:relative<?= $oculta ? ';opacity:.5' : '' ?>"
                          <?= $lbIdx !== null ? 'data-lightbox-open="' . $lbIdx . '"' : '' ?>>
-                        <img src="<?= APP_URL . '/img/' . e($f['token']) ?>"
+                        <img src="<?= APP_URL . "/img/" . e($f["token"]) . "?size=medium" ?>"
                              alt="Foto galería"
                              loading="lazy">
 
@@ -432,7 +432,7 @@ $ambosListos   = $tieneFotosVer && $tieneVideoVer;
                             <?php foreach ($fotosVer as $fv):
                                 $vIdx = $verifMap[$fv['id']] ?? null;
                             ?>
-                            <img src="<?= APP_URL ?>/img/<?= e($fv['token']) ?>"
+                            <img src="<?= APP_URL ?>/img/<?= e($fv["token"]) ?>?size=thumb"
                                  style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:1px solid var(--color-border);cursor:zoom-in"
                                  loading="lazy"
                                  <?= $vIdx !== null ? 'data-lightbox-open="' . $vIdx . '"' : '' ?>>

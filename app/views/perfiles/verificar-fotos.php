@@ -35,7 +35,7 @@ $yaEnviadas = !empty($fotosVerificacion);
         <div class="card-body py-3">
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:.5rem">
                 <?php foreach ($fotosGaleria as $foto): ?>
-                <img src="<?= APP_URL ?>/img/<?= e($foto['token']) ?>"
+                <img src="<?= APP_URL ?>/img/<?= e($foto["token"]) ?>?size=thumb"
                      style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:1px solid var(--color-border)"
                      loading="lazy">
                 <?php endforeach; ?>
@@ -99,7 +99,7 @@ $yaEnviadas = !empty($fotosVerificacion);
         <div class="card-body">
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:.5rem">
                 <?php foreach ($fotosVerificacion as $fv): ?>
-                <img src="<?= APP_URL ?>/img/<?= e($fv['token']) ?>"
+                <img src="<?= APP_URL ?>/img/<?= e($fv["token"]) ?>?size=thumb"
                      style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:2px solid rgba(16,185,129,.4)"
                      loading="lazy">
                 <?php endforeach; ?>

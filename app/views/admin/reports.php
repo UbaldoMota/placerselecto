@@ -76,7 +76,7 @@ $motivoLabels = [
             'rechazado' => ['badge-rechazado','Rechazado','var(--color-danger)'],
         ];
         [$eCls, $eLbl, $eBarColor] = $estadoMap[$r['estado']] ?? ['','?','var(--color-border)'];
-        $imgUrl = !empty($r['perfil_imagen']) ? APP_URL . '/img/' . $r['perfil_imagen'] : null;
+        $imgUrl = !empty($r['perfil_imagen']) ? APP_URL . '/img/' . $r['perfil_imagen'] . '?size=thumb' : null;
         $activo = in_array($r['estado'], ['pendiente','revisado'], true);
     ?>
     <div class="card mb-3" style="border-left:3px solid <?= $eBarColor ?>">

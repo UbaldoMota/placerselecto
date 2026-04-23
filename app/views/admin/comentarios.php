@@ -74,7 +74,7 @@
         };
     ?>
     <?php
-        $imgUrl = !empty($c['perfil_imagen']) ? APP_URL . '/img/' . $c['perfil_imagen'] : null;
+        $imgUrl = !empty($c['perfil_imagen']) ? APP_URL . '/img/' . $c['perfil_imagen'] . '?size=thumb' : null;
         $accionesCambio = $c['estado'] === 'pendiente';
     ?>
     <div class="card mb-3" <?= $bLeft ? 'style="border-left:3px solid ' . $bLeft . '"' : '' ?>>

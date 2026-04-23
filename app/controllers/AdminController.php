@@ -662,6 +662,21 @@ class AdminController extends Controller
 
         $ahoraOculta = !(bool)$foto['oculta'];
 
+        // Si se ocultó y era la foto principal del perfil, promover otra visible
+        // para que los listados (/perfiles, /home) y el fallback del show no
+        // sigan apuntando a la foto oculta.
+        if ($ahoraOculta) {
+            $perfil = $this->perfiles->find((int)$foto['id_perfil']);
+            if ($perfil && !empty($foto['token']) && ($perfil['imagen_token'] ?? null) === $foto['token']) {
+                $visibles   = $this->perfilFotos->galeria((int)$foto['id_perfil']);
+                $reemplazo  = $visibles[0] ?? null;
+                $this->perfiles->update((int)$foto['id_perfil'], [
+                    'imagen_token'     => $reemplazo['token']          ?? null,
+                    'imagen_principal' => $reemplazo['nombre_archivo'] ?? null,
+                ]);
+            }
+        }
+
         // Notificar solo al ocultar (no al restaurar — sería muy ruidoso con toggles)
         if ($ahoraOculta) {
             $perfil = $this->perfiles->find((int)$foto['id_perfil']);
@@ -706,6 +721,16 @@ class AdminController extends Controller
         }
 
         $this->perfilFotos->delete($id);
+
+        // Si era la foto principal, promover otra visible (o limpiar si no queda ninguna)
+        if ($perfil && !empty($foto['token']) && ($perfil['imagen_token'] ?? null) === $foto['token']) {
+            $visibles  = $this->perfilFotos->galeria($idPerfil);
+            $reemplazo = $visibles[0] ?? null;
+            $this->perfiles->update($idPerfil, [
+                'imagen_token'     => $reemplazo['token']          ?? null,
+                'imagen_principal' => $reemplazo['nombre_archivo'] ?? null,
+            ]);
+        }
 
         if ($perfil) {
             $this->notifs->crear((int)$perfil['id_usuario'], [

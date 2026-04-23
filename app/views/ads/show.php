@@ -38,7 +38,13 @@ $waLink   = $tieneWA ? 'https://wa.me/' . preg_replace('/\D/', '', $anuncio['wha
                     $totalFotos = 1;
                 }
 
-                // URLs para el lightbox
+                // URLs: grid usa medium, lightbox usa full
+                $gridUrls = array_map(fn($f) =>
+                    !empty($f['token'])
+                        ? APP_URL . '/img/' . $f['token'] . '?size=medium'
+                        : ($f['_legacy_url'] ?? ''),
+                    $fotos
+                );
                 $lightboxUrls = array_map(fn($f) =>
                     !empty($f['token'])
                         ? APP_URL . '/img/' . $f['token']
@@ -49,7 +55,7 @@ $waLink   = $tieneWA ? 'https://wa.me/' . preg_replace('/\D/', '', $anuncio['wha
                 <?php if ($totalFotos > 0): ?>
 
                 <?php if ($totalFotos === 1):
-                    $url = $lightboxUrls[0];
+                    $url = $gridUrls[0];
                 ?>
                 <div class="foto-galeria--1">
                     <img src="<?= e($url) ?>"
@@ -67,7 +73,7 @@ $waLink   = $tieneWA ? 'https://wa.me/' . preg_replace('/\D/', '', $anuncio['wha
                 <?php else: ?>
                 <div class="foto-galeria--multi">
                     <?php foreach ($fotos as $i => $f):
-                        $url = $lightboxUrls[$i];
+                        $url = $gridUrls[$i];
                     ?>
                     <div class="foto-galeria__item" data-lightbox-open="<?= $i ?>">
                         <img src="<?= e($url) ?>"
