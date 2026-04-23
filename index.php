@@ -40,6 +40,7 @@ spl_autoload_register(function (string $class): void {
         'Security'       => APP_PATH    . '/Security.php',
         'Validator'      => APP_PATH    . '/Validator.php',
         'Upload'         => APP_PATH    . '/Upload.php',
+        'Mailer'         => APP_PATH    . '/Mailer.php',
     ];
 
     if (isset($map[$class])) {

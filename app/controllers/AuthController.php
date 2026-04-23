@@ -527,13 +527,24 @@ class AuthController extends Controller
         SessionManager::flash('info', "🔑 Código SMS (desarrollo): <strong>{$codigo}</strong>");
     }
 
-    private function enviarCorreoVerificacion(string $email, string $codigo): void
+    private function enviarCorreoVerificacion(string $email, string $codigo, ?string $nombre = null): void
     {
-        // TODO: integrar SMTP / proveedor de correo
-        // Por ahora: log + flash visible en desarrollo
-        $msg = "[EMAIL DEV] Correo: {$email} — Código: {$codigo}";
-        error_log($msg);
-        SessionManager::flash('info', "📧 Código Email (desarrollo): <strong>{$codigo}</strong>");
+        $html = Mailer::render('codigo-verificacion', [
+            'codigo' => $codigo,
+            'nombre' => $nombre,
+        ]);
+        $enviado = Mailer::send(
+            $email,
+            'Tu código de verificación — ' . APP_NAME,
+            $html,
+            "Tu código de verificación es: {$codigo}\nTiene validez de 10 minutos."
+        );
+
+        if (!$enviado || (defined('SMTP_ENABLED') && !SMTP_ENABLED)) {
+            // Fallback dev: mostrar en pantalla
+            error_log("[EMAIL DEV] Correo: {$email} — Código: {$codigo}");
+            SessionManager::flash('info', "📧 Código Email (desarrollo): <strong>{$codigo}</strong>");
+        }
     }
 
     // ---------------------------------------------------------

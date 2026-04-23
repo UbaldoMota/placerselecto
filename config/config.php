@@ -46,6 +46,16 @@ define('DB_USER',    $env['db_user']);
 define('DB_PASS',    $env['db_pass']);
 define('DB_CHARSET', 'utf8mb4');
 
+// SMTP — envío de correos (se define en env.*.php, con defaults)
+define('SMTP_ENABLED',   (bool)($env['smtp_enabled']  ?? false));
+define('SMTP_HOST',      $env['smtp_host']            ?? 'localhost');
+define('SMTP_PORT',      (int)($env['smtp_port']      ?? 587));
+define('SMTP_SECURE',    $env['smtp_secure']          ?? 'tls'); // 'tls' | 'ssl'
+define('SMTP_USER',      $env['smtp_user']            ?? '');
+define('SMTP_PASS',      $env['smtp_pass']            ?? '');
+define('SMTP_FROM',      $env['smtp_from']            ?? 'noreply@placerselecto.com');
+define('SMTP_FROM_NAME', $env['smtp_from_name']       ?? 'PlacerSelecto');
+
 // Rutas de sistema
 define('ROOT_PATH',    dirname(__DIR__));
 define('APP_PATH',     ROOT_PATH . '/app');
