@@ -29,6 +29,9 @@
     <!-- Global loader overlay -->
     <?php require VIEWS_PATH . '/partials/global-loader.php'; ?>
 
+    <!-- Cookie consent banner -->
+    <?php require VIEWS_PATH . '/partials/cookie-banner.php'; ?>
+
     <!-- Toasts (flash messages — se cierran solo al hacer clic) -->
     <?php require VIEWS_PATH . '/partials/toasts.php'; ?>
 
@@ -132,6 +135,7 @@
     <script src="<?= APP_URL ?>/public/assets/js/app.js"></script>
     <script src="<?= APP_URL ?>/public/assets/js/common.js"></script>
     <script src="<?= APP_URL ?>/public/assets/js/loader.js"></script>
+    <script src="<?= APP_URL ?>/public/assets/js/cookie-banner.js"></script>
     <?php if ($currentUser): ?>
     <script src="<?= APP_URL ?>/public/assets/js/notifications.js" defer></script>
     <?php endif; ?>

@@ -17,14 +17,21 @@ class SessionManager
             return; // Ya iniciada
         }
 
+        // Lifetime efectivo: lee del cookie 'remember_me' para saber si es long-term
+        $isLong   = !empty($_COOKIE['remember_me']);
+        $lifetime = $isLong ? SESSION_LIFETIME_LONG : SESSION_LIFETIME;
+
+        // Permitir que PHP conserve la sesión server-side hasta el max
+        @ini_set('session.gc_maxlifetime', (string) SESSION_LIFETIME_LONG);
+
         // Configurar cookies de sesión de forma segura
         session_set_cookie_params([
-            'lifetime' => SESSION_LIFETIME,
+            'lifetime' => $lifetime,
             'path'     => '/',
             'domain'   => '',
-            'secure'   => SESSION_SECURE,   // true en HTTPS
-            'httponly' => SESSION_HTTPONLY,  // No accesible desde JS
-            'samesite' => SESSION_SAMESITE,  // Protección CSRF básica
+            'secure'   => SESSION_SECURE,
+            'httponly' => SESSION_HTTPONLY,
+            'samesite' => SESSION_SAMESITE,
         ]);
 
         session_name(SESSION_NAME);
@@ -37,11 +44,51 @@ class SessionManager
             $_SESSION['_created']   = time();
         }
 
-        // Expirar sesión si superó el lifetime
-        if (isset($_SESSION['_created']) && (time() - $_SESSION['_created']) > SESSION_LIFETIME) {
+        // Expirar sesión si superó el lifetime efectivo
+        if (isset($_SESSION['_created']) && (time() - $_SESSION['_created']) > $lifetime) {
             self::destroy();
-            self::init(); // Iniciar sesión nueva
+            self::init();
         }
+    }
+
+    /**
+     * Promueve la sesión actual a "long-term" (30 días) — se usa tras login con "recordarme".
+     * Debe llamarse antes de cualquier output.
+     */
+    public static function promoteToLongTerm(): void
+    {
+        // Cookie accesoria que indica que la sesión es long-term
+        setcookie('remember_me', '1', [
+            'expires'  => time() + SESSION_LIFETIME_LONG,
+            'path'     => '/',
+            'secure'   => SESSION_SECURE,
+            'httponly' => true,
+            'samesite' => SESSION_SAMESITE,
+        ]);
+        // Re-emitir la cookie de sesión con nueva expiración
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            setcookie(session_name(), session_id(), [
+                'expires'  => time() + SESSION_LIFETIME_LONG,
+                'path'     => '/',
+                'secure'   => SESSION_SECURE,
+                'httponly' => SESSION_HTTPONLY,
+                'samesite' => SESSION_SAMESITE,
+            ]);
+        }
+    }
+
+    /**
+     * Limpia el marcador de "recordarme" (al hacer logout).
+     */
+    public static function forgetLongTerm(): void
+    {
+        setcookie('remember_me', '', [
+            'expires'  => time() - 3600,
+            'path'     => '/',
+            'secure'   => SESSION_SECURE,
+            'httponly' => true,
+            'samesite' => SESSION_SAMESITE,
+        ]);
     }
 
     /**

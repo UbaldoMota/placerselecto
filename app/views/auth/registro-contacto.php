@@ -42,6 +42,7 @@
 <?php require VIEWS_PATH . '/partials/global-loader.php'; ?>
 
 <?php require VIEWS_PATH . '/partials/toasts.php'; ?>
+<?php require VIEWS_PATH . '/partials/cookie-banner.php'; ?>
 
 <div class="auth-card mx-3">
 
@@ -150,5 +151,6 @@
 <script src="<?= APP_URL ?>/public/assets/js/app.js"></script>
 <script src="<?= APP_URL ?>/public/assets/js/common.js"></script>
 <script src="<?= APP_URL ?>/public/assets/js/loader.js"></script>
+<script src="<?= APP_URL ?>/public/assets/js/cookie-banner.js"></script>
 </body>
 </html>

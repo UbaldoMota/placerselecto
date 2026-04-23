@@ -806,6 +806,13 @@ class AuthController extends Controller
 
         $this->usuarios->guardarEnSesion($usuario);
 
+        // "Mantener sesión activa" — extender cookie a 30 días
+        if (!empty($_POST['remember'])) {
+            SessionManager::promoteToLongTerm();
+        } else {
+            SessionManager::forgetLongTerm();
+        }
+
         // Re-hashear si es necesario (upgrade de cost)
         if (Security::needsRehash($usuario['password'])) {
             $this->usuarios->actualizarPassword($usuario['id'], $pass);
@@ -826,6 +833,7 @@ class AuthController extends Controller
     public function logout(array $params = []): void
     {
         $this->usuarios->limpiarSesion();
+        SessionManager::forgetLongTerm();
         SessionManager::init(); // Iniciar sesión vacía
         SessionManager::set('age_verified', true); // Mantener age gate
         SessionManager::flash('success', 'Sesión cerrada correctamente.');

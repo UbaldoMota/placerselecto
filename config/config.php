@@ -67,7 +67,8 @@ define('VIEWS_PATH',   APP_PATH  . '/views');
 
 // Sesiones
 define('SESSION_NAME',     'CLASIF_SESS');
-define('SESSION_LIFETIME', 7200);
+define('SESSION_LIFETIME',      86400);     // 24h por defecto
+define('SESSION_LIFETIME_LONG', 2592000);   // 30 días con "Mantener sesión activa"
 define('SESSION_SECURE',   !$isLocal);  // HTTPS sólo en producción
 define('SESSION_HTTPONLY', true);
 define('SESSION_SAMESITE', 'Lax');
