@@ -975,6 +975,12 @@ class PerfilesController extends Controller
                 'error'    => $archivos['error'][$i],
                 'size'     => $archivos['size'][$i],
             ];
+            // Log diagnóstico: qué llegó realmente
+            error_log('[UPLOAD] ' . $fieldName . '[' . $i . '] name="' . $name
+                . '" type="' . $archivos['type'][$i] . '"'
+                . ' size=' . ($archivos['size'][$i] ?? 0)
+                . ' err=' . ($archivos['error'][$i] ?? 0)
+                . ' tmp=' . ($archivos['tmp_name'][$i] ?? ''));
         }
 
         $lista    = array_slice($lista, 0, $limit);
@@ -983,7 +989,9 @@ class PerfilesController extends Controller
 
         foreach ($lista as $file) {
             if (!$uploader->saveImage($file, 'anuncios')) {
-                foreach ($uploader->getErrors() as $err) SessionManager::flash('error', $err);
+                $errs = $uploader->getErrors();
+                error_log('[UPLOAD-FAIL] ' . $file['name'] . ' errores=' . implode(' | ', $errs));
+                foreach ($errs as $err) SessionManager::flash('error', $err);
                 $this->redirect($redirectOn);
             }
             $guardados[] = $uploader->getSavedFilename();

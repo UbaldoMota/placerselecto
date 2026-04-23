@@ -69,7 +69,7 @@ define('LOGIN_MAX_ATTEMPTS', 5);
 define('LOGIN_LOCKOUT_TIME',  900);
 
 // Uploads
-define('UPLOAD_MAX_SIZE',    5 * 1024 * 1024);
+define('UPLOAD_MAX_SIZE',    15 * 1024 * 1024); // 15 MB (fotos de iPhone suelen ser 3-8 MB)
 define('UPLOAD_ALLOWED_TYPES', ['image/jpeg', 'image/png', 'image/webp']);
 define('UPLOAD_ALLOWED_EXT',   ['jpg', 'jpeg', 'png', 'webp']);
 
