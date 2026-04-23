@@ -293,6 +293,16 @@ class PerfilesController extends Controller
         $this->requireAuth();
         $user = $this->currentUser();
 
+        // Log diagnóstico (ayuda a debug en móvil — se ve en logs/php_errors.log)
+        error_log('[PERFIL-STORE] user=' . ($user['id'] ?? '?')
+            . ' desc_len=' . mb_strlen($_POST['descripcion'] ?? '')
+            . ' nombre="' . mb_substr($_POST['nombre'] ?? '', 0, 40) . '"'
+            . ' estado=' . ($_POST['id_estado'] ?? '?')
+            . ' mun=' . ($_POST['id_municipio'] ?? '?')
+            . ' cat=' . ($_POST['id_categoria'] ?? '?')
+            . ' fotos=' . (isset($_FILES['fotos']) ? count($_FILES['fotos']['name'] ?? []) : 0)
+            . ' UA=' . mb_substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 100));
+
         if (($user['rol'] ?? '') === 'comentarista') {
             SessionManager::flash('error', 'Tu cuenta es de tipo comentarista. No puedes publicar perfiles.');
             $this->redirect('/perfiles');

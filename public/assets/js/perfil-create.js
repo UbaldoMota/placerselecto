@@ -126,6 +126,13 @@
                 hiddenIn.value = text === '' ? '' : quill.root.innerHTML;
                 hideError();
             }
+            // Sincronización extra para iOS — Safari a veces no dispara text-change
+            // al perder foco del editor en el submit
+            const qlEditor = editorWrap?.querySelector('.ql-editor');
+            if (qlEditor) {
+                qlEditor.addEventListener('blur',  syncHidden);
+                qlEditor.addEventListener('input', syncHidden);
+            }
             function showError(msg) {
                 if (editorWrap) editorWrap.style.border = '2px solid var(--color-danger, #dc3545)';
                 let err = document.getElementById('descripcion-error');
