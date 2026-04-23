@@ -16,6 +16,7 @@
     const btnRegrabar  = document.getElementById('btnRegrabar');
     const btnEnviar    = document.getElementById('btnEnviar');
     const videoEl      = document.getElementById('videoPreview');
+    const videoWrap    = document.getElementById('videoWrap');
     const videoReview  = document.getElementById('videoReview');
     const estadoCamara = document.getElementById('estadoCamara');
     const alertaCamara = document.getElementById('alertaCamara');
@@ -122,6 +123,15 @@
     btnActivar.addEventListener('click', solicitarCamara);
     if (linkReintento) linkReintento.addEventListener('click', e => { e.preventDefault(); solicitarCamara(); });
 
+    function activarFullscreen() {
+        if (videoWrap) videoWrap.classList.add('is-recording-fullscreen');
+        document.body.classList.add('is-recording-lock');
+    }
+    function salirFullscreen() {
+        if (videoWrap) videoWrap.classList.remove('is-recording-fullscreen');
+        document.body.classList.remove('is-recording-lock');
+    }
+
     btnIniciar.addEventListener('click', async function () {
         if (!stream) return;
         btnIniciar.disabled = true;
@@ -138,6 +148,9 @@
         recorder.onstop = () => mostrarRevision();
         recorder.start(200);
 
+        // Expandir a pantalla completa al iniciar grabación
+        activarFullscreen();
+
         if (recIndicator) recIndicator.style.display = 'flex';
         if (countdownEl)  countdownEl.style.display  = 'block';
 
@@ -153,6 +166,7 @@
                 videoEl.srcObject = null;
                 if (recIndicator) recIndicator.style.display = 'none';
                 if (countdownEl)  countdownEl.style.display  = 'none';
+                salirFullscreen();
             }
         }, 1000);
     });

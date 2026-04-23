@@ -164,8 +164,7 @@ $isComentarista = ($currentUser['rol'] ?? '') === 'comentarista';
                     </a>
                     <a href="<?= APP_URL ?>/registro"
                        class="btn btn-sm btn-primary">
-                        <i class="bi bi-plus-circle me-1"></i>
-                        <span class="d-none d-sm-inline">Registrarse</span>
+                        <i class="bi bi-plus-circle me-1"></i>Registrarse
                     </a>
                 <?php endif; ?>
 

@@ -67,7 +67,8 @@ $appUrl     = APP_URL;
                 </ul>
 
                 <!-- Área de video en vivo -->
-                <div style="position:relative;background:#000;border-radius:var(--radius-md);overflow:hidden;aspect-ratio:16/9;margin-bottom:1.25rem">
+                <div id="videoWrap"
+                     style="position:relative;background:#000;border-radius:var(--radius-md);overflow:hidden;aspect-ratio:16/9;margin-bottom:1.25rem">
                     <video id="videoPreview" autoplay muted playsinline
                            style="width:100%;height:100%;object-fit:cover;display:none"></video>
 
@@ -158,6 +159,38 @@ $appUrl     = APP_URL;
 
 <style>
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+/* Fullscreen mientras se graba: el contenedor del video cubre todo el viewport.
+   Al terminar, JS quita la clase y vuelve al layout normal. */
+#videoWrap.is-recording-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 10500;
+    margin: 0;
+    border-radius: 0;
+    aspect-ratio: auto;
+}
+#videoWrap.is-recording-fullscreen video {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+}
+/* Indicador REC y countdown más grandes cuando está fullscreen */
+#videoWrap.is-recording-fullscreen #countdown {
+    font-size: 2rem;
+    padding: .4rem 1rem;
+    top: max(20px, env(safe-area-inset-top, 20px));
+    right: max(20px, env(safe-area-inset-right, 20px));
+}
+#videoWrap.is-recording-fullscreen #recIndicator {
+    padding: .4rem 1rem;
+    top: max(20px, env(safe-area-inset-top, 20px));
+    left: max(20px, env(safe-area-inset-left, 20px));
+}
+#videoWrap.is-recording-fullscreen #recIndicator span:last-child {
+    font-size: 1rem;
+}
+body.is-recording-lock { overflow: hidden; }
 </style>
 
 

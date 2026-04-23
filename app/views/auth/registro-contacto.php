@@ -115,22 +115,22 @@
 
         <!-- Consentimiento SMS -->
         <div class="mb-4">
-            <div class="rounded-3 p-3"
-                 style="background:rgba(255,45,117,.05);border:1px solid rgba(255,45,117,.2)">
-                <div class="form-check mb-0">
-                    <input type="checkbox"
-                           class="form-check-input"
-                           id="autoriza_sms"
-                           name="autoriza_sms"
-                           value="1"
-                           required>
-                    <label class="form-check-label" for="autoriza_sms" style="font-size:.82rem">
-                        Autorizo el envío de un SMS de verificación a mi teléfono.
-                        Los datos no serán compartidos con terceros.
-                        Consulta nuestro <a href="<?= APP_URL ?>/privacidad" target="_blank">aviso de privacidad</a>.
-                    </label>
-                </div>
-            </div>
+            <label for="autoriza_sms"
+                   class="form-check d-block rounded-3 p-3 mb-0"
+                   style="background:rgba(255,45,117,.05);border:1px solid rgba(255,45,117,.2);cursor:pointer">
+                <input type="checkbox"
+                       class="form-check-input"
+                       id="autoriza_sms"
+                       name="autoriza_sms"
+                       value="1"
+                       required>
+                <span class="form-check-label" style="font-size:.82rem">
+                    Autorizo el envío de un SMS de verificación a mi teléfono.
+                    Los datos no serán compartidos con terceros.
+                    Consulta nuestro <a href="<?= APP_URL ?>/privacidad" target="_blank"
+                       onclick="event.stopPropagation()">aviso de privacidad</a>.
+                </span>
+            </label>
         </div>
 
         <button type="submit" class="btn btn-primary w-100">
