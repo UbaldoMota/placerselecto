@@ -765,6 +765,19 @@ class AdminController extends Controller
             $this->redirect('/admin/perfiles');
         }
 
+        // Requisito de publicación: foto de verificación con rostro + video de verificación.
+        // Ambos son insumos que el admin revisa antes de publicar; sin ellos no se puede.
+        $fotosVer = $this->perfilFotos->verificacion($id);
+        $faltantes = [];
+        if (empty($fotosVer))                     $faltantes[] = 'la foto de verificación con rostro';
+        if (empty($perfil['video_verificacion'])) $faltantes[] = 'el video de verificación';
+
+        if ($faltantes) {
+            SessionManager::flash('error',
+                'No se puede publicar: falta ' . implode(' y ', $faltantes) . '.');
+            $this->redirect('/admin/perfil/' . $id);
+        }
+
         $this->perfiles->publicar($id);
 
         // Publicar un perfil implica que el admin revisó las fotos.

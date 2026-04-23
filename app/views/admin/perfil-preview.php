@@ -60,15 +60,32 @@ $ambosListos   = $tieneFotosVer && $tieneVideoVer;
             </p>
         </div>
 
+        <?php
+        // Requisitos de publicación: foto de verificación + video de verificación.
+        $reqFaltantes = [];
+        if (empty($fotosVer))                     $reqFaltantes[] = 'foto de verificación con rostro';
+        if (empty($perfil['video_verificacion'])) $reqFaltantes[] = 'video de verificación';
+        $puedePublicar = empty($reqFaltantes);
+        $motivoBloqueo = $reqFaltantes ? 'Falta: ' . implode(' y ', $reqFaltantes) . '.' : '';
+        ?>
+
         <!-- Botones de acción -->
         <div class="d-flex gap-2 flex-wrap">
             <?php if ($perfil['estado'] !== 'publicado'): ?>
             <form method="POST" action="<?= APP_URL ?>/admin/perfil/<?= (int)$perfil['id'] ?>/publicar">
                 <?= $csrfField ?>
-                <button type="submit" class="btn btn-success">
+                <button type="submit" class="btn btn-success"
+                        <?= $puedePublicar ? '' : 'disabled' ?>
+                        title="<?= e($motivoBloqueo) ?>">
                     <i class="bi bi-check-lg me-1"></i>Publicar perfil
                 </button>
             </form>
+            <?php if (!$puedePublicar): ?>
+                <div class="alert alert-warning py-1 px-2 mb-0 d-flex align-items-center" style="font-size:.85rem">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <span><?= e($motivoBloqueo) ?></span>
+                </div>
+            <?php endif; ?>
             <?php endif; ?>
 
             <?php if ($perfil['estado'] !== 'rechazado'): ?>
@@ -491,10 +508,17 @@ $ambosListos   = $tieneFotosVer && $tieneVideoVer;
                     <?php if ($perfil['estado'] !== 'publicado'): ?>
                     <form method="POST" action="<?= APP_URL ?>/admin/perfil/<?= (int)$perfil['id'] ?>/publicar">
                         <?= $csrfField ?>
-                        <button type="submit" class="btn btn-success w-100">
+                        <button type="submit" class="btn btn-success w-100"
+                                <?= $puedePublicar ? '' : 'disabled' ?>
+                                title="<?= e($motivoBloqueo) ?>">
                             <i class="bi bi-check-lg me-2"></i>Publicar perfil
                         </button>
                     </form>
+                    <?php if (!$puedePublicar): ?>
+                        <div class="small text-warning mt-n1 mb-1">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i><?= e($motivoBloqueo) ?>
+                        </div>
+                    <?php endif; ?>
                     <?php endif; ?>
 
                     <?php if ($perfil['estado'] !== 'rechazado'): ?>
