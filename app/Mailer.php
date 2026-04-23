@@ -28,6 +28,11 @@ class Mailer
 
         $mail = new PHPMailer(true);
 
+        // Capturar debug del handshake SMTP
+        $debugLog = [];
+        $mail->SMTPDebug   = 2; // 0=nada, 2=client+server msg
+        $mail->Debugoutput = function($str) use (&$debugLog) { $debugLog[] = trim($str); };
+
         try {
             $mail->CharSet  = 'UTF-8';
             $mail->Encoding = PHPMailer::ENCODING_BASE64;
@@ -36,9 +41,20 @@ class Mailer
             $mail->Host       = SMTP_HOST;
             $mail->Port       = SMTP_PORT;
             $mail->SMTPAuth   = true;
-            $mail->Username   = SMTP_USER;
+            $mail->AuthType   = 'LOGIN'; // evitar negotiation, usa LOGIN directamente
+            $mail->Username   = trim(SMTP_USER);
             $mail->Password   = SMTP_PASS;
             $mail->SMTPSecure = SMTP_SECURE; // 'tls' | 'ssl'
+            $mail->Timeout    = 20;
+
+            // Desactivar verificación TLS si el hosting usa cert auto-firmado
+            $mail->SMTPOptions = [
+                'ssl' => [
+                    'verify_peer'       => false,
+                    'verify_peer_name'  => false,
+                    'allow_self_signed' => true,
+                ],
+            ];
 
             $mail->setFrom(SMTP_FROM, defined('SMTP_FROM_NAME') ? SMTP_FROM_NAME : APP_NAME);
             $mail->addAddress($to);
@@ -51,7 +67,10 @@ class Mailer
             $mail->send();
             return true;
         } catch (MailException $e) {
+            // Log error + handshake debug (solo últimas 10 líneas para no saturar log)
             error_log('[MAIL-ERR] to=' . $to . ' err=' . $mail->ErrorInfo);
+            $tail = array_slice($debugLog, -12);
+            foreach ($tail as $line) error_log('[MAIL-DBG] ' . $line);
             return false;
         }
     }
