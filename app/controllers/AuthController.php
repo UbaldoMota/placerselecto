@@ -151,6 +151,18 @@ class AuthController extends Controller
             'color'   => 'info',
         ]);
 
+        // Correo de bienvenida al comentarista
+        $html = Mailer::render('bienvenida-comentarista', [
+            'nombre' => $nombre,
+            'email'  => $email,
+        ]);
+        Mailer::send(
+            $email,
+            '¡Bienvenido a ' . APP_NAME . '!',
+            $html,
+            "Hola {$nombre}, tu cuenta de comentarista en " . APP_NAME . " ha sido creada. Inicia sesión: " . APP_URL . "/login"
+        );
+
         // Auto-login
         $usuario = $this->usuarios->find($idUsuario);
         $this->usuarios->guardarEnSesion($usuario);
