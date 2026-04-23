@@ -963,21 +963,7 @@ class PerfilesController extends Controller
     private function procesarFotos(string $fieldName, string $redirectOn, int $limit = self::MAX_FOTOS): array
     {
         $archivos = $_FILES[$fieldName] ?? null;
-
-        // Log diagnóstico temprano: qué hay en $_FILES
-        error_log('[UPLOAD-IN] field=' . $fieldName
-            . ' post_max=' . (ini_get('post_max_size') ?: '?')
-            . ' upload_max=' . (ini_get('upload_max_filesize') ?: '?')
-            . ' content_length=' . ($_SERVER['CONTENT_LENGTH'] ?? '?')
-            . ' files_set=' . ($archivos ? 'yes' : 'no')
-            . ' names=' . json_encode($archivos['name'] ?? null)
-            . ' errors=' . json_encode($archivos['error'] ?? null)
-            . ' sizes=' . json_encode($archivos['size'] ?? null));
-
-        if (!$archivos || empty($archivos['name'][0])) {
-            error_log('[UPLOAD-SKIP] ' . $fieldName . ' — early return (sin archivos)');
-            return [];
-        }
+        if (!$archivos || empty($archivos['name'][0])) return [];
 
         $lista = [];
         foreach ($archivos['name'] as $i => $name) {
