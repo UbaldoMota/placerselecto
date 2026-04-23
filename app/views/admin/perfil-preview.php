@@ -165,7 +165,7 @@ $ambosListos   = $tieneFotosVer && $tieneVideoVer;
                          <?= $lbIdx !== null ? 'data-lightbox-open="' . $lbIdx . '"' : '' ?>>
                         <img src="<?= APP_URL . "/img/" . e($f["token"]) . "?size=medium" ?>"
                              alt="Foto galería"
-                             loading="lazy">
+                             loading="eager">
 
                         <?php if ($oculta): ?>
                         <div style="position:absolute;top:5px;left:5px;background:rgba(220,53,69,.9);color:#fff;font-size:.6rem;font-weight:700;padding:2px 5px;border-radius:4px;pointer-events:none">

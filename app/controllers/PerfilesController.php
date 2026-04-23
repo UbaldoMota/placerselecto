@@ -548,6 +548,15 @@ class PerfilesController extends Controller
             )->execute([$id, $token, $filename, $i]);
         }
 
+        (new NotificacionModel())->crearParaAdmins([
+            'tipo'    => 'verificacion_fotos',
+            'titulo'  => 'Fotos de verificación recibidas',
+            'mensaje' => count($archivos) . ' foto(s) de verificación del perfil "' . mb_substr($perfil['nombre'], 0, 60) . '" listas para revisión.',
+            'url'     => '/admin/perfil/' . $id,
+            'icono'   => 'person-badge-fill',
+            'color'   => 'warning',
+        ]);
+
         SessionManager::flash('success', 'Paso 1 completado: fotos de verificación enviadas. Ahora graba el video para terminar.');
         $this->redirect("/perfil/{$id}/verificar");
     }
@@ -638,6 +647,15 @@ class PerfilesController extends Controller
         $db->prepare(
             "UPDATE perfiles SET video_verificacion = ?, video_verificacion_at = NOW() WHERE id = ?"
         )->execute([$filename, $id]);
+
+        (new NotificacionModel())->crearParaAdmins([
+            'tipo'    => 'verificacion_video',
+            'titulo'  => 'Video de verificación recibido',
+            'mensaje' => 'Video de verificación del perfil "' . mb_substr($perfil['nombre'], 0, 60) . '" listo para revisión.',
+            'url'     => '/admin/perfil/' . $id,
+            'icono'   => 'camera-reels-fill',
+            'color'   => 'warning',
+        ]);
 
         echo json_encode(['ok' => true]);
         exit;
