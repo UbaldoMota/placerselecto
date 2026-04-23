@@ -41,6 +41,10 @@ return [
     ['GET',  '/registro/verificar-email',        'AuthController', 'showVerificarEmail',      ['guest']],
     ['POST', '/registro/verificar-email',        'AuthController', 'verificarEmail',          ['guest', 'csrf']],
     ['POST', '/registro/reenviar-email',         'AuthController', 'reenviarEmail',           ['guest', 'csrf']],
+
+    // Verificación de email por link (registro de comentarista)
+    ['GET',  '/verificar-email/{token}',         'AuthController', 'verificarEmailLink',       []],
+    ['POST', '/verificar-email/reenviar',        'AuthController', 'reenviarVerificacionEmail', ['csrf']],
     ['POST', '/registro/corregir-email',         'AuthController', 'corregirEmail',           ['guest', 'csrf']],
     // Paso 4 — contraseña y nombre
     ['GET',  '/registro/completar',              'AuthController', 'showCompletar',           ['guest']],

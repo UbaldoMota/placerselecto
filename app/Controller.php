@@ -41,6 +41,7 @@ abstract class Controller
             'auth/registro-tipo', 'auth/registro-contacto',
             'auth/registro-verificar-sms', 'auth/registro-verificar-email',
             'auth/registro-completar', 'auth/registro-comentarista',
+            'auth/revisar-correo',
         ];
         $isStandalone    = in_array($view, $standaloneViews, true);
 

@@ -89,6 +89,88 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * GET /verificar-email/{token}
+     * El usuario hace clic en el enlace del correo para confirmar su cuenta.
+     */
+    public function verificarEmailLink(array $params = []): void
+    {
+        $token = $params['token'] ?? '';
+        if (!preg_match('/^[a-f0-9]{32,128}$/', $token)) {
+            SessionManager::flash('error', 'Enlace de confirmación inválido.');
+            $this->redirect('/login');
+        }
+
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT id, email, email_verificado FROM usuarios WHERE email_verify_token = ? LIMIT 1");
+        $stmt->execute([$token]);
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$usuario) {
+            SessionManager::flash('error', 'Enlace inválido o expirado. Solicita uno nuevo.');
+            $this->redirect('/login');
+        }
+
+        if ((int)$usuario['email_verificado'] === 1) {
+            SessionManager::flash('info', 'Tu correo ya está confirmado. Inicia sesión.');
+            $this->redirect('/login');
+        }
+
+        // Marcar como verificado e invalidar token
+        $db->prepare(
+            "UPDATE usuarios SET email_verificado = 1, email_verified_at = NOW(), email_verify_token = NULL WHERE id = ?"
+        )->execute([(int)$usuario['id']]);
+
+        SessionManager::flash('success', '¡Correo confirmado! Ya puedes iniciar sesión.');
+        $this->redirect('/login');
+    }
+
+    /**
+     * POST /verificar-email/reenviar
+     * Reenvía el correo de confirmación si el usuario pide uno nuevo.
+     */
+    public function reenviarVerificacionEmail(array $params = []): void
+    {
+        $email = Security::sanitizeEmail($_POST['email'] ?? '');
+        if (!$email) {
+            $this->redirect('/login');
+        }
+
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT id, nombre, email_verificado FROM usuarios WHERE email = ? LIMIT 1");
+        $stmt->execute([$email]);
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Mensaje genérico para no revelar si el email existe
+        if (!$usuario || (int)$usuario['email_verificado'] === 1) {
+            SessionManager::flash('success', 'Si el correo está registrado y pendiente de confirmar, recibirás un enlace nuevo.');
+            $this->redirect('/login');
+        }
+
+        // Nuevo token
+        $token = bin2hex(random_bytes(32));
+        $db->prepare("UPDATE usuarios SET email_verify_token = ? WHERE id = ?")
+           ->execute([$token, (int)$usuario['id']]);
+
+        $link = APP_URL . '/verificar-email/' . $token;
+        $html = Mailer::render('verificar-email-link', [
+            'nombre' => $usuario['nombre'],
+            'link'   => $link,
+        ]);
+        Mailer::send(
+            $email,
+            'Confirma tu cuenta — ' . APP_NAME,
+            $html,
+            "Confirma tu correo abriendo este enlace:\n{$link}\n\nEl enlace expira en 24 horas."
+        );
+
+        SessionManager::flash('success', 'Reenviamos el correo de confirmación. Revisa tu bandeja de entrada.');
+        $this->render('auth/revisar-correo', [
+            'email'     => $email,
+            'pageTitle' => 'Revisa tu correo',
+        ]);
+    }
+
     public function storeRegistroComentarista(array $params = []): void
     {
         $ip     = Security::getClientIp();
@@ -126,14 +208,19 @@ class AuthController extends Controller
             $this->redirect('/login');
         }
 
+        // Token único para confirmación de email (64 chars hex)
+        $emailToken = bin2hex(random_bytes(32));
+
         try {
             $idUsuario = $this->usuarios->crear([
-                'nombre'      => $nombre,
-                'email'       => $email,
-                'password'    => $pass,
-                'telefono'    => null,
-                'rol'         => 'comentarista',
-                'ip_registro' => $ip,
+                'nombre'             => $nombre,
+                'email'              => $email,
+                'password'           => $pass,
+                'telefono'           => null,
+                'rol'                => 'comentarista',
+                'ip_registro'        => $ip,
+                'email_verificado'   => 0,
+                'email_verify_token' => $emailToken,
             ]);
         } catch (\Exception $e) {
             error_log('[AuthController::storeRegistroComentarista] ' . $e->getMessage());
@@ -151,24 +238,26 @@ class AuthController extends Controller
             'color'   => 'info',
         ]);
 
-        // Correo de bienvenida al comentarista
-        $html = Mailer::render('bienvenida-comentarista', [
+        // Correo con enlace de confirmación
+        $link = APP_URL . '/verificar-email/' . $emailToken;
+        $html = Mailer::render('verificar-email-link', [
             'nombre' => $nombre,
-            'email'  => $email,
+            'link'   => $link,
         ]);
         Mailer::send(
             $email,
-            '¡Bienvenido a ' . APP_NAME . '!',
+            'Confirma tu cuenta — ' . APP_NAME,
             $html,
-            "Hola {$nombre}, tu cuenta de comentarista en " . APP_NAME . " ha sido creada. Inicia sesión: " . APP_URL . "/login"
+            "Hola {$nombre},\nConfirma tu correo abriendo este enlace:\n{$link}\n\nEl enlace expira en 24 horas."
         );
 
-        // Auto-login
-        $usuario = $this->usuarios->find($idUsuario);
-        $this->usuarios->guardarEnSesion($usuario);
-
-        SessionManager::flash('success', '¡Bienvenido/a ' . e($nombre) . '! Ya puedes comentar perfiles.');
-        $this->redirect('/');
+        // NO auto-login: debe confirmar el correo primero
+        SessionManager::flash('success', 'Cuenta creada. Revisa tu correo para confirmar y poder iniciar sesión.');
+        $this->render('auth/revisar-correo', [
+            'email' => $email,
+            'pageTitle' => 'Revisa tu correo',
+        ]);
+        return;
     }
 
     /** Paso 2: formulario de teléfono + email (ruta publicador) */
@@ -697,6 +786,18 @@ class AuthController extends Controller
             SessionManager::flash('error', 'Email o contraseña incorrectos.');
             SessionManager::set('form_old', ['email' => $email]);
             $this->redirect('/login');
+        }
+
+        // Bloquear login si el correo no está confirmado (solo aplica a cuentas con email_verificado registrado)
+        if (isset($usuario['email_verificado']) && (int)$usuario['email_verificado'] === 0
+            && !empty($usuario['email_verify_token'])) {
+            SessionManager::flash('error', 'Debes confirmar tu correo antes de iniciar sesión. Revisa tu bandeja.');
+            SessionManager::set('form_old', ['email' => $email]);
+            $this->render('auth/revisar-correo', [
+                'email'     => $email,
+                'pageTitle' => 'Confirma tu correo',
+            ]);
+            return;
         }
 
         // Login exitoso

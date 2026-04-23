@@ -33,6 +33,8 @@ class UsuarioModel extends Model
             'rol'                  => $data['rol'] ?? 'usuario',
             'verificado'           => 1,
             'estado_verificacion'  => 'aprobado',
+            'email_verificado'     => $data['email_verificado']   ?? 1,
+            'email_verify_token'   => $data['email_verify_token'] ?? null,
             'ip_registro'          => $data['ip_registro'] ?? null,
             'fecha_creacion'       => date('Y-m-d H:i:s'),
             'fecha_actualizacion'  => date('Y-m-d H:i:s'),
