@@ -81,15 +81,8 @@ class Upload
             return false;
         }
 
-        // 7. Validar dimensiones máximas
-        if ($maxWidth > 0 && $width > $maxWidth) {
-            $this->errors[] = "La imagen no puede superar {$maxWidth}px de ancho.";
-            return false;
-        }
-        if ($maxHeight > 0 && $height > $maxHeight) {
-            $this->errors[] = "La imagen no puede superar {$maxHeight}px de alto.";
-            return false;
-        }
+        // 7. Si supera las dimensiones máximas — escalar automáticamente (no rechazar)
+        $needsResize = ($maxWidth > 0 && $width > $maxWidth) || ($maxHeight > 0 && $height > $maxHeight);
 
         // 8. Construir nombre de archivo único y seguro (sin path traversal)
         $filename = $this->generateSafeFilename($ext);
@@ -105,6 +98,11 @@ class Upload
         if (!move_uploaded_file($file['tmp_name'], $destPath)) {
             $this->errors[] = 'No se pudo guardar la imagen. Intenta de nuevo.';
             return false;
+        }
+
+        // 10b. Redimensionar si supera el límite
+        if ($needsResize) {
+            $this->resizeImage($destPath, $mimeType, $maxWidth, $maxHeight);
         }
 
         // 11. Aplicar marca de agua (si está habilitada)
@@ -269,6 +267,54 @@ class Upload
      * Usa exclusivamente GD (sin fuentes externas).
      * La marca queda grabada en el archivo definitivo.
      */
+    /**
+     * Redimensiona una imagen si excede maxWidth/maxHeight, manteniendo proporción.
+     */
+    private function resizeImage(string $path, string $mimeType, int $maxWidth, int $maxHeight): void
+    {
+        $info = @getimagesize($path);
+        if ($info === false) return;
+        [$w, $h] = $info;
+
+        // Factor de escala (el menor de los dos para que quepa en ambos)
+        $scaleW = $maxWidth  > 0 ? ($maxWidth  / $w) : 1;
+        $scaleH = $maxHeight > 0 ? ($maxHeight / $h) : 1;
+        $scale  = min($scaleW, $scaleH, 1); // nunca ampliar
+        if ($scale >= 1) return;
+
+        $newW = (int)round($w * $scale);
+        $newH = (int)round($h * $scale);
+
+        $src = match ($mimeType) {
+            'image/jpeg' => @imagecreatefromjpeg($path),
+            'image/png'  => @imagecreatefrompng($path),
+            'image/webp' => @imagecreatefromwebp($path),
+            default      => null,
+        };
+        if (!$src) return;
+
+        $dst = imagecreatetruecolor($newW, $newH);
+        // Preservar transparencia en PNG/WEBP
+        if ($mimeType === 'image/png' || $mimeType === 'image/webp') {
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
+            $transparent = imagecolorallocatealpha($dst, 0, 0, 0, 127);
+            imagefilledrectangle($dst, 0, 0, $newW, $newH, $transparent);
+        }
+
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $w, $h);
+
+        match ($mimeType) {
+            'image/jpeg' => imagejpeg($dst, $path, 88),
+            'image/png'  => imagepng($dst, $path, 6),
+            'image/webp' => imagewebp($dst, $path, 88),
+            default      => null,
+        };
+
+        imagedestroy($src);
+        imagedestroy($dst);
+    }
+
     private function applyWatermark(string $path, string $mimeType): void
     {
         // Cargar imagen según tipo
