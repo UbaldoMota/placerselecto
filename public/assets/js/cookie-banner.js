@@ -12,15 +12,21 @@
     setTimeout(() => {
         banner.classList.add('is-visible');
         banner.setAttribute('aria-hidden', 'false');
-    }, 500);
+    }, 700);
 
-    const btn = document.getElementById('cookie-banner-accept');
-    if (btn) {
-        btn.addEventListener('click', () => {
+    function dismiss(save) {
+        if (save) {
             try { localStorage.setItem(STORAGE_KEY, '1'); } catch (_) {}
-            banner.classList.remove('is-visible');
-            banner.setAttribute('aria-hidden', 'true');
-            setTimeout(() => banner.remove(), 400);
-        });
+        }
+        banner.classList.remove('is-visible');
+        banner.classList.add('is-leaving');
+        banner.setAttribute('aria-hidden', 'true');
+        setTimeout(() => banner.remove(), 400);
     }
+
+    document.getElementById('cookie-banner-accept')
+        ?.addEventListener('click', () => dismiss(true));
+
+    document.getElementById('cookie-banner-close')
+        ?.addEventListener('click', () => dismiss(true));
 })();
