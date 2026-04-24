@@ -123,12 +123,27 @@
     btnActivar.addEventListener('click', solicitarCamara);
     if (linkReintento) linkReintento.addEventListener('click', e => { e.preventDefault(); solicitarCamara(); });
 
+    let _origParent = null, _origNextSibling = null;
     function activarFullscreen() {
-        if (videoWrap) videoWrap.classList.add('is-recording-fullscreen');
+        if (videoWrap) {
+            // Mover a <body> para escapar cualquier stacking context (cards con transform, etc.)
+            if (videoWrap.parentElement !== document.body) {
+                _origParent      = videoWrap.parentElement;
+                _origNextSibling = videoWrap.nextSibling;
+                document.body.appendChild(videoWrap);
+            }
+            videoWrap.classList.add('is-recording-fullscreen');
+        }
         document.body.classList.add('is-recording-lock');
     }
     function salirFullscreen() {
-        if (videoWrap) videoWrap.classList.remove('is-recording-fullscreen');
+        if (videoWrap) {
+            videoWrap.classList.remove('is-recording-fullscreen');
+            if (_origParent) {
+                _origParent.insertBefore(videoWrap, _origNextSibling);
+                _origParent = null; _origNextSibling = null;
+            }
+        }
         document.body.classList.remove('is-recording-lock');
     }
 

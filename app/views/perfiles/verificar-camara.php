@@ -161,19 +161,24 @@ $appUrl     = APP_URL;
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
 
 /* Fullscreen mientras se graba: el contenedor del video cubre todo el viewport.
-   Al terminar, JS quita la clase y vuelve al layout normal. */
+   Al terminar, JS quita la clase y vuelve al layout normal.
+   !important necesario porque los estilos inline del contenedor (position:relative,
+   aspect-ratio:16/9, etc.) tienen mayor especificidad que una clase. */
 #videoWrap.is-recording-fullscreen {
-    position: fixed;
-    inset: 0;
-    z-index: 10500;
-    margin: 0;
-    border-radius: 0;
-    aspect-ratio: auto;
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 10500 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    aspect-ratio: auto !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
 }
 #videoWrap.is-recording-fullscreen video {
-    width: 100vw;
-    height: 100vh;
-    object-fit: contain;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
 }
 /* Indicador REC y countdown más grandes cuando está fullscreen */
 #videoWrap.is-recording-fullscreen #countdown {

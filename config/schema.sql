@@ -143,7 +143,7 @@ DROP TABLE IF EXISTS `pagos`;
 CREATE TABLE `pagos` (
     `id`              INT UNSIGNED     NOT NULL AUTO_INCREMENT,
     `id_usuario`      INT UNSIGNED     NOT NULL,
-    `id_anuncio`      INT UNSIGNED     NOT NULL,
+    `id_anuncio`      INT UNSIGNED     DEFAULT NULL,
     `monto`           DECIMAL(10,2)    NOT NULL,
     `moneda`          CHAR(3)          NOT NULL DEFAULT 'MXN',
     `tipo_destacado`  TINYINT UNSIGNED NOT NULL COMMENT 'Días del plan: 3, 7 o 15',
