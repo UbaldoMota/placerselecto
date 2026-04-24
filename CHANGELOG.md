@@ -1,5 +1,93 @@
 # Changelog — ClasificadosAdultos
 
+## [2026-04-23] — Optimización de imágenes, gates de verificación, UX y fixes críticos
+
+### 🖼️ Optimización de imágenes (thumbnails + WebP + cache)
+- **`Upload::generateVariants()`** genera automáticamente tras `saveImage`:
+  - `{stem}_thumb.{ext}` (~300px lado mayor) + `{stem}_thumb.webp`
+  - `{stem}_medium.{ext}` (~800px lado mayor) + `{stem}_medium.webp`
+  - `{stem}.webp` (full en WebP del original — si no era ya webp)
+  - 5 archivos por imagen. Cada original de ~2.5MB ahora genera ~300KB totales en variantes
+- **`ImageController::serve`** acepta `?size=thumb|medium|full` (default `full`) + content negotiation por `Accept: image/webp`:
+  - Cascada de fallback: webp del tamaño pedido → original del tamaño pedido → webp full → original full
+  - `Cache-Control: public, max-age=31536000, immutable` + `ETag` (con 304 Not Modified)
+- **Aplicado en todas las vistas:**
+  - Listados (`/`, `/perfiles`, cards en dashboard/mis-perfiles/estadisticas): `?size=thumb` o `?size=medium`
+  - Admin (perfiles, comentarios, reports, perfil-preview, verificar-fotos): tamaño según uso
+  - `ads/show.php` y `perfiles/show.php` separan `$gridUrls` (medium) del `$lightboxUrls` (full)
+  - `foto-uploader.php`: `?size=thumb` en previews
+- **Conteo de almacenamiento** ya incluye variantes — `StorageScannerModel` lee todos los archivos del directorio sin filtrar por sufijo
+
+### 📄 Paginación en almacenamiento admin
+- `/admin/almacenamiento?cat=fotos&vista=galeria` ahora pagina: **60 por página en galería, 100 en lista**
+- `StorageScannerModel::listar($cat, $limit, $offset)` soporta offset; nuevo `contarCategoria()`
+- Partial reutilizable `app/views/admin/_storage-pagination.php` (First · Prev · ventana ±2 · Next · Last)
+- Header muestra "mostrando X–Y de Z"
+
+### 🚫 Gate de publicación: requiere foto + video de verificación
+- `AdminController::publishProfile` bloquea con flash error si:
+  - No hay fotos en `perfil_fotos WHERE es_verificacion=1` (foto con rostro)
+  - `perfiles.video_verificacion` está vacío (video de 5s)
+- En `admin/perfil-preview.php` el botón "Publicar perfil" queda `disabled` con tooltip y banner amarillo explicando qué falta
+- Si admin intenta publicar desde el listado `/admin/perfiles` igual se bloquea server-side y redirige al detalle con el banner visible
+
+### 🔔 Notificaciones admin por envío de verificación
+- `PerfilesController::subirFotosVerificacion` → notif tipo `verificacion_fotos` a todos los admins
+- `PerfilesController::subirVideoVerificacion` → notif tipo `verificacion_video`
+- Ambas apuntan a `/admin/perfil/{id}` con icono y color warning
+
+### 🖼️ Foto oculta deja de ser la principal
+- `AdminController::toggleHidePhoto` y `deletePhoto`: si la foto ocultada/eliminada era la principal del perfil (coincide con `perfiles.imagen_token`), se promueve automáticamente la primera foto visible de la galería como nueva principal
+- Si no queda ninguna visible, se limpian `imagen_token` y `imagen_principal` (antes los listados seguían mostrando la foto oculta)
+
+### ✨ Lightbox: reubicación automática a `<body>`
+- `lightbox.js`: al inicializar mueve `#lightbox` a `document.body` para escapar cualquier stacking context creado por ancestros con `transform`/`filter`/`backdrop-filter`
+- **Bug original:** `.card:hover { transform: translateY(-2px) }` convertía al card en containing block → el lightbox `position:fixed` quedaba confinado al card en vez de cubrir el viewport → parpadeaba al entrar/salir el hover
+- Arregla el mismo bug en `perfiles/show.php`, `ads/show.php` y `admin/perfil-preview.php` sin tocar las vistas
+
+### 🐛 `app.js`: handler XHR respeta `preventDefault`
+- **Bug:** el handler `data-upload-form` subía por XHR aunque otro handler (p. ej. `validation.js`) hubiese bloqueado con `preventDefault()` → el usuario veía "la página recarga" tras fallar validación client-side
+- **Fix:** `if (ev.defaultPrevented) return;` al inicio del handler
+- Afectaba creación/edición de perfil, verificación de fotos
+
+### 📱 UX mobile
+- **Navbar:** botón "Registrarse" ahora muestra texto en móvil (antes solo el ícono `+`)
+- **Checkbox SMS** en `/registro/publicador`: el contenedor rosa completo es ahora un `<label for="autoriza_sms">` — toda el área es tappable, no solo el cuadradito. El link "aviso de privacidad" usa `event.stopPropagation()` para no togglear el check al navegarse
+- **Video de verificación en pantalla completa mientras graba:**
+  - Al presionar "GRABAR (5 seg)", el `#videoWrap` se mueve a `<body>` y toma `position:fixed; inset:0; z-index:10500; 100vh/100dvh`
+  - `object-fit: contain` para que la imagen completa sea visible
+  - Indicador REC y countdown agrandados con `safe-area-inset` (iPhone con notch)
+  - `body { overflow: hidden }` durante grabación
+  - Todos los overrides con `!important` porque los estilos inline del contenedor tenían mayor especificidad
+  - Al terminar los 5s: el elemento vuelve a su lugar original y aparece la pantalla de revisión
+
+### 🐛 Fix crítico: compra de tokens fallaba con integrity constraint
+- **Síntoma:** Flash "Error al procesar la compra. Intenta de nuevo." al intentar cualquier paquete
+- **Log:** `SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'id_anuncio' cannot be null`
+- **Causa:** drift de schema — en prod `pagos.id_anuncio` estaba `NOT NULL`, pero al comprar tokens no hay anuncio asociado (se pasa `null`). Local tenía la columna como NULL (alguna migración nunca se aplicó a prod)
+- **Fix aplicado en prod vía script one-shot (subido/ejecutado/auto-eliminado):** `ALTER TABLE pagos MODIFY id_anuncio INT UNSIGNED NULL`
+- `config/schema.sql` actualizado a `DEFAULT NULL` para instalaciones nuevas
+
+### Archivos modificados (destacados)
+| Archivo | Cambio |
+|---|---|
+| `app/Upload.php` | `generateVariants()` tras `saveImage` |
+| `app/controllers/ImageController.php` | `?size=`, content negotiation WebP, ETag + cache 1 año, `resolveImageVariant()` |
+| `app/controllers/AdminController.php` | Gate de publicación, notifs verif., promover foto principal, paginación almacenamiento |
+| `app/controllers/PerfilesController.php` | Notifs admin en subir fotos/video verificación |
+| `app/models/StorageScannerModel.php` | `listar($cat, $limit, $offset)`, `contarCategoria()` |
+| `app/views/admin/_storage-pagination.php` | **nuevo** — paginador reutilizable |
+| `app/views/admin/perfil-preview.php` | Gate visual, `$gridUrls/$lightboxUrls`, eager loading |
+| `app/views/perfiles/verificar-camara.php` | Fullscreen CSS con `!important` y `100dvh` |
+| `public/assets/js/lightbox.js` | Reubica `#lightbox` a `<body>` al init |
+| `public/assets/js/verificar-camara.js` | Mueve `#videoWrap` a body al grabar, lo restaura al terminar |
+| `public/assets/js/app.js` | `if (ev.defaultPrevented) return` en upload-form handler |
+| `app/views/partials/navbar.php` | "Registrarse" siempre visible |
+| `app/views/auth/registro-contacto.php` | `<label>` envuelve todo el contenedor SMS |
+| `config/schema.sql` | `pagos.id_anuncio` ahora `DEFAULT NULL` |
+
+---
+
 ## [2026-04-20] — Sesión de cambios grandes (UX, moderación, comentarios, videos)
 
 ### 💬 Sistema de comentarios con rol comentarista
