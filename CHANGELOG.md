@@ -1,5 +1,28 @@
 # Changelog — ClasificadosAdultos
 
+## [2026-04-24] — Fixes de alineación + documento de diseño replicable
+
+### 🎨 Documento de diseño (`diseño.md`)
+- Nuevo archivo en raíz del repo (~27KB, 28 secciones) con guía completa para replicar look-and-feel y patrones de interacción en otros proyectos:
+  - Stack visual (Bootstrap 5.3, Bootstrap Icons, Inter, Leaflet, Quill — todo self-hosted)
+  - Design tokens (paleta, radios 8–12px, sombras suaves, fuentes, transitions)
+  - 13 componentes reutilizables con snippets copy-paste: global loader, toasts, cookie banner, age gate, lightbox, upload modal con barra de progreso, foto-uploader drag-drop, notif bell con polling/backoff/ETag, mapas Leaflet con marker custom, Quill con emoji panel, rating stars, perfil-row horizontal, video fullscreen para grabación
+  - Patrones data-attribute CSP-safe (`data-toggle-password`, `data-confirm-click`, `data-countdown-seconds`, etc.)
+  - Form validation client-side sin librerías
+  - Cascada estado→municipio reusable
+  - Catálogo de keyframes y easings preferidos
+  - Reglas "no escritas" para que se vea caro (sombras sutiles, radios intermedios, hover translate-2px, letter-spacing negativo, spacing en múltiplos de 4/8)
+  - Lecciones dolorosas (containing blocks de transform, inline styles vs clases, iOS Safari gotchas con Quill/100vh, etc.)
+  - Checklist de portabilidad a otro proyecto
+
+### 🐛 Alineación del checkbox SMS dentro del recuadro rosa
+- `registro-contacto.php`: cambié de `form-check d-block p-3` a layout `d-flex align-items-start gap-2 rounded-3 p-3`
+- **Causa:** Bootstrap `.form-check` aplica `padding-left: 1.5em` al contenedor + `.form-check-input` usa `margin-left: -1.5em` para posicionarse antes del padding. Combinado con el `p-3` del recuadro rosa, el checkbox se salía por la izquierda del fondo rosa
+- Eliminadas clases `form-check`/`form-check-label`; se aplica `flex-shrink-0 mt-1` al input + `margin-left: 0` inline para anular el negativo de Bootstrap
+- El link "aviso de privacidad" mantiene `event.stopPropagation()` para no togglear el check al navegar
+
+---
+
 ## [2026-04-23] — Optimización de imágenes, gates de verificación, UX y fixes críticos
 
 ### 🖼️ Optimización de imágenes (thumbnails + WebP + cache)
