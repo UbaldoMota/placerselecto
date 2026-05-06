@@ -50,12 +50,10 @@ class FormValidator {
      * @param {HTMLFormElement} form
      */
     constructor(form) {
-        this.form        = form;
-        this.fields      = form.querySelectorAll('[data-validate]');
-        this.submitBtn   = form.querySelector('button[type="submit"], input[type="submit"]');
-        this.touched     = new WeakSet();        // campos que el usuario ya tocó
+        this.form    = form;
+        this.fields  = form.querySelectorAll('[data-validate]');
+        this.touched = new WeakSet();   // campos que el usuario ya tocó
         this._bind();
-        this._updateSubmit();                    // estado inicial del botón
     }
 
     _bind() {
@@ -64,24 +62,21 @@ class FormValidator {
             field.addEventListener('blur', () => {
                 this.touched.add(field);
                 this._validateField(field, true);
-                this._updateSubmit();
             });
 
-            // Validar mientras escribe — actualiza UI y estado del botón
+            // Mientras escribe: solo refresca el feedback si el campo ya fue tocado
+            // (evita mostrar rojo en campos que aún no han sido completados)
             const evt = (field.tagName === 'SELECT' || field.type === 'checkbox') ? 'change' : 'input';
             field.addEventListener(evt, () => {
                 if (this.touched.has(field)) {
                     this._validateField(field, true);
-                } else {
-                    this._validateField(field, false); // silencioso: no marca error aún
                 }
-                this._updateSubmit();
             });
         });
 
-        // Submit: validar todo y bloquear si falta algo
+        // Submit: validar todo. Si hay errores, prevenir envío y mostrarlos
+        // debajo de cada campo. El botón sigue clickable en todo momento.
         this.form.addEventListener('submit', (e) => {
-            // Marcar todos los campos como touched al hacer submit
             this.fields.forEach(f => this.touched.add(f));
             if (!this._validateAll()) {
                 e.preventDefault();
@@ -90,7 +85,6 @@ class FormValidator {
                     firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     firstError.focus({ preventScroll: true });
                 }
-                this._updateSubmit();
             }
         });
     }
@@ -101,60 +95,6 @@ class FormValidator {
             if (!this._validateField(field, true)) valid = false;
         });
         return valid;
-    }
-
-    /**
-     * Devuelve true si TODOS los campos requeridos pasan validación.
-     * Modo silencioso: no toca clases ni mensajes.
-     */
-    _isFormValid() {
-        for (const field of this.fields) {
-            if (!this._checkField(field)) return false;
-        }
-        return true;
-    }
-
-    /**
-     * Habilita/deshabilita el botón de submit según validez del form.
-     */
-    _updateSubmit() {
-        if (!this.submitBtn) return;
-        const ok = this._isFormValid();
-        this.submitBtn.disabled = !ok;
-        this.submitBtn.classList.toggle('disabled', !ok);
-        // Tooltip explicativo accesible
-        if (!ok) {
-            this.submitBtn.setAttribute('aria-disabled', 'true');
-            this.submitBtn.title = 'Completa los campos requeridos para enviar.';
-        } else {
-            this.submitBtn.removeAttribute('aria-disabled');
-            this.submitBtn.removeAttribute('title');
-        }
-    }
-
-    /**
-     * Verifica un campo SIN tocar el DOM. Devuelve true si pasa.
-     * Útil para saber si el form está completo para habilitar el botón.
-     */
-    _checkField(field) {
-        const rulesStr = field.dataset.validate || '';
-        const rules    = rulesStr.split('|').filter(Boolean);
-        const val      = field.type === 'checkbox' ? (field.checked ? '1' : '') : (field.value ?? '');
-
-        if (field.dataset.match) {
-            const target = document.getElementById(field.dataset.match);
-            if (target && val !== target.value) return false;
-        }
-
-        for (const rule of rules) {
-            const [name, arg] = rule.split(':');
-            const fn = RULES[name];
-            if (!fn) continue;
-            if (name !== 'required' && val.toString().trim() === '') continue;
-            const ok = arg !== undefined ? fn(val.toString(), arg) : fn(val.toString());
-            if (!ok) return false;
-        }
-        return true;
     }
 
     /**
