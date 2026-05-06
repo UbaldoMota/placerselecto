@@ -9,8 +9,8 @@
                     <?= e(APP_NAME) ?>
                 </div>
                 <p class="mb-3" style="font-size:.82rem">
-                    Plataforma de clasificados publicitarios para adultos.
-                    Solo para mayores de 18 años. Publicidad legal, sin contenido explícito.
+                    Plataforma de clasificados publicitarios para adultos verificados.
+                    Solo para mayores de 18 años. Contenido para adultos.
                 </p>
                 <div class="d-flex gap-3">
                     <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 px-2 py-1" style="font-size:.7rem">
