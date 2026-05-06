@@ -798,6 +798,8 @@ class AdminController extends Controller
             'color'   => 'success',
         ]);
 
+        $this->notificarPorCorreoEstadoPerfil($usuario, $perfil, 'aprobado');
+
         SessionManager::flash('success', 'Perfil publicado correctamente.');
         $this->redirect('/admin/perfiles');
     }
@@ -825,8 +827,50 @@ class AdminController extends Controller
             'color'   => 'danger',
         ]);
 
+        $usuario = $this->usuarios->find((int)$perfil['id_usuario']);
+        $this->notificarPorCorreoEstadoPerfil($usuario, $perfil, 'rechazado');
+
         SessionManager::flash('success', 'Perfil rechazado.');
         $this->redirect('/admin/perfiles');
+    }
+
+    /**
+     * Envía correo al dueño del perfil cuando admin aprueba o rechaza.
+     * Falla silenciosamente: la moderación no debe romperse si SMTP falla.
+     */
+    private function notificarPorCorreoEstadoPerfil(?array $usuario, array $perfil, string $accion): void
+    {
+        if (empty($usuario['email'])) return;
+
+        $nombrePerfil = (string) ($perfil['nombre'] ?? '');
+        $idPerfil     = (int) ($perfil['id'] ?? 0);
+
+        if ($accion === 'aprobado') {
+            $template = 'perfil-aprobado';
+            $vars = [
+                'nombre_usuario' => $usuario['nombre'] ?? '',
+                'nombre_perfil'  => $nombrePerfil,
+                'url_perfil'     => APP_URL . '/perfil/' . $idPerfil,
+            ];
+            $asunto = 'Tu perfil fue publicado — ' . APP_NAME;
+            $alt    = "Tu perfil \"{$nombrePerfil}\" fue publicado y ya es visible.\n\nVerlo: " . APP_URL . '/perfil/' . $idPerfil;
+        } else { // 'rechazado'
+            $template = 'perfil-rechazado';
+            $vars = [
+                'nombre_usuario' => $usuario['nombre'] ?? '',
+                'nombre_perfil'  => $nombrePerfil,
+                'url_editar'     => APP_URL . '/perfil/' . $idPerfil . '/editar',
+            ];
+            $asunto = 'Tu perfil necesita ajustes — ' . APP_NAME;
+            $alt    = "Tu perfil \"{$nombrePerfil}\" no pasó la revisión.\n\nEditar: " . APP_URL . '/perfil/' . $idPerfil . '/editar';
+        }
+
+        $html = Mailer::render($template, $vars);
+        $ok   = Mailer::send($usuario['email'], $asunto, $html, $alt);
+
+        if (!$ok) {
+            error_log("[AdminController] Mailer::send fallo email={$usuario['email']} accion={$accion} perfil={$idPerfil}");
+        }
     }
 
     /**
