@@ -128,19 +128,40 @@ class ImageController extends Controller
             $this->abort(415);
         }
 
-        // 6. Conditional GET con ETag — si el cliente ya tiene esa versión, 304
+        // 6. ¿Es elegible para cachear en CDN/CF?
+        // Solo fotos públicas (perfil publicado, no de verificación) son cacheables.
+        // Las privadas dependen de la sesión del usuario y NUNCA deben quedar en cache pública.
+        $cacheable = $publicado && empty($foto['es_verificacion']);
+
+        // Liberar la sesión PHP antes de emitir headers: evita Set-Cookie y los headers
+        // Pragma/Expires que PHP añade automáticamente, los cuales hacen que CF marque
+        // la respuesta como BYPASS y no la cachée.
+        if ($cacheable) {
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_write_close();
+            }
+            header_remove('Set-Cookie');
+            header_remove('Pragma');
+            header_remove('Expires');
+        }
+
+        // 7. Conditional GET con ETag — si el cliente ya tiene esa versión, 304
         $etag = '"' . md5($token . ':' . $size . ':' . filemtime($path) . ':' . filesize($path)) . '"';
         if (($_SERVER['HTTP_IF_NONE_MATCH'] ?? '') === $etag) {
             header('ETag: ' . $etag);
-            header('Cache-Control: public, max-age=31536000, immutable');
+            header('Cache-Control: ' . ($cacheable
+                ? 'public, max-age=31536000, immutable'
+                : 'private, max-age=86400, must-revalidate'));
             http_response_code(304);
             exit;
         }
 
-        // 7. Cabeceras (el token es único e inmutable → cache agresivo 1 año)
+        // 8. Cabeceras (el token es único e inmutable → cache agresivo 1 año en públicas)
         header('Content-Type: '   . $mimeType);
         header('Content-Length: ' . filesize($path));
-        header('Cache-Control: public, max-age=31536000, immutable');
+        header('Cache-Control: ' . ($cacheable
+            ? 'public, max-age=31536000, immutable'
+            : 'private, max-age=86400, must-revalidate'));
         header('ETag: ' . $etag);
         header('Vary: Accept');
         header('X-Content-Type-Options: nosniff');
