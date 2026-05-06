@@ -37,4 +37,9 @@ class LegalController extends Controller
     {
         $this->render('legal/cookies', ['pageTitle' => 'Política de Cookies']);
     }
+
+    public function payments(array $params = []): void
+    {
+        $this->render('legal/pagos', ['pageTitle' => 'Política de Pagos y Devoluciones']);
+    }
 }
