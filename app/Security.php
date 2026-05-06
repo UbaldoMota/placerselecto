@@ -191,33 +191,109 @@ class Security
     // ---------------------------------------------------------
 
     /**
-     * Obtiene la IP real del cliente, considerando proxies confiables.
-     * NOTA: En producción tras un proxy/CDN, ajustar los headers confiables.
+     * Rangos oficiales de Cloudflare. Fuente: https://www.cloudflare.com/ips/
+     * Casi nunca cambian; revisar 1-2 veces al año.
+     */
+    private const CLOUDFLARE_IPV4_RANGES = [
+        '173.245.48.0/20',
+        '103.21.244.0/22',
+        '103.22.200.0/22',
+        '103.31.4.0/22',
+        '141.101.64.0/18',
+        '108.162.192.0/18',
+        '190.93.240.0/20',
+        '188.114.96.0/20',
+        '197.234.240.0/22',
+        '198.41.128.0/17',
+        '162.158.0.0/15',
+        '104.16.0.0/13',
+        '104.24.0.0/14',
+        '172.64.0.0/13',
+        '131.0.72.0/22',
+    ];
+
+    private const CLOUDFLARE_IPV6_RANGES = [
+        '2400:cb00::/32',
+        '2606:4700::/32',
+        '2803:f800::/32',
+        '2405:b500::/32',
+        '2405:8100::/32',
+        '2a06:98c0::/29',
+        '2c0f:f248::/32',
+    ];
+
+    /**
+     * Obtiene la IP real del cliente.
+     *
+     * Estrategia: si REMOTE_ADDR pertenece a un rango de Cloudflare, confiar en
+     * el header CF-Connecting-IP. En cualquier otro caso (local, dev, hits directos
+     * al origen) se usa REMOTE_ADDR. Esto evita que un atacante que conozca la IP
+     * del origen pueda falsificar la IP del cliente con un header forjado para
+     * burlar rate limiting o el bloqueo de login.
      */
     public static function getClientIp(): string
     {
-        // Lista de headers a revisar en orden de confianza
-        $headers = [
-            'HTTP_CF_CONNECTING_IP',    // Cloudflare
-            'HTTP_X_FORWARDED_FOR',     // Proxy estándar
-            'HTTP_X_REAL_IP',           // Nginx
-            'HTTP_CLIENT_IP',
-            'REMOTE_ADDR',              // Directo (siempre disponible)
-        ];
+        $remote = $_SERVER['REMOTE_ADDR'] ?? '';
 
-        foreach ($headers as $header) {
-            if (!empty($_SERVER[$header])) {
-                // X-Forwarded-For puede contener múltiples IPs separadas por coma
-                $ip = trim(explode(',', $_SERVER[$header])[0]);
-
-                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-                    return $ip;
-                }
+        if ($remote !== ''
+            && self::isCloudflareIp($remote)
+            && !empty($_SERVER['HTTP_CF_CONNECTING_IP'])
+        ) {
+            $cfIp = trim($_SERVER['HTTP_CF_CONNECTING_IP']);
+            if (filter_var($cfIp, FILTER_VALIDATE_IP)) {
+                return $cfIp;
             }
         }
 
-        // Fallback: REMOTE_ADDR (puede ser IP privada en localhost)
-        return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        if ($remote !== '' && filter_var($remote, FILTER_VALIDATE_IP)) {
+            return $remote;
+        }
+
+        return '0.0.0.0';
+    }
+
+    /**
+     * ¿La IP dada está dentro de algún rango oficial de Cloudflare?
+     */
+    public static function isCloudflareIp(string $ip): bool
+    {
+        $packed = @inet_pton($ip);
+        if ($packed === false) return false;
+
+        $ranges = strlen($packed) === 4
+            ? self::CLOUDFLARE_IPV4_RANGES
+            : self::CLOUDFLARE_IPV6_RANGES;
+
+        foreach ($ranges as $cidr) {
+            if (self::ipInCidr($packed, $cidr)) return true;
+        }
+        return false;
+    }
+
+    private static function ipInCidr(string $packedIp, string $cidr): bool
+    {
+        [$subnet, $maskBits] = explode('/', $cidr);
+        $packedSubnet = @inet_pton($subnet);
+        if ($packedSubnet === false || strlen($packedSubnet) !== strlen($packedIp)) {
+            return false;
+        }
+
+        $maskBits = (int) $maskBits;
+        $bytesFull = intdiv($maskBits, 8);
+        $bitsLeft  = $maskBits % 8;
+
+        if ($bytesFull > 0
+            && substr($packedIp, 0, $bytesFull) !== substr($packedSubnet, 0, $bytesFull)
+        ) {
+            return false;
+        }
+        if ($bitsLeft > 0) {
+            $maskByte = (0xFF << (8 - $bitsLeft)) & 0xFF;
+            $a = ord($packedIp[$bytesFull])     & $maskByte;
+            $b = ord($packedSubnet[$bytesFull]) & $maskByte;
+            if ($a !== $b) return false;
+        }
+        return true;
     }
 
     // ---------------------------------------------------------
