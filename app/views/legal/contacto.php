@@ -104,7 +104,11 @@
 
                 <div class="mb-3 mt-3">
                     <label for="contacto_asunto" class="form-label">Tipo de consulta</label>
-                    <select id="contacto_asunto" name="asunto" class="form-select" required>
+                    <select id="contacto_asunto"
+                            name="asunto"
+                            class="form-select"
+                            required
+                            data-validate="required">
                         <option value="">Selecciona una opción…</option>
                         <option value="soporte">Soporte general</option>
                         <option value="pagos">Pagos y facturación</option>
@@ -131,8 +135,11 @@
                 </div>
 
                 <div class="form-check mb-3">
-                    <input type="checkbox" id="contacto_acepta" class="form-check-input"
-                           required data-validate="required">
+                    <input type="checkbox"
+                           id="contacto_acepta"
+                           class="form-check-input"
+                           required
+                           data-validate="required">
                     <label for="contacto_acepta" class="form-check-label" style="font-size:.83rem">
                         He leído el <a href="<?= APP_URL ?>/privacidad" target="_blank">Aviso de Privacidad</a>
                         y autorizo el tratamiento de mis datos para responder a esta consulta.
