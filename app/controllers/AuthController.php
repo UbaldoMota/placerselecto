@@ -621,11 +621,15 @@ class AuthController extends Controller
 
     private function enviarSms(string $telefono, string $codigo): void
     {
-        // TODO: integrar proveedor SMS (Twilio, Vonage, etc.)
-        // Por ahora: log + flash visible en desarrollo
-        $msg = "[SMS DEV] Teléfono: {$telefono} — Código: {$codigo}";
-        error_log($msg);
-        SessionManager::flash('info', "🔑 Código SMS (desarrollo): <strong>{$codigo}</strong>");
+        $mensaje    = "PlacerSelecto: tu codigo de verificacion es {$codigo}. Vence en 15 minutos.";
+        $referencia = 'reg-' . substr(md5($telefono . $codigo), 0, 12);
+
+        $resultado = SmsClient::send($telefono, $mensaje, $referencia);
+
+        // Si SMS_ENABLED=false o falló el envío real, fallback dev: mostrar el código en pantalla
+        if ($resultado === null) {
+            SessionManager::flash('info', "🔑 Código SMS (desarrollo): <strong>{$codigo}</strong>");
+        }
     }
 
     private function enviarCorreoVerificacion(string $email, string $codigo, ?string $nombre = null): void

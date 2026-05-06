@@ -41,6 +41,7 @@ spl_autoload_register(function (string $class): void {
         'Validator'      => APP_PATH    . '/Validator.php',
         'Upload'         => APP_PATH    . '/Upload.php',
         'Mailer'         => APP_PATH    . '/Mailer.php',
+        'SmsClient'      => APP_PATH    . '/SmsClient.php',
     ];
 
     if (isset($map[$class])) {

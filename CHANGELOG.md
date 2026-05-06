@@ -1,5 +1,33 @@
 # Changelog — ClasificadosAdultos
 
+## [2026-05-06] — Envío real de SMS vía API SaaS propia
+
+### 📱 Integración SMS (reemplaza el TODO/dev-only)
+- **Nuevo `app/SmsClient.php`** — wrapper estático sobre `https://test.alitter-soluciones.com/api/sms/enviar` siguiendo la `Guia_Integracion_API.md`:
+  - Bearer auth con API key, `Idempotency-Key` por intento lógico, timeout 30s
+  - Retry con backoff exponencial 1s/2s/4s solo en 429/500/502/503/504; no retry en 4xx no transitorios
+  - Normalización E.164 (`SmsClient::toE164`) — asume `+52` cuando vienen 10 dígitos sin prefijo (caso típico desde el form de registro)
+  - Loguea `[SMS-OK]` con `mensajeId/sid/costo/ref` en éxito y `[SMS-ERR]` con `requestId` en fallo
+  - Devuelve `null` en lugar de lanzar excepción — el caller decide si fallback a dev (mostrar código en pantalla)
+- **`config/config.php`**: nuevas constantes `SMS_ENABLED`, `SMS_BASE_URL`, `SMS_API_KEY` (mismo patrón que `SMTP_*`)
+- **`config/env.development.php`**: `sms_enabled=true` con la API key del proyecto local
+- **`config/env.example.php`**: añadida la sección de SMS para que sirva de plantilla a `env.production.php`
+- **`AuthController::enviarSms()`**: ya no es un TODO — llama a `SmsClient::send()` con un mensaje real y `referencia=reg-{hash}`. Si el envío falla o `SMS_ENABLED=false`, hace fallback al flash visible en pantalla (modo dev sigue funcionando sin red)
+- **`index.php`**: `SmsClient` añadido al mapa del autoloader
+- La cuenta Twilio detrás de la API SaaS ya es **paga**, así que envía al teléfono real del usuario que se registra (no hay restricción de destino)
+
+### Archivos modificados
+| Archivo | Cambio |
+|---|---|
+| `app/SmsClient.php` | nuevo |
+| `app/controllers/AuthController.php` | `enviarSms()` real |
+| `config/config.php` | constantes `SMS_*` |
+| `config/env.development.php` | credenciales locales |
+| `config/env.example.php` | plantilla actualizada |
+| `index.php` | autoloader |
+
+---
+
 ## [2026-04-24] — Fixes de alineación + documento de diseño replicable
 
 ### 🎨 Documento de diseño (`diseño.md`)

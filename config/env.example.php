@@ -26,4 +26,10 @@ return [
     'smtp_pass'      => 'la-contraseña-del-buzón',
     'smtp_from'      => 'noreply@placerselecto.com',
     'smtp_from_name' => 'PlacerSelecto',
+
+    // SMS — API SaaS propia (test.alitter-soluciones.com), ver Guia_Integracion_API.md
+    // Cuando 'sms_enabled' = false el código se muestra en pantalla (modo dev)
+    'sms_enabled'  => false,
+    'sms_base_url' => 'https://test.alitter-soluciones.com',
+    'sms_api_key'  => '',  // Generar en el dashboard de la API SaaS y pegar aquí
 ];

@@ -101,7 +101,31 @@
       "Bash(/c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l app/views/admin/perfiles.php)",
       "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -h 127.0.0.1 -N -e 'DESCRIBE reportes' clasificados_adultos)",
       "Bash(/c/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe -l /c/laragon/www/Publicidad/app/Middleware.php)",
-      "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -h 127.0.0.1 -N -e 'SELECT id, nombre FROM token_paquetes ORDER BY id' clasificados_adultos)"
+      "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -h 127.0.0.1 -N -e 'SELECT id, nombre FROM token_paquetes ORDER BY id' clasificados_adultos)",
+      "Bash(export MSYS_NO_PATHCONV=1)",
+      "Bash(sed -i 's|APP_URL \\\\. '\\\\''/img/'\\\\'' \\\\. $c\\\\['\\\\''perfil_imagen'\\\\''\\\\] : null|APP_URL . '\\\\''/img/'\\\\'' . $c['\\\\''perfil_imagen'\\\\''] . '\\\\''?size=thumb'\\\\'' : null|' app/views/admin/comentarios.php)",
+      "Bash(sed -i 's|APP_URL \\\\. '\\\\''/img/'\\\\'' \\\\. $r\\\\['\\\\''perfil_imagen'\\\\''\\\\] : null|APP_URL . '\\\\''/img/'\\\\'' . $r['\\\\''perfil_imagen'\\\\''] . '\\\\''?size=thumb'\\\\'' : null|' app/views/admin/reports.php)",
+      "Bash(sed -i 's|<img src=\"<?= APP_URL \\\\. .\\\\/img\\\\/. \\\\. e\\(\\\\$f\\\\[.token.\\\\]\\) ?>\"|<img src=\"<?= APP_URL . \"/img/\" . e\\($f[\"token\"]\\) . \"?size=medium\" ?>\"|g' app/views/admin/perfil-preview.php)",
+      "Bash(sed -i 's|<img src=\"<?= APP_URL ?>/img/<?= e\\(\\\\$fv\\\\[.token.\\\\]\\) ?>\"|<img src=\"<?= APP_URL ?>/img/<?= e\\($fv[\"token\"]\\) ?>?size=thumb\"|g' app/views/admin/perfil-preview.php)",
+      "Bash(sed -i 's|APP_URL \\\\. '\\\\''/img/'\\\\'' \\\\. $f\\\\['\\\\''token'\\\\''\\\\]$|APP_URL . '\\\\''/img/'\\\\'' . $f['\\\\''token'\\\\''] . '\\\\''?size=medium'\\\\''|' app/views/ads/show.php)",
+      "Bash(git *)",
+      "Bash(MSYS_NO_PATHCONV=1 curl *)",
+      "Bash(ls *.sql)",
+      "Bash(ls database/)",
+      "Bash(ls db/)",
+      "Bash(\"C:/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql\" -u root clasificados_adultos -e \"SHOW COLUMNS FROM perfiles\")",
+      "Bash(C:/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql *)",
+      "Bash(python -c \"import sys, json; d = json.load\\(sys.stdin\\); print\\(d['data']['content'][-5000:]\\)\")",
+      "Bash(python -c \"import sys, json; d = json.load\\(sys.stdin\\); print\\(d['data']['content'][-3000:]\\)\")",
+      "Bash(python -c \"import sys, json; d = json.load\\(sys.stdin\\); print\\(d['data']['content']\\)\")",
+      "Bash(python -c \"import sys, json; d = json.load\\(sys.stdin\\); [print\\(f['file']\\) for f in d.get\\('data', []\\)]\")",
+      "Bash(python -c ' *)",
+      "Bash(python -c \"import sys, json; d = json.load\\(sys.stdin\\); print\\('files left:', [f['file'] for f in d.get\\('data', []\\)]\\)\")",
+      "Bash(C:/laragon/bin/php/php-8.3.16-Win32-vs16-x64/php.exe _test_sms.php)",
+      "Bash(php _test_sms.php)",
+      "Bash(C:/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe *)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d['data']['content'] if d.get\\('data'\\) else d\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d['data']['content']\\)\")"
     ]
   }
 }

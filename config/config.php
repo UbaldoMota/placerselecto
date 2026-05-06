@@ -56,6 +56,11 @@ define('SMTP_PASS',      $env['smtp_pass']            ?? '');
 define('SMTP_FROM',      $env['smtp_from']            ?? 'noreply@placerselecto.com');
 define('SMTP_FROM_NAME', $env['smtp_from_name']       ?? 'PlacerSelecto');
 
+// SMS — API SaaS propia (test.alitter-soluciones.com), ver Guia_Integracion_API.md
+define('SMS_ENABLED',  (bool)($env['sms_enabled']  ?? false));
+define('SMS_BASE_URL', $env['sms_base_url']        ?? 'https://test.alitter-soluciones.com');
+define('SMS_API_KEY',  $env['sms_api_key']         ?? '');
+
 // Rutas de sistema
 define('ROOT_PATH',    dirname(__DIR__));
 define('APP_PATH',     ROOT_PATH . '/app');
