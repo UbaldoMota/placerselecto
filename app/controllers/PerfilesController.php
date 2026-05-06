@@ -830,6 +830,17 @@ class PerfilesController extends Controller
             'imagen_token'    => $primerToken,
         ]);
 
+        // El perfil vuelve a estado 'pendiente' (lo hace PerfilModel::editar) — avisar al admin
+        $user = SessionManager::user();
+        (new NotificacionModel())->crearParaAdmins([
+            'tipo'    => 'perfil_pendiente',
+            'titulo'  => 'Perfil editado pendiente de revisión',
+            'mensaje' => e($user['nombre'] ?? '') . ' editó el perfil "' . mb_substr($nombre, 0, 80) . '".',
+            'url'     => '/admin/perfil/' . $id,
+            'icono'   => 'pencil-square',
+            'color'   => 'warning',
+        ]);
+
         SessionManager::flash('success', 'Perfil actualizado. Quedará en revisión nuevamente.');
         $this->redirect('/mis-perfiles');
     }
@@ -1003,15 +1014,26 @@ class PerfilesController extends Controller
         $lista    = array_slice($lista, 0, $limit);
         $guardados = [];
         $uploader  = new Upload();
+        $fallidas  = [];
 
         foreach ($lista as $file) {
             if (!$uploader->saveImage($file, 'anuncios')) {
                 $errs = $uploader->getErrors();
                 error_log('[UPLOAD-FAIL] ' . $file['name'] . ' errores=' . implode(' | ', $errs));
-                foreach ($errs as $err) SessionManager::flash('error', $err);
-                $this->redirect($redirectOn);
+                $fallidas[] = $file['name'] . ' — ' . implode(' | ', $errs);
+                continue; // descartar esta foto y seguir con la siguiente
             }
             $guardados[] = $uploader->getSavedFilename();
+        }
+
+        // Reportar las fotos descartadas como warning (no como error que aborte el flujo)
+        foreach ($fallidas as $msg) {
+            SessionManager::flash('warning', 'Foto omitida: ' . $msg);
+        }
+
+        // Si TODAS fallaron y se intentó subir algo, abortar y mandar de vuelta al form
+        if (empty($guardados) && !empty($lista)) {
+            $this->redirect($redirectOn);
         }
 
         return $guardados;
