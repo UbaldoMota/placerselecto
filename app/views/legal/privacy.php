@@ -38,10 +38,10 @@
          'cuerpo' => 'No vendemos ni cedemos tus datos a terceros con fines comerciales. Podemos compartirlos con:
 • Autoridades competentes cuando lo exija la ley
 • Procesadores de pago para completar transacciones
-• Proveedores de infraestructura técnica bajo contratos de confidencialidad'],
+• Proveedores de infraestructura técnica bajo contratos de confidencialidad, incluido Cloudflare, Inc. que actúa como CDN y firewall recibiendo tu dirección IP y cabeceras HTTP con la finalidad de proteger al Sitio contra ataques y abuso automatizado'],
 
         ['titulo' => 'Cookies y tecnologías de rastreo',
-         'cuerpo' => 'Usamos cookies de sesión esenciales para el funcionamiento del Sitio. No usamos cookies de terceros para publicidad. Puedes configurar tu navegador para bloquear cookies, aunque algunas funciones del Sitio podrían verse afectadas.'],
+         'cuerpo' => 'Usamos cookies de sesión esenciales para el funcionamiento del Sitio (CLASIF_SESS) y una cookie de seguridad de Cloudflare (__cf_bm) que ayuda a distinguir tráfico humano de bots. No usamos cookies de terceros para publicidad ni rastreo. Puedes configurar tu navegador para bloquear cookies, aunque algunas funciones del Sitio podrían verse afectadas.'],
 
         ['titulo' => 'Tus derechos (ARCO)',
          'cuerpo' => 'Conforme a la Ley Federal de Protección de Datos Personales en Posesión de Particulares (LFPDPPP), tienes derecho a:
@@ -52,7 +52,7 @@
 Para ejercer estos derechos, contáctanos en: privacidad@' . strtolower(APP_NAME) . '.com'],
 
         ['titulo' => 'Seguridad',
-         'cuerpo' => 'Implementamos medidas técnicas y organizativas para proteger tus datos: cifrado de contraseñas con bcrypt, HTTPS, tokens CSRF, y acceso restringido a datos sensibles. Ningún sistema es 100% seguro; en caso de una brecha de seguridad que afecte tus derechos, te notificaremos conforme a la ley.'],
+         'cuerpo' => 'Implementamos medidas técnicas y organizativas para proteger tus datos: cifrado de contraseñas con bcrypt, HTTPS, tokens CSRF, acceso restringido a datos sensibles, y un firewall de aplicación (Cloudflare WAF) con detección de bots y mitigación DDoS. Ningún sistema es 100% seguro; en caso de una brecha de seguridad que afecte tus derechos, te notificaremos conforme a la ley.'],
 
         ['titulo' => 'Cambios a este aviso',
          'cuerpo' => 'Podemos actualizar este aviso. La versión vigente siempre estará disponible en esta página. El uso continuado del Sitio implica la aceptación de los cambios.'],
