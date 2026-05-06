@@ -55,6 +55,7 @@ return [
     ['POST', '/logout',                  'AuthController',     'logout',          ['auth', 'csrf']],
     ['GET',  '/recuperar-password',      'AuthController',     'showRecover',     ['guest']],
     ['POST', '/recuperar-password',      'AuthController',     'recoverPassword', ['guest', 'csrf']],
+    ['POST', '/reset-password',          'AuthController',     'resetPassword',   ['guest', 'csrf']],
 
     // ---------------------------------------------------------
     // VERIFICACIÓN DE MAYORÍA DE EDAD

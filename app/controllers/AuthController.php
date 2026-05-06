@@ -850,7 +850,63 @@ class AuthController extends Controller
 
     public function showRecover(array $params = []): void
     {
+        $token = trim($_GET['token'] ?? '');
+
+        if ($token !== '') {
+            $usuario = $this->usuarios->buscarPorToken($token);
+            if (!$usuario) {
+                SessionManager::flash('error', 'El enlace de recuperación es inválido o ya expiró. Solicita uno nuevo.');
+                $this->redirect('/recuperar-password');
+            }
+            $this->render('auth/reset-password', [
+                'pageTitle' => 'Nueva contraseña',
+                'token'     => $token,
+                'nombre'    => $usuario['nombre'] ?? '',
+            ]);
+            return;
+        }
+
         $this->render('auth/recover', ['pageTitle' => 'Recuperar contraseña']);
+    }
+
+    /**
+     * POST /reset-password — guarda la nueva contraseña usando el token.
+     */
+    public function resetPassword(array $params = []): void
+    {
+        $token    = trim($_POST['token']            ?? '');
+        $password = (string) ($_POST['password']         ?? '');
+        $confirm  = (string) ($_POST['password_confirm'] ?? '');
+
+        if ($token === '') {
+            SessionManager::flash('error', 'Token faltante.');
+            $this->redirect('/recuperar-password');
+        }
+
+        $usuario = $this->usuarios->buscarPorToken($token);
+        if (!$usuario) {
+            SessionManager::flash('error', 'El enlace de recuperación es inválido o ya expiró. Solicita uno nuevo.');
+            $this->redirect('/recuperar-password');
+        }
+
+        $v = new Validator(['password' => $password, 'password_confirm' => $confirm]);
+        $v->required('password', 'Contraseña')
+          ->strongPassword('password')
+          ->matches('password_confirm', 'password', 'las contraseñas');
+
+        if ($v->fails()) {
+            SessionManager::flash('error', $v->firstGlobalError());
+            $this->redirect('/recuperar-password?token=' . urlencode($token));
+        }
+
+        $ok = $this->usuarios->actualizarPassword((int) $usuario['id'], $password);
+        if (!$ok) {
+            SessionManager::flash('error', 'No se pudo actualizar la contraseña. Intenta de nuevo.');
+            $this->redirect('/recuperar-password?token=' . urlencode($token));
+        }
+
+        SessionManager::flash('success', '¡Contraseña actualizada! Ya puedes iniciar sesión.');
+        $this->redirect('/login');
     }
 
     public function recoverPassword(array $params = []): void

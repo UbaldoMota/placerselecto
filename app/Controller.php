@@ -37,7 +37,7 @@ abstract class Controller
 
         // Las vistas en auth/ y la vista age-gate son standalone (tienen su propio HTML completo)
         $standaloneViews = [
-            'auth/login', 'auth/register', 'auth/recover', 'auth/age-gate',
+            'auth/login', 'auth/register', 'auth/recover', 'auth/reset-password', 'auth/age-gate',
             'auth/registro-tipo', 'auth/registro-contacto',
             'auth/registro-verificar-sms', 'auth/registro-verificar-email',
             'auth/registro-completar', 'auth/registro-comentarista',
