@@ -709,4 +709,5 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
     </div>
 </div>
 
+<script src="<?= APP_URL ?>/public/assets/js/lightbox.js" defer></script>
 <script src="<?= APP_URL ?>/public/assets/js/perfil-show.js" defer></script>
