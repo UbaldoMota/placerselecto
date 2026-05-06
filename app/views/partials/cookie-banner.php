@@ -11,8 +11,8 @@
             <strong>Nada de publicidad</strong> ni seguimiento.
         </p>
         <div class="cookie-banner__actions">
-            <a href="<?= APP_URL ?>/privacidad" class="cookie-banner__link" data-no-loader>
-                Ver privacidad
+            <a href="<?= APP_URL ?>/cookies" class="cookie-banner__link" data-no-loader>
+                Política de cookies
             </a>
             <button type="button" id="cookie-banner-accept" class="cookie-banner__btn">
                 <i class="bi bi-check-lg me-1"></i>Entendido

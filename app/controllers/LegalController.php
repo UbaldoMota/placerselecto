@@ -32,4 +32,9 @@ class LegalController extends Controller
     {
         $this->render('legal/2257', ['pageTitle' => 'Declaración de verificación de edad (2257)']);
     }
+
+    public function cookies(array $params = []): void
+    {
+        $this->render('legal/cookies', ['pageTitle' => 'Política de Cookies']);
+    }
 }
