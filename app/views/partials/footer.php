@@ -80,5 +80,57 @@
             </div>
         </div>
 
+        <!-- Franja final: declaración de edad + insignias + medios de pago + responsable -->
+        <hr style="border-color:var(--color-border);margin:1rem 0">
+
+        <div class="text-center" style="font-size:.78rem;color:var(--color-text-muted)">
+            <em>Página de contenido adulto +18 años. Todos los usuarios han reconocido tener mínimo 18 años.</em>
+        </div>
+
+        <!-- Insignias de cumplimiento -->
+        <div class="d-flex flex-wrap gap-2 justify-content-center align-items-center my-3">
+            <!-- Métodos de pago -->
+            <span class="badge px-2 py-1 d-inline-flex align-items-center gap-1"
+                  style="background:#fff;color:#1a1a1a;border:1px solid #e5e5e5;font-size:.72rem;font-weight:600;letter-spacing:.5px">
+                VISA
+            </span>
+            <span class="badge px-2 py-1 d-inline-flex align-items-center gap-1"
+                  style="background:#fff;color:#1a1a1a;border:1px solid #e5e5e5;font-size:.72rem;font-weight:600;letter-spacing:.5px">
+                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#eb001b;margin-right:-3px"></span>
+                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f79e1b"></span>
+                Mastercard
+            </span>
+
+            <!-- Badge DMCA -->
+            <a href="<?= APP_URL ?>/dmca"
+               class="badge px-2 py-1 d-inline-flex align-items-center gap-1 text-decoration-none"
+               style="background:#003eaa;color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.4px"
+               title="Política de Derechos de Autor">
+                <i class="bi bi-c-circle"></i>DMCA Protected
+            </a>
+
+            <!-- Badge +18 -->
+            <span class="badge px-2 py-1 d-inline-flex align-items-center"
+                  style="background:#FF2D75;color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.4px"
+                  title="Solo para mayores de 18 años">
+                +18
+            </span>
+
+            <!-- Badge RTA -->
+            <a href="https://www.rtalabel.org" target="_blank" rel="noopener nofollow"
+               class="badge px-2 py-1 d-inline-flex align-items-center gap-1 text-decoration-none"
+               style="background:#1a1a1a;color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.4px"
+               title="Sitio etiquetado RTA — bloqueable por software de control parental">
+                <i class="bi bi-shield-fill-check"></i>RTA
+            </a>
+        </div>
+
+        <!-- Identificación del responsable -->
+        <div class="text-center" style="font-size:.74rem;color:var(--color-text-muted);line-height:1.6">
+            Operado por Alberto Figueroa<br>
+            Estado de México, México<br>
+            Contacto: <a href="mailto:legal@placerselecto.com">legal@placerselecto.com</a>
+        </div>
+
     </div>
 </footer>
