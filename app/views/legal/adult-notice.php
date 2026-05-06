@@ -82,13 +82,16 @@
                     <h3 class="h6 fw-bold mb-3">
                         <i class="bi bi-shield-exclamation text-warning me-2"></i>Control parental
                     </h3>
-                    <p style="font-size:.85rem;line-height:1.8;margin-bottom:.5rem">
-                        Si eres padre, madre o tutor, te recomendamos usar software de control parental
-                        para restringir el acceso de menores a este tipo de contenido.
+                    <p style="font-size:.85rem;line-height:1.8;margin-bottom:.75rem">
+                        Si eres padre, madre o tutor, encontrarás herramientas y recursos
+                        detallados para proteger a los menores en nuestra
+                        <a href="<?= APP_URL ?>/control-parental" class="fw-semibold">guía de Control Parental</a>:
+                        búsqueda segura, controles por sistema operativo, software dedicado
+                        y recursos de crianza digital.
                     </p>
-                    <p style="font-size:.82rem;color:var(--color-text-muted);margin-bottom:0">
-                        Proveedores: Net Nanny, Qustodio, Bark, Circle.
-                    </p>
+                    <a href="<?= APP_URL ?>/control-parental" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-arrow-right me-1"></i>Ver guía completa
+                    </a>
                 </div>
             </div>
         </div>

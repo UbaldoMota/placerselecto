@@ -46,6 +46,7 @@
                     <li class="mb-2"><a href="<?= APP_URL ?>/cookies"><i class="bi bi-cookie me-1"></i>Cookies</a></li>
                     <li class="mb-2"><a href="<?= APP_URL ?>/pagos"><i class="bi bi-credit-card me-1"></i>Pagos</a></li>
                     <li class="mb-2"><a href="<?= APP_URL ?>/mayores-18"><i class="bi bi-person-badge me-1"></i>Aviso +18</a></li>
+                    <li class="mb-2"><a href="<?= APP_URL ?>/control-parental"><i class="bi bi-shield-lock me-1"></i>Control parental</a></li>
                     <li class="mb-2"><a href="<?= APP_URL ?>/dmca"><i class="bi bi-c-circle me-1"></i>Derechos de Autor</a></li>
                     <li class="mb-2"><a href="<?= APP_URL ?>/2257"><i class="bi bi-shield-check me-1"></i>Declaración 2257</a></li>
                 </ul>
@@ -73,6 +74,7 @@
                 <a href="<?= APP_URL ?>/cookies">Cookies</a>
                 <a href="<?= APP_URL ?>/pagos">Pagos</a>
                 <a href="<?= APP_URL ?>/mayores-18">+18</a>
+                <a href="<?= APP_URL ?>/control-parental">Control parental</a>
                 <a href="<?= APP_URL ?>/dmca">DMCA</a>
                 <a href="<?= APP_URL ?>/2257">2257</a>
             </div>

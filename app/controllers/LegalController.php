@@ -42,4 +42,9 @@ class LegalController extends Controller
     {
         $this->render('legal/pagos', ['pageTitle' => 'Política de Pagos y Devoluciones']);
     }
+
+    public function parentalControl(array $params = []): void
+    {
+        $this->render('legal/control-parental', ['pageTitle' => 'Control Parental']);
+    }
 }
