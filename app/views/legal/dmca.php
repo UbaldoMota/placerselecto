@@ -73,7 +73,20 @@ Para reportes que involucren contenido íntimo no consensuado o sospecha de meno
         ['titulo' => '7. Conservación de evidencia',
          'cuerpo' => APP_NAME . ' conserva por el tiempo legalmente exigible los registros relacionados con reportes recibidos, contenido retirado y comunicaciones intercambiadas, con el objetivo de cumplir requerimientos de autoridad y de proteger derechos de terceros.'],
 
-        ['titulo' => '8. Contacto',
+        ['titulo' => '8. Solicitar el borrado en buscadores externos',
+         'cuerpo' => 'Una vez que el contenido es retirado del Sitio, sigue siendo posible que aparezca en los resultados de buscadores externos (Google, Bing, Yahoo, etc.) durante un tiempo, hasta que cada buscador actualice su índice. ' . APP_NAME . ' no controla ni administra el índice de esos buscadores.
+
+Para acelerar el retiro de los resultados en buscadores externos puedes solicitarlo directamente a cada uno:
+
+• Google: requiere cuenta de Gmail. Solicita la eliminación en
+  https://www.google.com/webmasters/tools/removals
+
+• Bing y Yahoo: requieren cuenta de Outlook/Hotmail. Solicita la eliminación en
+  https://www.bing.com/webmasters/tools/content-removal
+
+' . APP_NAME . ' colaborará razonablemente facilitando evidencia del retiro original cuando sea necesario para acreditar tu solicitud ante el buscador.'],
+
+        ['titulo' => '9. Contacto',
          'cuerpo' => 'Para presentar reportes, contraavisos o cualquier asunto relacionado con esta política:
 legal@placerselecto.com
 

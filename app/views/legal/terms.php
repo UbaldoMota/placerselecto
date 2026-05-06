@@ -50,6 +50,12 @@ Está absolutamente PROHIBIDO y será motivo de eliminación inmediata, suspensi
 • Recolección de datos personales de otros usuarios sin su consentimiento expreso.
 • Cracks, números de serie de software, malware o cualquier herramienta destinada a vulnerar derechos de propiedad intelectual de terceros.
 • Spam, phishing, fraude, suplantación, acoso o cualquier forma de actividad ilícita.
+• Uso de robots, spiders, scrapers, crawlers o cualquier medio automatizado para extraer, copiar o indexar contenido del Sitio sin autorización previa por escrito.
+• Esquivar, evitar o vulnerar las medidas técnicas, de seguridad o de moderación implementadas por el Sitio.
+• Publicar perfiles duplicados, idénticos o sustancialmente similares al mismo o a otros usuarios.
+• Utilizar correos electrónicos ficticios, números telefónicos no propios o cualquier dato de contacto falso.
+• Realizar publicaciones, edición o renovación masiva o automatizada de contenido sin autorización previa por escrito.
+• Hacer uso abusivo del sistema de denuncias (presentar reportes falsos contra otros usuarios). El abuso del sistema de denuncias es motivo de sanción permanente.
 
 ' . APP_NAME . ' modera el contenido antes de publicarlo, pero no garantiza que la moderación sea infalible. La detección de cualquier contenido prohibido posterior a la publicación dará lugar a su retiro inmediato.'],
 
@@ -95,10 +101,18 @@ Cualquier persona puede reportar contenido desde el botón "Reportar" disponible
 
 El usuario puede solicitar la cancelación de su cuenta y la eliminación de su contenido en cualquier momento, conforme al procedimiento de derechos ARCO descrito en el Aviso de Privacidad.'],
 
-        ['titulo' => '10. Pagos y servicios premium',
-         'cuerpo' => 'Los servicios de pago dentro del Sitio (paquetes de tokens, destacados, promociones) son prepagados y no reembolsables, salvo cuando la ley aplicable lo exija. Los pagos se procesan a través de proveedores externos sujetos a sus propias políticas. ' . APP_NAME . ' no almacena datos completos de tarjeta de crédito o débito.
+        ['titulo' => '10. Pagos, servicios premium y devoluciones',
+         'cuerpo' => 'Los servicios de pago dentro del Sitio (paquetes de tokens, destacados, promociones) son prepagados. Los pagos se procesan a través de proveedores externos sujetos a sus propias políticas. ' . APP_NAME . ' no almacena el número completo de tarjeta de crédito o débito, el CVC ni la fecha de vencimiento; conserva únicamente la máscara (primeros y últimos dígitos) y los datos mínimos para emitir comprobantes.
 
-Los servicios premium se activan automáticamente al confirmarse el pago y se consumen conforme al plan adquirido. Las disputas relacionadas con cargos deben presentarse a legal@placerselecto.com dentro de los 30 días naturales siguientes al cargo.'],
+Los servicios premium se activan automáticamente al confirmarse el pago y se consumen conforme al plan adquirido.
+
+Política de devoluciones:
+• Si solicitas la cancelación dentro de las primeras 24 horas posteriores al pago, se reembolsa el 100% del importe pagado, siempre que el servicio no se haya consumido por completo.
+• Después de las primeras 24 horas, se reembolsa la parte proporcional al tiempo no consumido del servicio. Por ejemplo, si compraste un destacado de 7 días y solicitas la cancelación al día 3, recibes el reembolso de los 4 días restantes.
+• No procede reembolso por servicios ya consumidos en su totalidad ni por consumos derivados del uso normal del Sitio (visualizaciones, clics recibidos, etc.).
+• Las disputas relacionadas con cargos deben presentarse a legal@placerselecto.com dentro de los 30 días naturales siguientes al cargo, indicando el ID de transacción y el motivo.
+
+Los reembolsos se realizan por la misma vía utilizada para el pago original, dentro de un plazo razonable que depende del proveedor de pagos.'],
 
         ['titulo' => '11. Privacidad y datos personales',
          'cuerpo' => 'El tratamiento de los datos personales se realiza conforme a nuestro Aviso de Privacidad, disponible en /privacidad. Al usar el Sitio reconoces haberlo leído y consentir el tratamiento de tus datos en los términos ahí descritos.'],
