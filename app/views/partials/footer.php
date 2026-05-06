@@ -125,12 +125,5 @@
             </a>
         </div>
 
-        <!-- Identificación del responsable -->
-        <div class="text-center" style="font-size:.74rem;color:var(--color-text-muted);line-height:1.6">
-            Operado por Alberto Figueroa<br>
-            Estado de México, México<br>
-            Contacto: <a href="mailto:legal@placerselecto.com">legal@placerselecto.com</a>
-        </div>
-
     </div>
 </footer>
