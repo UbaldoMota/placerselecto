@@ -62,4 +62,31 @@ class PerfilFotoModel extends FotoModel
             [$idPerfil]
         )->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Override: la foto principal del perfil debe escogerse SOLO entre las públicas
+     * (excluye fotos de verificación y ocultas). Las fotos de verificación conservan su orden.
+     * Retorna el token de la primera foto pública (la nueva portada).
+     */
+    public function reordenar(int $idPerfil, ?int $principalId = null): ?string
+    {
+        $publicas = $this->raw(
+            "SELECT id, token FROM `perfil_fotos`
+              WHERE `id_perfil` = ? AND `es_verificacion` = 0 AND `oculta` = 0
+              ORDER BY `orden` ASC, `id` ASC",
+            [$idPerfil]
+        )->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($principalId !== null) {
+            usort($publicas, fn($a, $b) =>
+                ((int)$a['id'] === $principalId ? -1 : 0) -
+                ((int)$b['id'] === $principalId ? -1 : 0)
+            );
+        }
+
+        foreach ($publicas as $i => $f) {
+            $this->update((int)$f['id'], ['orden' => $i]);
+        }
+        return $publicas[0]['token'] ?? null;
+    }
 }
