@@ -831,7 +831,7 @@ class PerfilesController extends Controller
         ]);
 
         // El perfil vuelve a estado 'pendiente' (lo hace PerfilModel::editar) — avisar al admin
-        $user = SessionManager::user();
+        $user = $this->currentUser();
         (new NotificacionModel())->crearParaAdmins([
             'tipo'    => 'perfil_pendiente',
             'titulo'  => 'Perfil editado pendiente de revisión',
