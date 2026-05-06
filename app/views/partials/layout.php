@@ -7,6 +7,10 @@
     <meta name="csrf-token" content="<?= e(Middleware::generateCsrfToken()) ?>">
     <meta name="app-url" content="<?= e(APP_URL) ?>">
 
+    <!-- RTA (Restricted To Adults) — los filtros de control parental reconocen este tag y bloquean el sitio para menores -->
+    <meta name="rating" content="adult">
+    <meta name="rating" content="RTA-5042-1996-1400-1577-RTA">
+
     <title><?= e($pageTitle ?? 'Inicio') ?> | <?= e(APP_NAME) ?></title>
     <meta name="description" content="<?= e($pageDescription ?? 'Plataforma de clasificados para adultos. Solo mayores de 18 años.') ?>">
 

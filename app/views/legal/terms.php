@@ -46,7 +46,10 @@ Está absolutamente PROHIBIDO y será motivo de eliminación inmediata, suspensi
 • Bestialidad, necrofilia, violación, snuff, violencia real o cualquier otra conducta tipificada como delito.
 • Contenido protegido por derechos de autor del que no se posean derechos o autorización para publicar.
 • Suplantación de identidad o uso de fotografías o videos de terceros sin su consentimiento.
-• Datos personales de terceros, mensajes de odio, amenazas, acoso, fraude, spam o cualquier forma de actividad ilícita.
+• Mensajes de odio, contenido racista, xenófobo, discriminatorio, difamatorio, calumnioso o que promueva la violencia contra cualquier grupo o persona.
+• Recolección de datos personales de otros usuarios sin su consentimiento expreso.
+• Cracks, números de serie de software, malware o cualquier herramienta destinada a vulnerar derechos de propiedad intelectual de terceros.
+• Spam, phishing, fraude, suplantación, acoso o cualquier forma de actividad ilícita.
 
 ' . APP_NAME . ' modera el contenido antes de publicarlo, pero no garantiza que la moderación sea infalible. La detección de cualquier contenido prohibido posterior a la publicación dará lugar a su retiro inmediato.'],
 
@@ -111,10 +114,17 @@ La responsabilidad máxima de ' . APP_NAME . ', en cualquier caso, queda limitad
         ['titulo' => '13. Modificaciones',
          'cuerpo' => APP_NAME . ' podrá modificar estos Términos en cualquier momento. La versión vigente se publicará en esta misma página con la fecha de su última actualización. El uso continuado del Sitio después de la publicación de los cambios implica su aceptación. Cuando los cambios sean sustanciales, el Sitio realizará un esfuerzo razonable por notificarlos a los usuarios registrados.'],
 
-        ['titulo' => '14. Ley aplicable',
+        ['titulo' => '14. Propiedad intelectual del Sitio',
+         'cuerpo' => APP_NAME . ' es propietario o licenciatario de todos los derechos sobre el software, diseño, código, identidad gráfica, marcas, logos, textos editoriales y demás elementos que conforman el Sitio.
+
+Queda prohibida la reproducción, modificación, distribución, ingeniería inversa o cualquier uso no autorizado del software o de los elementos visuales del Sitio. El usuario no adquiere derecho ni licencia alguna sobre estos elementos por el solo hecho de utilizar el Sitio.
+
+El contenido publicado por los usuarios mantiene la titularidad descrita en la sección 6 (Licencia limitada otorgada al Sitio).'],
+
+        ['titulo' => '15. Ley aplicable',
          'cuerpo' => 'Estos Términos se rigen por las leyes de los Estados Unidos Mexicanos. Cualquier controversia que no pueda resolverse mediante diálogo se someterá a los tribunales mexicanos competentes conforme a la legislación procesal aplicable.'],
 
-        ['titulo' => '15. Contacto',
+        ['titulo' => '16. Contacto',
          'cuerpo' => 'Para cualquier asunto relacionado con estos Términos, denuncias, requerimientos de autoridad o ejercicio de derechos, escribe a:
 legal@placerselecto.com'],
     ];
