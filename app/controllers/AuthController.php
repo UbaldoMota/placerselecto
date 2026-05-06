@@ -621,7 +621,7 @@ class AuthController extends Controller
 
     private function enviarSms(string $telefono, string $codigo): void
     {
-        $mensaje    = "PlacerSelecto: tu codigo de verificacion es {$codigo}. Vence en 15 minutos.";
+        $mensaje    = "PlaSelect: {$codigo}";
         $referencia = 'reg-' . substr(md5($telefono . $codigo), 0, 12);
 
         $resultado = SmsClient::send($telefono, $mensaje, $referencia);
@@ -878,15 +878,25 @@ class AuthController extends Controller
 
         if ($usuario) {
             $token = $this->usuarios->generarTokenRecuperacion($usuario['id']);
+            $link  = APP_URL . '/recuperar-password?token=' . $token;
 
-            // En producción: enviar email real con el token
-            // Por ahora: simulación — mostrar el link en pantalla (solo en desarrollo)
-            if (APP_DEBUG) {
-                $link = APP_URL . '/recuperar-password?token=' . $token;
-                SessionManager::flash('info', "[DEV] Link de recuperación: <a href='{$link}'>{$link}</a>");
+            $html = Mailer::render('recuperar-password', [
+                'link'   => $link,
+                'nombre' => $usuario['nombre'] ?? null,
+            ]);
+            $enviado = Mailer::send(
+                $email,
+                'Recupera tu contraseña — ' . APP_NAME,
+                $html,
+                "Para restablecer tu contraseña abre este enlace (válido 1 hora):\n{$link}"
+            );
+
+            if (!$enviado) {
+                error_log("[AuthController] Mailer::send fallo para recuperacion email={$email}");
+                if (APP_DEBUG) {
+                    SessionManager::flash('info', "[DEV] Link de recuperación: <a href='{$link}'>{$link}</a>");
+                }
             }
-
-            error_log("[AuthController] Token recuperación para {$email}: {$token}");
         }
 
         SessionManager::flash('success', $mensaje);
