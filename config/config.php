@@ -61,6 +61,10 @@ define('SMS_ENABLED',  (bool)($env['sms_enabled']  ?? false));
 define('SMS_BASE_URL', $env['sms_base_url']        ?? 'https://test.alitter-soluciones.com');
 define('SMS_API_KEY',  $env['sms_api_key']         ?? '');
 
+// Email externo del admin para notificaciones críticas (alta de usuarios,
+// documentos por aprobar, perfiles pendientes). Vacio = no enviar.
+define('ADMIN_NOTIFY_EMAIL', $env['admin_notify_email'] ?? '');
+
 // Rutas de sistema
 define('ROOT_PATH',    dirname(__DIR__));
 define('APP_PATH',     ROOT_PATH . '/app');

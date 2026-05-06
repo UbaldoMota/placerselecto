@@ -83,7 +83,8 @@
             wrap.wrap.remove();
             btnSubir.disabled = false;
             btnSubir.innerHTML = '<i class="bi bi-upload me-2"></i>Enviar fotos de verificación';
-            alert('Error al subir las fotos. Inténtalo de nuevo.');
+            if (window.showToast) window.showToast('danger', 'Error al subir las fotos. Inténtalo de nuevo.');
+            else alert('Error al subir las fotos. Inténtalo de nuevo.');
         });
         xhr.send(fd);
     }

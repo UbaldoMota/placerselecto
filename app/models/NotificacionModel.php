@@ -30,7 +30,19 @@ class NotificacionModel extends Model
     }
 
     /**
+     * Tipos de notificación que también envían correo al ADMIN_NOTIFY_EMAIL externo.
+     * El resto solo se queda en el panel (campanita).
+     */
+    private const TIPOS_CON_EMAIL_EXTERNO = [
+        'usuario_nuevo',        // alta de cuenta publicador completada
+        'documento_pendiente',  // documento de identidad subido para verificar
+        'perfil_pendiente',     // perfil creado o editado, esperando moderación
+    ];
+
+    /**
      * Inserta la misma notificación para todos los administradores.
+     * Adicionalmente, si el tipo está en TIPOS_CON_EMAIL_EXTERNO, envía un
+     * correo a la dirección externa configurada (ADMIN_NOTIFY_EMAIL).
      */
     public function crearParaAdmins(array $data): int
     {
@@ -42,7 +54,44 @@ class NotificacionModel extends Model
             $this->crear((int)$id, $data);
             $n++;
         }
+
+        // Email al admin externo solo para tipos críticos
+        $tipo = $data['tipo'] ?? '';
+        if (in_array($tipo, self::TIPOS_CON_EMAIL_EXTERNO, true)) {
+            $this->enviarEmailAdminExterno($data);
+        }
+
         return $n;
+    }
+
+    /**
+     * Envía email a ADMIN_NOTIFY_EMAIL con resumen de la notificación.
+     * Falla silenciosamente: la notificación in-app nunca debe fallar por SMTP.
+     */
+    private function enviarEmailAdminExterno(array $data): void
+    {
+        $destino = defined('ADMIN_NOTIFY_EMAIL') ? trim(ADMIN_NOTIFY_EMAIL) : '';
+        if ($destino === '') return;
+
+        $titulo  = (string) ($data['titulo']  ?? 'Nueva notificación');
+        $mensaje = (string) ($data['mensaje'] ?? '');
+        $url     = (string) ($data['url']     ?? '/admin');
+        $tipo    = (string) ($data['tipo']    ?? '');
+        $linkAbs = (str_starts_with($url, 'http') ? $url : APP_URL . $url);
+
+        $html = Mailer::render('admin-notif', [
+            'titulo'  => $titulo,
+            'mensaje' => $mensaje,
+            'tipo'    => $tipo,
+            'url'     => $linkAbs,
+            'fecha'   => date('d/m/Y H:i'),
+        ]);
+        $alt = "[" . APP_NAME . "] {$titulo}\n\n{$mensaje}\n\nVer: {$linkAbs}\n";
+
+        $ok = Mailer::send($destino, '[' . APP_NAME . '] ' . $titulo, $html, $alt);
+        if (!$ok) {
+            error_log("[NotificacionModel] Mailer::send a {$destino} fallo (tipo={$tipo})");
+        }
     }
 
     /**

@@ -140,38 +140,51 @@ class FormValidator {
     }
 
     /**
-     * Inserta el mensaje de error directamente debajo del input/select/textarea.
-     * Si el campo está dentro de un wrapper position-relative (como password con toggle),
-     * insertamos el feedback DESPUÉS del wrapper para no romper el layout.
+     * Inserta el mensaje de error debajo del control. El "anchor" donde se inserta
+     * depende de la estructura:
+     * - Si el campo está dentro de un .input-group (input + botón al lado), el
+     *   feedback va DESPUÉS del .input-group para no romper el flex.
+     * - Si está dentro de un wrapper .position-relative (password con toggle
+     *   absolute), también va después del wrapper.
+     * - Si hay un .form-text (helper), va después del helper.
+     * - Por defecto, va inmediatamente después del campo.
      */
-    _getOrCreateFeedback(field) {
-        // Buscar feedback hermano existente
-        let sibling = field.nextElementSibling;
-        while (sibling) {
-            if (sibling.classList && sibling.classList.contains('invalid-feedback')) {
-                return sibling;
+    _getAnchor(field) {
+        // 1) input-group → usar el grupo completo
+        const inputGroup = field.closest('.input-group');
+        if (inputGroup) return inputGroup;
+
+        // 2) wrapper position-relative (password con toggle absolute)
+        const posRel = field.closest('.position-relative');
+        if (posRel && posRel !== field) return posRel;
+
+        // 3) form-text si está después del campo en el mismo padre
+        const parent = field.parentElement;
+        if (parent) {
+            const formText = parent.querySelector(':scope > .form-text');
+            if (formText && field.compareDocumentPosition(formText) & Node.DOCUMENT_POSITION_FOLLOWING) {
+                return formText;
             }
-            // Si encontramos otro hermano que no es help-text, paramos
-            if (sibling.classList && (sibling.classList.contains('form-text') || sibling.tagName === 'BUTTON')) {
-                sibling = sibling.nextElementSibling;
-                continue;
-            }
-            break;
         }
 
-        // Crear nuevo
+        // 4) default: el propio campo
+        return field;
+    }
+
+    _getOrCreateFeedback(field) {
+        const anchor = this._getAnchor(field);
+
+        // Si ya existe un feedback inmediatamente después del anchor, reutilizarlo
+        const next = anchor.nextElementSibling;
+        if (next && next.classList && next.classList.contains('invalid-feedback')) {
+            return next;
+        }
+
         const feedback = document.createElement('div');
         feedback.className = 'invalid-feedback d-block';
         feedback.style.fontSize = '.78rem';
         feedback.style.marginTop = '.25rem';
-
-        // Insertar después de form-text si existe, o después del campo
-        const formText = field.parentElement.querySelector('.form-text');
-        if (formText) {
-            formText.insertAdjacentElement('afterend', feedback);
-        } else {
-            field.insertAdjacentElement('afterend', feedback);
-        }
+        anchor.insertAdjacentElement('afterend', feedback);
         return feedback;
     }
 
@@ -186,15 +199,20 @@ class FormValidator {
     _setValid(field) {
         field.classList.remove('is-invalid');
         field.classList.add('is-valid');
-        // Buscar feedback existente y ocultarlo
-        const feedback = field.parentElement.querySelector('.invalid-feedback');
-        if (feedback) feedback.textContent = '';
+        const anchor   = this._getAnchor(field);
+        const feedback = anchor.nextElementSibling;
+        if (feedback && feedback.classList && feedback.classList.contains('invalid-feedback')) {
+            feedback.textContent = '';
+        }
     }
 
     _clearError(field) {
         field.classList.remove('is-invalid', 'is-valid');
-        const feedback = field.parentElement.querySelector('.invalid-feedback');
-        if (feedback) feedback.textContent = '';
+        const anchor   = this._getAnchor(field);
+        const feedback = anchor.nextElementSibling;
+        if (feedback && feedback.classList && feedback.classList.contains('invalid-feedback')) {
+            feedback.textContent = '';
+        }
     }
 }
 

@@ -348,13 +348,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         overlay.classList.remove('is-on');
                         form.querySelectorAll('button[type="submit"]').forEach(function(b){ b.disabled = false; });
-                        alert('Error al subir (HTTP ' + xhr.status + '). Intenta de nuevo.');
+                        if (window.showToast) window.showToast('danger', 'Error al subir (HTTP ' + xhr.status + '). Intenta de nuevo.');
+                        else alert('Error al subir (HTTP ' + xhr.status + '). Intenta de nuevo.');
                     }
                 });
                 xhr.addEventListener('error', function(){
                     overlay.classList.remove('is-on');
                     form.querySelectorAll('button[type="submit"]').forEach(function(b){ b.disabled = false; });
-                    alert('Error de red al subir. Revisa tu conexión e intenta de nuevo.');
+                    if (window.showToast) window.showToast('danger', 'Error de red al subir. Revisa tu conexión e intenta de nuevo.');
+                    else alert('Error de red al subir. Revisa tu conexión e intenta de nuevo.');
                 });
                 xhr.addEventListener('abort', function(){
                     overlay.classList.remove('is-on');

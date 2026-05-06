@@ -136,10 +136,20 @@
                     document.getElementById('zona_descripcion').value = data[0].display_name.split(',').slice(0,3).join(',');
                 }
             } else {
-                alert('No se encontró esa ubicación. Prueba con otro término.');
+                if (window.showToast) {
+                    window.showToast('warning', 'No se encontró esa ubicación. Prueba con otro término.');
+                } else {
+                    alert('No se encontró esa ubicación. Prueba con otro término.');
+                }
             }
         })
-        .catch(() => alert('Error al buscar. Verifica tu conexión.'));
+        .catch(() => {
+            if (window.showToast) {
+                window.showToast('danger', 'Error al buscar. Verifica tu conexión.');
+            } else {
+                alert('Error al buscar. Verifica tu conexión.');
+            }
+        });
     }
 
     const btnSearch = document.getElementById('btnMapSearch');

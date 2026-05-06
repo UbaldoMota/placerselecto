@@ -10,7 +10,8 @@
     function cargarArchivo(file) {
         if (!file || !file.type.startsWith('image/')) return;
         if (file.size > 5 * 1024 * 1024) {
-            alert('El archivo supera 5 MB. Elige una imagen más pequeña.');
+            if (window.showToast) window.showToast('warning', 'El archivo supera 5 MB. Elige una imagen más pequeña.');
+            else alert('El archivo supera 5 MB. Elige una imagen más pequeña.');
             return;
         }
         const reader = new FileReader();
@@ -84,7 +85,8 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-send me-2"></i>Enviar para revisión';
             }
-            alert('Error al subir el documento. Inténtalo de nuevo.');
+            if (window.showToast) window.showToast('danger', 'Error al subir el documento. Inténtalo de nuevo.');
+            else alert('Error al subir el documento. Inténtalo de nuevo.');
         });
         xhr.send(fd);
     }

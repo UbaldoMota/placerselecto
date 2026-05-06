@@ -71,4 +71,34 @@
         if (e.key === 'ArrowRight') nav(1);
         if (e.key === 'ArrowLeft')  nav(-1);
     });
+
+    // -----------------------------------------------------------
+    // Swipe táctil en pantallas móviles
+    // -----------------------------------------------------------
+    var SWIPE_MIN = 50;          // px mínimo horizontal para considerar swipe
+    var SWIPE_MAX_VERTICAL = 60; // px máximo vertical permitido (evita confundir con scroll)
+    var touchStartX = 0, touchStartY = 0, touchActive = false;
+
+    lightboxEl.addEventListener('touchstart', function(ev){
+        if (total < 2) return;
+        if (ev.touches.length !== 1) { touchActive = false; return; }
+        touchActive = true;
+        touchStartX = ev.touches[0].clientX;
+        touchStartY = ev.touches[0].clientY;
+    }, { passive: true });
+
+    lightboxEl.addEventListener('touchend', function(ev){
+        if (!touchActive || total < 2) return;
+        touchActive = false;
+        var t  = ev.changedTouches[0];
+        var dx = t.clientX - touchStartX;
+        var dy = t.clientY - touchStartY;
+        if (Math.abs(dx) < SWIPE_MIN || Math.abs(dy) > SWIPE_MAX_VERTICAL) return;
+        // Swipe izquierda → siguiente; derecha → anterior
+        nav(dx < 0 ? 1 : -1);
+    }, { passive: true });
+
+    lightboxEl.addEventListener('touchcancel', function(){
+        touchActive = false;
+    }, { passive: true });
 })();

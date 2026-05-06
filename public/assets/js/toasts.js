@@ -57,4 +57,58 @@
     });
 
     document.querySelectorAll('#toast-container .toast-item').forEach(scheduleDismiss);
+
+    /**
+     * API pública: crear toast dinámico desde cualquier JS.
+     *   window.showToast('success' | 'info' | 'warning' | 'danger' | 'error', 'mensaje');
+     * En vistas standalone donde el #toast-container no existe, lo crea.
+     */
+    var META = {
+        success: { icon: 'check-circle-fill',        title: 'Éxito' },
+        info:    { icon: 'info-circle-fill',         title: 'Información' },
+        warning: { icon: 'exclamation-triangle-fill',title: 'Aviso' },
+        danger:  { icon: 'x-octagon-fill',           title: 'Error' },
+        error:   { icon: 'x-octagon-fill',           title: 'Error' }
+    };
+
+    function ensureContainer() {
+        var c = document.getElementById('toast-container');
+        if (c) return c;
+        c = document.createElement('div');
+        c.id = 'toast-container';
+        c.setAttribute('aria-live', 'polite');
+        c.setAttribute('aria-atomic', 'true');
+        document.body.appendChild(c);
+        return c;
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function(ch){
+            return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch];
+        });
+    }
+
+    window.showToast = function(variant, message, title) {
+        if (!variant || !message) return;
+        var v = (variant === 'error') ? 'danger' : variant;
+        var meta = META[v] || META.info;
+        var container = ensureContainer();
+
+        var t = document.createElement('div');
+        t.className = 'toast-item toast-' + v;
+        t.setAttribute('role', 'alert');
+        t.innerHTML =
+            '<div class="toast-icon"><i class="bi bi-' + meta.icon + '"></i></div>' +
+            '<div class="toast-body">' +
+                '<div class="toast-title">' + escapeHtml(title || meta.title) + '</div>' +
+                '<div class="toast-message">' + escapeHtml(message) + '</div>' +
+            '</div>' +
+            '<button type="button" class="toast-close" aria-label="Cerrar">' +
+                '<i class="bi bi-x-lg"></i>' +
+            '</button>' +
+            '<div class="toast-progress" aria-hidden="true"></div>';
+        container.appendChild(t);
+        scheduleDismiss(t);
+        return t;
+    };
 })();

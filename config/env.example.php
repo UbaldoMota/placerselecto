@@ -32,4 +32,8 @@ return [
     'sms_enabled'  => false,
     'sms_base_url' => 'https://test.alitter-soluciones.com',
     'sms_api_key'  => '',  // Generar en el dashboard de la API SaaS y pegar aquí
+
+    // Email externo del admin para notificaciones criticas (alta de usuarios,
+    // documentos por aprobar, perfiles pendientes). Si esta vacio no se envia.
+    'admin_notify_email' => '',
 ];
