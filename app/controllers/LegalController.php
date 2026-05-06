@@ -22,4 +22,14 @@ class LegalController extends Controller
     {
         $this->render('legal/adult-notice', ['pageTitle' => 'Aviso para mayores de edad (+18)']);
     }
+
+    public function dmca(array $params = []): void
+    {
+        $this->render('legal/dmca', ['pageTitle' => 'Política de Derechos de Autor']);
+    }
+
+    public function statement2257(array $params = []): void
+    {
+        $this->render('legal/2257', ['pageTitle' => 'Declaración de verificación de edad (2257)']);
+    }
 }

@@ -44,6 +44,8 @@
                     <li class="mb-2"><a href="<?= APP_URL ?>/terminos"><i class="bi bi-file-text me-1"></i>Términos</a></li>
                     <li class="mb-2"><a href="<?= APP_URL ?>/privacidad"><i class="bi bi-lock me-1"></i>Privacidad</a></li>
                     <li class="mb-2"><a href="<?= APP_URL ?>/mayores-18"><i class="bi bi-person-badge me-1"></i>Aviso +18</a></li>
+                    <li class="mb-2"><a href="<?= APP_URL ?>/dmca"><i class="bi bi-c-circle me-1"></i>Derechos de Autor</a></li>
+                    <li class="mb-2"><a href="<?= APP_URL ?>/2257"><i class="bi bi-shield-check me-1"></i>Declaración 2257</a></li>
                 </ul>
             </div>
 
@@ -63,10 +65,12 @@
 
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2" style="font-size:.78rem">
             <span>&copy; <?= date('Y') ?> <?= e(APP_NAME) ?>. Todos los derechos reservados.</span>
-            <div class="d-flex gap-3">
+            <div class="d-flex gap-3 flex-wrap justify-content-center">
                 <a href="<?= APP_URL ?>/terminos">Términos</a>
                 <a href="<?= APP_URL ?>/privacidad">Privacidad</a>
                 <a href="<?= APP_URL ?>/mayores-18">+18</a>
+                <a href="<?= APP_URL ?>/dmca">DMCA</a>
+                <a href="<?= APP_URL ?>/2257">2257</a>
             </div>
         </div>
 

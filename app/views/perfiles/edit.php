@@ -236,6 +236,26 @@ $selMunicipioId = (int)($perfil['id_municipio'] ?? 0);
                     </span>
                 </div>
 
+                <!-- Declaraciones del usuario al publicar -->
+                <div class="rounded-3 p-3 mb-4"
+                     style="background:rgba(255,45,117,.05);border:1px solid rgba(255,45,117,.2);font-size:.8rem;color:var(--color-text)">
+                    <div class="fw-semibold mb-2">
+                        <i class="bi bi-shield-check text-primary me-1"></i>
+                        Al guardar declaras bajo protesta de decir verdad que:
+                    </div>
+                    <ul class="mb-2" style="padding-left:1.25rem;line-height:1.7">
+                        <li>Eres mayor de 18 años, así como toda persona que aparezca en el contenido.</li>
+                        <li>Eres titular de los derechos sobre el contenido o cuentas con la autorización para publicarlo.</li>
+                        <li>Cuentas con el consentimiento expreso de cada persona identificable en el contenido.</li>
+                        <li>El contenido no infringe derechos de terceros ni viola la ley.</li>
+                    </ul>
+                    <div style="font-size:.75rem;color:var(--color-text-muted)">
+                        Aplican los <a href="<?= APP_URL ?>/terminos" target="_blank">Términos y Condiciones</a>,
+                        el <a href="<?= APP_URL ?>/mayores-18" target="_blank">Aviso +18</a> y la
+                        <a href="<?= APP_URL ?>/dmca" target="_blank">Política de Derechos de Autor</a>.
+                    </div>
+                </div>
+
                 <!-- Botones -->
                 <div class="d-flex gap-3 flex-column flex-sm-row">
                     <button type="submit" class="btn btn-primary flex-fill">

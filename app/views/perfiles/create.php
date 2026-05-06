@@ -213,12 +213,24 @@ $oldCategoria= (int)($old['id_categoria'] ?? 0);
                     </small>
                 </div>
 
-                <!-- Aviso de contenido -->
+                <!-- Declaraciones del usuario al publicar -->
                 <div class="rounded-3 p-3 mb-4"
-                     style="background:rgba(0,0,0,.03);border:1px solid var(--color-border);font-size:.78rem;color:var(--color-text-muted)">
-                    <i class="bi bi-shield-check text-primary me-2"></i>
-                    Al publicar confirmas que eres mayor de 18 años, que el contenido es legal
-                    y acepta nuestros <a href="<?= APP_URL ?>/terminos" target="_blank">términos de uso</a>.
+                     style="background:rgba(255,45,117,.05);border:1px solid rgba(255,45,117,.2);font-size:.8rem;color:var(--color-text)">
+                    <div class="fw-semibold mb-2">
+                        <i class="bi bi-shield-check text-primary me-1"></i>
+                        Al publicar declaras bajo protesta de decir verdad que:
+                    </div>
+                    <ul class="mb-2" style="padding-left:1.25rem;line-height:1.7">
+                        <li>Eres mayor de 18 años, así como toda persona que aparezca en el contenido.</li>
+                        <li>Eres titular de los derechos sobre el contenido o cuentas con la autorización para publicarlo.</li>
+                        <li>Cuentas con el consentimiento expreso de cada persona identificable en el contenido.</li>
+                        <li>El contenido no infringe derechos de terceros ni viola la ley.</li>
+                    </ul>
+                    <div style="font-size:.75rem;color:var(--color-text-muted)">
+                        Aplican los <a href="<?= APP_URL ?>/terminos" target="_blank">Términos y Condiciones</a>,
+                        el <a href="<?= APP_URL ?>/mayores-18" target="_blank">Aviso +18</a> y la
+                        <a href="<?= APP_URL ?>/dmca" target="_blank">Política de Derechos de Autor</a>.
+                    </div>
                 </div>
 
                 <!-- Botones -->
