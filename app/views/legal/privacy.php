@@ -8,7 +8,7 @@
     <?php
     $secciones = [
         ['titulo' => '1. Responsable del tratamiento',
-         'cuerpo' => 'El responsable del tratamiento de tus datos personales es Alberto Figueroa, operador de ' . APP_NAME . ' (en adelante, el "Sitio"), con sede de operación en los Estados Unidos Mexicanos.
+         'cuerpo' => 'El responsable del tratamiento de tus datos personales es Alberto Figueroa, operador de ' . APP_NAME . ' (en adelante, el "Sitio"), con sede de operación en Estado de México, México.
 
 Para cualquier asunto relacionado con la protección de tus datos personales, escribe a:
 legal@placerselecto.com'],
