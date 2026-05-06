@@ -74,7 +74,7 @@ class LegalController extends Controller
         $asunto  = trim($_POST['asunto']                       ?? '');
         $mensaje = Security::sanitizeText($_POST['mensaje']   ?? '');
 
-        $tiposValidos = ['soporte', 'pagos', 'reporte', 'legal', 'otro'];
+        $tiposValidos = ContactoMensajeModel::ASUNTOS;
 
         $v = new Validator(compact('nombre', 'email', 'asunto', 'mensaje'));
         $v->required('nombre', 'Nombre')
@@ -93,38 +93,28 @@ class LegalController extends Controller
             $this->redirect('/contacto');
         }
 
-        $tiposLabels = [
-            'soporte' => 'Soporte general',
-            'pagos'   => 'Pagos y facturación',
-            'reporte' => 'Reporte o denuncia',
-            'legal'   => 'Asuntos legales / ARCO',
-            'otro'    => 'Otro',
-        ];
+        try {
+            $modelo = new ContactoMensajeModel();
+            $idMsg = $modelo->crear([
+                'nombre'  => $nombre,
+                'email'   => $email,
+                'asunto'  => $asunto,
+                'mensaje' => $mensaje,
+                'ip'      => $ip,
+            ]);
 
-        $vars = [
-            'nombre'  => $nombre,
-            'email'   => $email,
-            'asunto'  => $tiposLabels[$asunto] ?? $asunto,
-            'mensaje' => $mensaje,
-            'ip'      => $ip,
-            'fecha'   => date('d/m/Y H:i'),
-        ];
-
-        $html = Mailer::render('contacto-recibido', $vars);
-        $alt  = "Nuevo mensaje de contacto\n\n"
-              . "Nombre: {$nombre}\nEmail: {$email}\nTipo: {$vars['asunto']}\nIP: {$ip}\n"
-              . "Fecha: {$vars['fecha']}\n\nMensaje:\n{$mensaje}\n";
-
-        $ok = Mailer::send(
-            'legal@placerselecto.com',
-            '[Contacto] ' . $vars['asunto'] . ' — ' . mb_substr($nombre, 0, 40),
-            $html,
-            $alt
-        );
-
-        if (!$ok) {
-            error_log("[ContactForm] Mailer::send fallo email={$email} ip={$ip}");
-            SessionManager::flash('error', 'Hubo un problema al enviar el mensaje. Intenta de nuevo o escribe directamente a legal@placerselecto.com.');
+            // Notificar a admins en el panel (campanita)
+            (new NotificacionModel())->crearParaAdmins([
+                'tipo'    => 'contacto_nuevo',
+                'titulo'  => 'Nuevo mensaje de contacto',
+                'mensaje' => mb_substr($nombre, 0, 40) . ' — ' . (ContactoMensajeModel::ASUNTOS_LABELS[$asunto] ?? $asunto),
+                'url'     => '/admin/contactos/' . (int) $idMsg,
+                'icono'   => 'envelope-fill',
+                'color'   => 'info',
+            ]);
+        } catch (Throwable $e) {
+            error_log('[ContactForm] DB error: ' . $e->getMessage());
+            SessionManager::flash('error', 'Hubo un problema al guardar el mensaje. Intenta de nuevo más tarde.');
             $this->redirect('/contacto');
         }
 

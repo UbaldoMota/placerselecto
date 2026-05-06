@@ -39,6 +39,9 @@
                 <a href="<?= APP_URL ?>/admin/mensajes" class="btn btn-sm btn-outline-primary">
                     <i class="bi bi-envelope me-1"></i>Mensajes
                 </a>
+                <a href="<?= APP_URL ?>/admin/contactos" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-envelope-paper me-1"></i>Contactos
+                </a>
                 <a href="<?= APP_URL ?>/admin/almacenamiento" class="btn btn-sm btn-outline-primary">
                     <i class="bi bi-hdd me-1"></i>Almacenamiento
                 </a>

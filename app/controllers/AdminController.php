@@ -1903,4 +1903,80 @@ class AdminController extends Controller
         fclose($fp);
         exit;
     }
+
+    // =========================================================
+    // CONTACTOS PÚBLICOS (formulario /contacto)
+    // =========================================================
+
+    public function contactos(array $params = []): void
+    {
+        $this->requireAdmin();
+        Security::setNoCacheHeaders();
+
+        $modelo  = new ContactoMensajeModel();
+        $page    = max(1, (int) $this->getParam('page', '1'));
+        $filtros = [
+            'leido'  => $this->getParam('leido', ''),
+            'asunto' => $this->getParam('asunto', ''),
+            'buscar' => $this->getParam('q', ''),
+        ];
+        $result = $modelo->listarAdmin($page, $filtros);
+
+        $this->render('admin/contactos', [
+            'pageTitle'  => 'Mensajes de contacto',
+            'mensajes'   => $result['items'],
+            'pagination' => $result,
+            'filtros'    => $filtros,
+            'noLeidos'   => $modelo->contarNoLeidos(),
+        ]);
+    }
+
+    public function verContacto(array $params = []): void
+    {
+        $this->requireAdmin();
+
+        $id     = (int) ($params['id'] ?? 0);
+        $modelo = new ContactoMensajeModel();
+        $msg    = $modelo->find($id);
+
+        if (!$msg) {
+            SessionManager::flash('error', 'Mensaje no encontrado.');
+            $this->redirect('/admin/contactos');
+        }
+
+        // Marcar como leído automáticamente al abrirlo
+        if (empty($msg['leido'])) {
+            $modelo->marcarLeido($id, true);
+            $msg['leido'] = 1;
+        }
+
+        $this->render('admin/contacto-detalle', [
+            'pageTitle' => 'Mensaje de contacto',
+            'msg'       => $msg,
+        ]);
+    }
+
+    public function toggleLeidoContacto(array $params = []): void
+    {
+        $this->requireAdmin();
+
+        $id    = (int) ($params['id'] ?? 0);
+        $leido = (int) ($_POST['leido'] ?? 0) === 1;
+
+        (new ContactoMensajeModel())->marcarLeido($id, $leido);
+
+        SessionManager::flash('success', $leido ? 'Marcado como leído.' : 'Marcado como no leído.');
+        $this->redirect('/admin/contactos');
+    }
+
+    public function eliminarContacto(array $params = []): void
+    {
+        $this->requireAdmin();
+
+        $id = (int) ($params['id'] ?? 0);
+        (new ContactoMensajeModel())->delete($id);
+
+        SessionManager::flash('success', 'Mensaje eliminado.');
+        $this->redirect('/admin/contactos');
+    }
 }

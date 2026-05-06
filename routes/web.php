@@ -151,6 +151,14 @@ return [
     ['POST', '/admin/mensaje/{id}/cerrar',    'AdminController', 'cerrarMensaje',     ['auth', 'admin', 'csrf']],
 
     // ---------------------------------------------------------
+    // ADMIN — mensajes del formulario público /contacto
+    // ---------------------------------------------------------
+    ['GET',  '/admin/contactos',              'AdminController', 'contactos',         ['auth', 'admin']],
+    ['GET',  '/admin/contactos/{id}',         'AdminController', 'verContacto',       ['auth', 'admin']],
+    ['POST', '/admin/contactos/{id}/leido',   'AdminController', 'toggleLeidoContacto', ['auth', 'admin', 'csrf']],
+    ['POST', '/admin/contactos/{id}/eliminar','AdminController', 'eliminarContacto',  ['auth', 'admin', 'csrf']],
+
+    // ---------------------------------------------------------
     // PERFILES (sistema principal)
     // ---------------------------------------------------------
     ['GET',  '/perfiles',                 'PerfilesController', 'index',    []],
