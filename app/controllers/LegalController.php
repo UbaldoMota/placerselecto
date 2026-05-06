@@ -47,4 +47,88 @@ class LegalController extends Controller
     {
         $this->render('legal/control-parental', ['pageTitle' => 'Control Parental']);
     }
+
+    public function contact(array $params = []): void
+    {
+        $this->render('legal/contacto', ['pageTitle' => 'Contacto']);
+    }
+
+    public function sendContact(array $params = []): void
+    {
+        $ip = Security::getClientIp();
+
+        // Rate limit: máximo 3 mensajes por IP en 1 hora (anti-spam)
+        if (!Security::checkRateLimit('contact_' . $ip, 3, 3600)) {
+            SessionManager::flash('error', 'Has enviado demasiados mensajes recientemente. Intenta de nuevo en una hora.');
+            $this->redirect('/contacto');
+        }
+
+        // Honeypot: bot detectado si rellenó el campo "website"
+        if (!empty($_POST['website'])) {
+            SessionManager::flash('success', 'Mensaje enviado. Te responderemos a la brevedad.');
+            $this->redirect('/contacto');
+        }
+
+        $nombre  = Security::sanitizeString($_POST['nombre']  ?? '');
+        $email   = Security::sanitizeEmail($_POST['email']    ?? '');
+        $asunto  = trim($_POST['asunto']                       ?? '');
+        $mensaje = Security::sanitizeText($_POST['mensaje']   ?? '');
+
+        $tiposValidos = ['soporte', 'pagos', 'reporte', 'legal', 'otro'];
+
+        $v = new Validator(compact('nombre', 'email', 'asunto', 'mensaje'));
+        $v->required('nombre', 'Nombre')
+          ->minLength('nombre', 2, 'Nombre')
+          ->maxLength('nombre', 80, 'Nombre')
+          ->required('email', 'Email')
+          ->email('email')
+          ->required('asunto', 'Tipo de consulta')
+          ->custom(!in_array($asunto, $tiposValidos, true), 'asunto', 'Tipo de consulta no válido.')
+          ->required('mensaje', 'Mensaje')
+          ->minLength('mensaje', 20, 'Mensaje')
+          ->maxLength('mensaje', 3000, 'Mensaje');
+
+        if ($v->fails()) {
+            SessionManager::flash('error', $v->firstGlobalError());
+            $this->redirect('/contacto');
+        }
+
+        $tiposLabels = [
+            'soporte' => 'Soporte general',
+            'pagos'   => 'Pagos y facturación',
+            'reporte' => 'Reporte o denuncia',
+            'legal'   => 'Asuntos legales / ARCO',
+            'otro'    => 'Otro',
+        ];
+
+        $vars = [
+            'nombre'  => $nombre,
+            'email'   => $email,
+            'asunto'  => $tiposLabels[$asunto] ?? $asunto,
+            'mensaje' => $mensaje,
+            'ip'      => $ip,
+            'fecha'   => date('d/m/Y H:i'),
+        ];
+
+        $html = Mailer::render('contacto-recibido', $vars);
+        $alt  = "Nuevo mensaje de contacto\n\n"
+              . "Nombre: {$nombre}\nEmail: {$email}\nTipo: {$vars['asunto']}\nIP: {$ip}\n"
+              . "Fecha: {$vars['fecha']}\n\nMensaje:\n{$mensaje}\n";
+
+        $ok = Mailer::send(
+            'legal@placerselecto.com',
+            '[Contacto] ' . $vars['asunto'] . ' — ' . mb_substr($nombre, 0, 40),
+            $html,
+            $alt
+        );
+
+        if (!$ok) {
+            error_log("[ContactForm] Mailer::send fallo email={$email} ip={$ip}");
+            SessionManager::flash('error', 'Hubo un problema al enviar el mensaje. Intenta de nuevo o escribe directamente a legal@placerselecto.com.');
+            $this->redirect('/contacto');
+        }
+
+        SessionManager::flash('success', '¡Gracias! Recibimos tu mensaje. Te responderemos en 1 a 3 días hábiles.');
+        $this->redirect('/contacto');
+    }
 }

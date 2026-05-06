@@ -227,6 +227,8 @@ return [
     ['GET',  '/cookies',                 'LegalController',    'cookies',    []],
     ['GET',  '/pagos',                   'LegalController',    'payments',   []],
     ['GET',  '/control-parental',        'LegalController',    'parentalControl', []],
+    ['GET',  '/contacto',                'LegalController',    'contact',    []],
+    ['POST', '/contacto',                'LegalController',    'sendContact',['csrf']],
 
     // ---------------------------------------------------------
     // PROXY DE IMÁGENES (seguro — nunca expone ruta real)

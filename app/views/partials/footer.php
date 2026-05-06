@@ -33,6 +33,7 @@
                     <li class="mb-2"><a href="<?= APP_URL ?>/anuncios"><i class="bi bi-grid me-1"></i>Anuncios</a></li>
                     <li class="mb-2"><a href="<?= APP_URL ?>/registro"><i class="bi bi-person-plus me-1"></i>Registro</a></li>
                     <li class="mb-2"><a href="<?= APP_URL ?>/login"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
+                    <li class="mb-2"><a href="<?= APP_URL ?>/contacto"><i class="bi bi-envelope me-1"></i>Contacto</a></li>
                 </ul>
             </div>
 
@@ -77,6 +78,7 @@
                 <a href="<?= APP_URL ?>/control-parental">Control parental</a>
                 <a href="<?= APP_URL ?>/dmca">DMCA</a>
                 <a href="<?= APP_URL ?>/2257">2257</a>
+                <a href="<?= APP_URL ?>/contacto">Contacto</a>
             </div>
         </div>
 
