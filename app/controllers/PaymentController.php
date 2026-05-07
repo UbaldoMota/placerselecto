@@ -322,4 +322,352 @@ class PaymentController extends Controller
             'planes'    => PLANES_DESTACADO,
         ]);
     }
+
+    // =========================================================
+    // PASARELAS DE PAGO REALES (Fase A: estructura sin credenciales)
+    // =========================================================
+
+    /**
+     * GET /tokens/comprar/{id_paquete}/metodo
+     * Selector de método de pago para un paquete específico.
+     */
+    public function selectMethod(array $params = []): void
+    {
+        $this->requireAuth();
+        $idPaquete = (int)($params['id_paquete'] ?? 0);
+        $paquete = $this->paquetes->find($idPaquete);
+
+        if (!$paquete || !(int)$paquete['activo']) {
+            SessionManager::flash('error', 'Paquete no disponible.');
+            $this->redirect('/tokens/comprar');
+        }
+
+        $this->render('payment/select-method', [
+            'pageTitle'      => 'Elegir método de pago',
+            'paquete'        => $paquete,
+            'devMode'        => self::isDevMode(),
+            'truevoEnabled'  => defined('TRUEVO_ENABLED')  && TRUEVO_ENABLED,
+            'paycashEnabled' => defined('PAYCASH_ENABLED') && PAYCASH_ENABLED,
+        ]);
+    }
+
+    /**
+     * POST /tokens/comprar/{id_paquete}/truevo
+     * Inicia un pago con tarjeta vía Truevo y redirige al checkout.
+     */
+    public function payWithTruevo(array $params = []): void
+    {
+        $this->requireAuth();
+        if (!self::isDevMode() && !(defined('TRUEVO_ENABLED') && TRUEVO_ENABLED)) {
+            SessionManager::flash('error', 'El pago con tarjeta no está disponible aún.');
+            $this->redirect('/tokens/comprar');
+        }
+        $idPaquete = (int)($params['id_paquete'] ?? 0);
+        $user      = $this->currentUser();
+        $paquete   = $this->paquetes->find($idPaquete);
+
+        if (!$paquete || !(int)$paquete['activo']) {
+            SessionManager::flash('error', 'Paquete no disponible.');
+            $this->redirect('/tokens/comprar');
+        }
+
+        if (!Security::checkRateLimit('compra_tokens_' . $user['id'], 5, 3600)) {
+            SessionManager::flash('error', 'Demasiados intentos. Espera un momento.');
+            $this->redirect('/tokens/comprar');
+        }
+
+        $idPago = $this->pagos->iniciarPago([
+            'id_usuario'       => (int)$user['id'],
+            'id_paquete'       => $idPaquete,
+            'tokens_otorgados' => (int)$paquete['tokens'],
+            'monto'            => (float)$paquete['monto_mxn'],
+            'tipo_destacado'   => 7, // legacy NOT NULL en prod, valor dummy para compras de paquete
+            'metodo_pago'      => 'truevo',
+            'ip_pago'          => Security::getClientIp(),
+        ]);
+
+        $res = TruevoClient::createPayment(
+            $idPago,
+            (float)$paquete['monto_mxn'],
+            'MXN',
+            "Recarga {$paquete['nombre']} ({$paquete['tokens']} tokens)",
+            $user['email'] ?? ''
+        );
+
+        if (empty($res['url']) || empty($res['reference'])) {
+            $this->pagos->fallar($idPago);
+            SessionManager::flash('error', 'No se pudo iniciar el pago con Truevo. Intenta de nuevo.');
+            $this->redirect('/tokens/comprar');
+        }
+
+        $this->pagos->update($idPago, [
+            'referencia_pasarela' => $res['reference'],
+        ]);
+
+        header('Location: ' . $res['url']);
+        exit;
+    }
+
+    /**
+     * POST /tokens/comprar/{id_paquete}/paycash
+     * Inicia un pago en efectivo vía PayCash y muestra la pantalla de pendiente.
+     */
+    public function payWithPayCash(array $params = []): void
+    {
+        $this->requireAuth();
+        if (!self::isDevMode() && !(defined('PAYCASH_ENABLED') && PAYCASH_ENABLED)) {
+            SessionManager::flash('error', 'El pago en efectivo no está disponible aún.');
+            $this->redirect('/tokens/comprar');
+        }
+        $idPaquete = (int)($params['id_paquete'] ?? 0);
+        $user      = $this->currentUser();
+        $paquete   = $this->paquetes->find($idPaquete);
+
+        if (!$paquete || !(int)$paquete['activo']) {
+            SessionManager::flash('error', 'Paquete no disponible.');
+            $this->redirect('/tokens/comprar');
+        }
+
+        if (!Security::checkRateLimit('compra_tokens_' . $user['id'], 5, 3600)) {
+            SessionManager::flash('error', 'Demasiados intentos. Espera un momento.');
+            $this->redirect('/tokens/comprar');
+        }
+
+        $idPago = $this->pagos->iniciarPago([
+            'id_usuario'       => (int)$user['id'],
+            'id_paquete'       => $idPaquete,
+            'tokens_otorgados' => (int)$paquete['tokens'],
+            'monto'            => (float)$paquete['monto_mxn'],
+            'tipo_destacado'   => 7,
+            'metodo_pago'      => 'paycash',
+            'ip_pago'          => Security::getClientIp(),
+        ]);
+
+        $res = PayCashClient::createPayment(
+            $idPago,
+            (float)$paquete['monto_mxn'],
+            $user['email'] ?? ''
+        );
+
+        if (empty($res['reference'])) {
+            $this->pagos->fallar($idPago);
+            SessionManager::flash('error', 'No se pudo generar la referencia. Intenta de nuevo.');
+            $this->redirect('/tokens/comprar');
+        }
+
+        $this->pagos->update($idPago, [
+            'referencia_pasarela' => $res['reference'],
+            'expira_en'           => $res['expira_en'],
+        ]);
+
+        $this->redirect("/pago/{$idPago}/pendiente");
+    }
+
+    /**
+     * GET /pago/{id}/pendiente
+     * Pantalla de espera (PayCash con código de barras, o "esperando webhook" en Truevo simulado).
+     */
+    public function paymentPending(array $params = []): void
+    {
+        $this->requireAuth();
+        $idPago = (int)($params['id'] ?? 0);
+        $user   = $this->currentUser();
+        $pago   = $this->pagos->find($idPago);
+
+        if (!$pago || (int)$pago['id_usuario'] !== (int)$user['id']) {
+            SessionManager::flash('error', 'Pago no encontrado.');
+            $this->redirect('/tokens/comprar');
+        }
+
+        if ($pago['estado'] === 'completado') {
+            $this->redirect("/tokens/confirmacion/{$idPago}");
+        }
+
+        $paquete = !empty($pago['id_paquete']) ? $this->paquetes->find((int)$pago['id_paquete']) : null;
+
+        $this->render('payment/payment-pending', [
+            'pageTitle' => 'Pago pendiente',
+            'pago'      => $pago,
+            'paquete'   => $paquete,
+            'devMode'   => self::isDevMode(),
+        ]);
+    }
+
+    /**
+     * POST /pago/{id}/simular-completar
+     * Solo en modo dev — completa el pago como si el webhook hubiera llegado.
+     */
+    public function simulateComplete(array $params = []): void
+    {
+        $this->requireAuth();
+        if (!self::isDevMode()) {
+            SessionManager::flash('error', 'No disponible en producción.');
+            $this->redirect('/tokens/comprar');
+        }
+
+        $idPago = (int)($params['id'] ?? 0);
+        $user   = $this->currentUser();
+        $pago   = $this->pagos->find($idPago);
+
+        if (!$pago || (int)$pago['id_usuario'] !== (int)$user['id']) {
+            SessionManager::flash('error', 'Pago no encontrado.');
+            $this->redirect('/tokens/comprar');
+        }
+
+        $ok = $this->acreditarTokens($idPago);
+        if (!$ok) {
+            SessionManager::flash('error', 'No se pudo completar la simulación.');
+            $this->redirect("/pago/{$idPago}/pendiente");
+        }
+
+        $this->redirect("/tokens/confirmacion/{$idPago}");
+    }
+
+    /**
+     * POST /webhook/truevo  — IPN de Truevo cuando una transacción cambia de estado.
+     * Body JSON con la referencia y el nuevo estado.
+     */
+    public function truevoWebhook(array $params = []): void
+    {
+        $body    = file_get_contents('php://input') ?: '';
+        $headers = self::collectHeaders();
+
+        if (!TruevoClient::verifyWebhook($body, $headers)) {
+            error_log('[truevoWebhook] firma inválida');
+            http_response_code(401);
+            echo 'invalid signature';
+            return;
+        }
+
+        $data = json_decode($body, true) ?: [];
+        $ref   = $data['reference'] ?? '';
+        $state = $data['state']     ?? '';
+
+        if ($ref === '') {
+            http_response_code(400); echo 'missing reference'; return;
+        }
+
+        $pago = $this->buscarPagoPorReferenciaPasarela($ref);
+        if (!$pago) {
+            http_response_code(404); echo 'pago no encontrado'; return;
+        }
+
+        if ($state === 'completed' || $state === 'success') {
+            if ($pago['estado'] === 'pendiente') {
+                $this->acreditarTokens((int)$pago['id']);
+            }
+        } elseif ($state === 'failed' || $state === 'declined') {
+            if ($pago['estado'] === 'pendiente') {
+                $this->pagos->fallar((int)$pago['id']);
+            }
+        }
+
+        http_response_code(200);
+        echo 'ok';
+    }
+
+    /**
+     * POST /webhook/paycash — IPN de PayCash cuando el cliente paga en tienda.
+     */
+    public function paycashWebhook(array $params = []): void
+    {
+        $body    = file_get_contents('php://input') ?: '';
+        $headers = self::collectHeaders();
+
+        if (!PayCashClient::verifyWebhook($body, $headers)) {
+            error_log('[paycashWebhook] firma inválida');
+            http_response_code(401); echo 'invalid signature'; return;
+        }
+
+        $data = json_decode($body, true) ?: [];
+        $ref   = $data['reference'] ?? '';
+        $state = $data['state']     ?? 'paid';
+
+        if ($ref === '') {
+            http_response_code(400); echo 'missing reference'; return;
+        }
+
+        $pago = $this->buscarPagoPorReferenciaPasarela($ref);
+        if (!$pago) {
+            http_response_code(404); echo 'pago no encontrado'; return;
+        }
+
+        if ($state === 'paid' && $pago['estado'] === 'pendiente') {
+            $this->acreditarTokens((int)$pago['id']);
+        }
+
+        http_response_code(200);
+        echo 'ok';
+    }
+
+    // ---------------------------------------------------------
+    // Helpers privados
+    // ---------------------------------------------------------
+
+    /**
+     * Completa el pago y acredita los tokens correspondientes al usuario.
+     * Idempotente: si ya está completado, no hace nada.
+     */
+    private function acreditarTokens(int $idPago): bool
+    {
+        $pago = $this->pagos->find($idPago);
+        if (!$pago) return false;
+        if ($pago['estado'] === 'completado') return true;
+        if (empty($pago['id_paquete']) || empty($pago['tokens_otorgados'])) return false;
+
+        $paquete = $this->paquetes->find((int)$pago['id_paquete']);
+        $tokens  = (int)$pago['tokens_otorgados'];
+
+        $db = Database::getInstance()->getConnection();
+        $db->beginTransaction();
+        try {
+            $referencia = $pago['referencia_pasarela'] ?: ('TKN-' . strtoupper(bin2hex(random_bytes(6))));
+            $this->pagos->completar($idPago, $referencia);
+
+            $res = $this->movimientos->aplicar(
+                (int)$pago['id_usuario'],
+                'recarga',
+                $tokens,
+                $idPago,
+                null,
+                "Compra paquete \"" . ($paquete['nombre'] ?? '#' . $pago['id_paquete']) . "\" (+{$tokens} tokens)"
+            );
+            if (!$res['ok']) throw new RuntimeException($res['error'] ?? 'Error acreditando tokens.');
+
+            $db->commit();
+            return true;
+        } catch (\Throwable $e) {
+            $db->rollBack();
+            error_log('[PaymentController::acreditarTokens] ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function buscarPagoPorReferenciaPasarela(string $ref): ?array
+    {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT * FROM pagos WHERE referencia_pasarela = ? LIMIT 1");
+        $stmt->execute([$ref]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    private static function isDevMode(): bool
+    {
+        return (defined('APP_ENV') && APP_ENV === 'development')
+            || (defined('APP_DEBUG') && APP_DEBUG === true);
+    }
+
+    private static function collectHeaders(): array
+    {
+        if (function_exists('getallheaders')) return getallheaders() ?: [];
+        $h = [];
+        foreach ($_SERVER as $k => $v) {
+            if (strpos($k, 'HTTP_') === 0) {
+                $name = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($k, 5)))));
+                $h[$name] = $v;
+            }
+        }
+        return $h;
+    }
 }

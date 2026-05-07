@@ -82,10 +82,18 @@ return [
     // ---------------------------------------------------------
     // TOKENS — compra de paquetes + historial
     // ---------------------------------------------------------
-    ['GET',  '/tokens/comprar',                 'PaymentController', 'showPackages',             ['auth']],
-    ['POST', '/tokens/comprar/{id_paquete}',    'PaymentController', 'buyPackage',               ['auth', 'csrf']],
-    ['GET',  '/tokens/confirmacion/{id}',       'PaymentController', 'tokenPurchaseConfirmation',['auth']],
-    ['GET',  '/mis-tokens',                     'UserController',    'misTokens',                ['auth']],
+    ['GET',  '/tokens/comprar',                          'PaymentController', 'showPackages',             ['auth']],
+    ['GET',  '/tokens/comprar/{id_paquete}/metodo',      'PaymentController', 'selectMethod',             ['auth']],
+    ['POST', '/tokens/comprar/{id_paquete}/truevo',      'PaymentController', 'payWithTruevo',            ['auth', 'csrf']],
+    ['POST', '/tokens/comprar/{id_paquete}/paycash',     'PaymentController', 'payWithPayCash',           ['auth', 'csrf']],
+    ['POST', '/tokens/comprar/{id_paquete}',             'PaymentController', 'buyPackage',               ['auth', 'csrf']],
+    ['GET',  '/tokens/confirmacion/{id}',                'PaymentController', 'tokenPurchaseConfirmation',['auth']],
+    ['GET',  '/pago/{id}/pendiente',                     'PaymentController', 'paymentPending',           ['auth']],
+    ['POST', '/pago/{id}/simular-completar',             'PaymentController', 'simulateComplete',         ['auth', 'csrf']],
+    // Webhooks de pasarelas (sin auth ni csrf — verifican firma HMAC en el controller)
+    ['POST', '/webhook/truevo',                          'PaymentController', 'truevoWebhook',            []],
+    ['POST', '/webhook/paycash',                         'PaymentController', 'paycashWebhook',           []],
+    ['GET',  '/mis-tokens',                              'UserController',    'misTokens',                ['auth']],
 
     // ---------------------------------------------------------
     // BOOSTS — destacar perfil con tokens

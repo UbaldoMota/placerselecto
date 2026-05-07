@@ -69,12 +69,10 @@
                     ≈ $<?= number_format($porToken, 3) ?> por token
                 </div>
 
-                <form method="POST" action="<?= APP_URL ?>/tokens/comprar/<?= (int)$p['id'] ?>" class="mt-auto m-0">
-                    <?= $csrfField ?>
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-cart-check me-1"></i>Comprar
-                    </button>
-                </form>
+                <a href="<?= APP_URL ?>/tokens/comprar/<?= (int)$p['id'] ?>/metodo"
+                   class="btn btn-primary w-100 mt-auto">
+                    <i class="bi bi-cart-check me-1"></i>Comprar
+                </a>
             </div>
         </div>
         <?php endforeach; ?>
@@ -82,7 +80,7 @@
 
     <div class="mt-4 p-3 rounded text-center" style="background:var(--color-bg-alt);font-size:.85rem;color:var(--color-text-muted)">
         <i class="bi bi-shield-check text-primary me-1"></i>
-        Pago seguro simulado (desarrollo). En producción se integrará con pasarela real.
+        Pago seguro vía Truevo (tarjeta) o PayCash (efectivo: Walmart, 7-Eleven, Soriana, Santander).
     </div>
     <?php endif; ?>
 </div>

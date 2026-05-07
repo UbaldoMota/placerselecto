@@ -61,6 +61,18 @@ define('SMS_ENABLED',  (bool)($env['sms_enabled']  ?? false));
 define('SMS_BASE_URL', $env['sms_base_url']        ?? 'https://test.alitter-soluciones.com');
 define('SMS_API_KEY',  $env['sms_api_key']         ?? '');
 
+// Pasarelas de pago — Fase A: vacías, los stubs operan en modo simulado.
+// Llenar en config/env.production.php cuando se activen las cuentas merchant.
+define('TRUEVO_ENABLED',   (bool)($env['truevo_enabled']  ?? false));
+define('TRUEVO_BASE_URL',         $env['truevo_base_url'] ?? 'https://api.truevo.com');
+define('TRUEVO_API_KEY',          $env['truevo_api_key']  ?? '');
+define('TRUEVO_SECRET',           $env['truevo_secret']   ?? '');
+
+define('PAYCASH_ENABLED',  (bool)($env['paycash_enabled']  ?? false));
+define('PAYCASH_BASE_URL',        $env['paycash_base_url'] ?? '');
+define('PAYCASH_API_KEY',         $env['paycash_api_key']  ?? '');
+define('PAYCASH_SECRET',          $env['paycash_secret']   ?? '');
+
 // Email externo del admin para notificaciones críticas (alta de usuarios,
 // documentos por aprobar, perfiles pendientes). Vacio = no enviar.
 define('ADMIN_NOTIFY_EMAIL', $env['admin_notify_email'] ?? '');
