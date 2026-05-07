@@ -480,6 +480,29 @@ class Security
     }
 
     /**
+     * Normaliza un teléfono a SOLO DÍGITOS con código de país.
+     * - Si empieza con `+`, respeta el código que venga.
+     * - Si tiene 10 dígitos sin prefijo, asume MX (52).
+     * - Si tiene 12 dígitos empezando con 52, lo deja.
+     * - Devuelve null si no hay dígitos suficientes.
+     * Útil para construir wa.me/{digits} y t.me/+{digits}.
+     */
+    public static function phoneDigitsWithCC(string $phone, string $defaultCountry = '52'): ?string
+    {
+        $digits = preg_replace('/\D+/', '', $phone);
+        if ($digits === '' || $digits === null) return null;
+
+        if (str_starts_with(trim($phone), '+')) {
+            return $digits;
+        }
+        if (strlen($digits) === 10) {
+            return $defaultCountry . $digits;
+        }
+        // ya viene con código (12+ dígitos) o caso raro: confiar en lo que hay
+        return $digits;
+    }
+
+    /**
      * URL de Telegram para un perfil. Prioridad:
      *   1. flag telegram_usar_whatsapp + whatsapp → t.me/+{digits}
      *   2. username explícito                    → t.me/{username}
@@ -493,8 +516,8 @@ class Security
         $tg    = trim((string)($perfil['telegram'] ?? ''));
 
         if (($usaWa || $tg === '') && $wa !== '') {
-            $digits = preg_replace('/\D/', '', $wa);
-            return $digits !== '' ? 'https://t.me/+' . $digits : null;
+            $digits = self::phoneDigitsWithCC($wa);
+            return $digits ? 'https://t.me/+' . $digits : null;
         }
         if ($tg !== '') {
             return 'https://t.me/' . ltrim($tg, '@');
@@ -513,8 +536,8 @@ class Security
         $tg    = trim((string)($perfil['telegram'] ?? ''));
 
         if (($usaWa || $tg === '') && $wa !== '') {
-            $digits = preg_replace('/\D/', '', $wa);
-            return $digits !== '' ? '+' . $digits : null;
+            $digits = self::phoneDigitsWithCC($wa);
+            return $digits ? '+' . $digits : null;
         }
         if ($tg !== '') {
             return '@' . ltrim($tg, '@');

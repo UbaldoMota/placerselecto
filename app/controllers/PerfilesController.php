@@ -885,8 +885,8 @@ class PerfilesController extends Controller
             ? "Hola {$nombre}, vi tu perfil en PlacerSelecto («{$snippet}») y me interesa contactarte."
             : "Hola {$nombre}, vi tu perfil en PlacerSelecto y me interesa contactarte.";
 
-        $waUrl = 'https://wa.me/' . preg_replace('/\D/', '', $perfil['whatsapp'])
-               . '?text=' . rawurlencode($mensaje);
+        $waDigits = Security::phoneDigitsWithCC($perfil['whatsapp']) ?? '';
+        $waUrl = 'https://wa.me/' . $waDigits . '?text=' . rawurlencode($mensaje);
         header('Location: ' . $waUrl);
         exit;
     }
