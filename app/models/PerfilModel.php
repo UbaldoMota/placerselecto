@@ -29,7 +29,7 @@ class PerfilModel extends Model
             'nombre','descripcion','edad','edad_publica','ciudad',
             'id_estado','id_municipio','id_categoria',
             'imagen_principal','imagen_token',
-            'whatsapp','telegram','email_contacto','pide_anticipo',
+            'whatsapp','telegram','telegram_usar_whatsapp','email_contacto','pide_anticipo',
             'zona_lat','zona_lng','zona_radio','zona_descripcion',
         ];
         $filtered = array_filter(

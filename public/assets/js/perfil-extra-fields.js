@@ -21,8 +21,33 @@
         if (!open) {
             const inp = document.getElementById('inp-' + key);
             if (inp) inp.value = '';
+            // Si es Telegram y se desactiva, también desmarcar "usar WhatsApp"
+            if (key === 'tg') {
+                const usaWa = document.getElementById('tg-usa-wa');
+                if (usaWa) { usaWa.checked = false; syncTgUsaWa(); }
+            }
         }
     }
+
+    /* Telegram: deshabilitar input @usuario cuando el checkbox "usar WhatsApp" está activo */
+    function syncTgUsaWa() {
+        const cb  = document.getElementById('tg-usa-wa');
+        const inp = document.getElementById('inp-tg');
+        const grp = document.getElementById('grp-tg-user');
+        const hlp = document.getElementById('hlp-tg-user');
+        if (!cb || !inp) return;
+        const usa = cb.checked;
+        inp.disabled = usa;
+        if (usa) inp.value = '';
+        if (grp) grp.style.opacity = usa ? '0.45' : '';
+        if (hlp) hlp.textContent = usa
+            ? 'Se usará tu número de WhatsApp como link de Telegram.'
+            : 'Tu @usuario de Telegram (sin el @)';
+    }
+    document.addEventListener('change', function(ev){
+        if (ev.target && ev.target.id === 'tg-usa-wa') syncTgUsaWa();
+    });
+    syncTgUsaWa();
 
     document.addEventListener('click', function(ev){
         const el = ev.target.closest('[data-cm-toggle]');

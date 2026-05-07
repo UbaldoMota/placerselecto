@@ -12,6 +12,9 @@ $old = $old ?? [];
 // Valores actuales (edición tiene prioridad, luego old input, luego vacío)
 $vWa    = $old['whatsapp']       ?? $p['whatsapp']       ?? '';
 $vTg    = $old['telegram']       ?? $p['telegram']       ?? '';
+$vTgWa  = isset($old['telegram_usar_whatsapp'])
+            ? (bool)$old['telegram_usar_whatsapp']
+            : (bool)($p['telegram_usar_whatsapp'] ?? false);
 $vEm    = $old['email_contacto'] ?? $p['email_contacto'] ?? '';
 $vAnti  = isset($old['pide_anticipo']) ? (bool)$old['pide_anticipo'] : (bool)($p['pide_anticipo'] ?? false);
 $vLat   = $old['zona_lat']        ?? $p['zona_lat']        ?? '';
@@ -20,7 +23,7 @@ $vRadio = $old['zona_radio']      ?? $p['zona_radio']      ?? 5;
 $vZDesc = $old['zona_descripcion'] ?? $p['zona_descripcion'] ?? '';
 
 $tieneWa = $vWa !== '';
-$tieneTg = $vTg !== '';
+$tieneTg = $vTg !== '' || $vTgWa;
 $tieneEm = $vEm !== '';
 $tieneZona = $vLat !== '' && $vLng !== '';
 ?>
@@ -83,13 +86,23 @@ $tieneZona = $vLat !== '' && $vLng !== '';
                 </div>
             </div>
             <div class="contact-method__body <?= $tieneTg ? 'open' : '' ?>" id="body-tg">
-                <div class="input-group">
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="tg-usa-wa"
+                           name="telegram_usar_whatsapp" value="1"
+                           <?= $vTgWa ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="tg-usa-wa" style="font-size:.84rem;cursor:pointer">
+                        Usar el mismo número de WhatsApp
+                    </label>
+                    <div class="form-text" style="font-size:.7rem">Útil si no recuerdas tu @usuario; los clientes te encontrarán por tu número.</div>
+                </div>
+                <div class="input-group" id="grp-tg-user">
                     <span class="input-group-text" style="background:var(--color-bg-card2);border-color:var(--color-border);color:var(--color-text-muted)">@</span>
                     <input type="text" name="telegram" id="inp-tg" class="form-control"
                            placeholder="usuario" maxlength="100"
-                           value="<?= e($vTg) ?>">
+                           value="<?= e($vTg) ?>"
+                           <?= $vTgWa ? 'disabled' : '' ?>>
                 </div>
-                <div class="form-text" style="font-size:.72rem">Tu @usuario de Telegram (sin el @)</div>
+                <div class="form-text" style="font-size:.72rem" id="hlp-tg-user">Tu @usuario de Telegram (sin el @)</div>
             </div>
         </div>
 

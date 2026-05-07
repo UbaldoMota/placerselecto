@@ -480,6 +480,49 @@ class Security
     }
 
     /**
+     * URL de Telegram para un perfil. Prioridad:
+     *   1. flag telegram_usar_whatsapp + whatsapp → t.me/+{digits}
+     *   2. username explícito                    → t.me/{username}
+     *   3. solo whatsapp (auto-fallback)         → t.me/+{digits}
+     *   4. nada                                  → null
+     */
+    public static function telegramUrl(array $perfil): ?string
+    {
+        $usaWa = !empty($perfil['telegram_usar_whatsapp']);
+        $wa    = $perfil['whatsapp'] ?? '';
+        $tg    = trim((string)($perfil['telegram'] ?? ''));
+
+        if (($usaWa || $tg === '') && $wa !== '') {
+            $digits = preg_replace('/\D/', '', $wa);
+            return $digits !== '' ? 'https://t.me/+' . $digits : null;
+        }
+        if ($tg !== '') {
+            return 'https://t.me/' . ltrim($tg, '@');
+        }
+        return null;
+    }
+
+    /**
+     * Etiqueta legible de Telegram (para mostrar bajo el botón).
+     * Devuelve "@usuario" o "+5215512345678" según corresponda.
+     */
+    public static function telegramHandle(array $perfil): ?string
+    {
+        $usaWa = !empty($perfil['telegram_usar_whatsapp']);
+        $wa    = $perfil['whatsapp'] ?? '';
+        $tg    = trim((string)($perfil['telegram'] ?? ''));
+
+        if (($usaWa || $tg === '') && $wa !== '') {
+            $digits = preg_replace('/\D/', '', $wa);
+            return $digits !== '' ? '+' . $digits : null;
+        }
+        if ($tg !== '') {
+            return '@' . ltrim($tg, '@');
+        }
+        return null;
+    }
+
+    /**
      * Retorna la diferencia de tiempo en formato legible.
      * Ej: "hace 3 horas", "hace 2 días"
      */

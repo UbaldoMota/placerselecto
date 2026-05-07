@@ -328,6 +328,8 @@ class PerfilesController extends Controller
         $idCategoria    = (int)($_POST['id_categoria'] ?? 0);
         $whatsapp       = Security::sanitizePhone($_POST['whatsapp']        ?? '');
         $telegram       = Security::sanitizeString($_POST['telegram']       ?? '');
+        $tgUsaWa        = isset($_POST['telegram_usar_whatsapp']) ? 1 : 0;
+        if ($tgUsaWa) $telegram = ''; // si reusa WA, no guardamos username
         $emailContacto  = filter_var($_POST['email_contacto'] ?? '', FILTER_SANITIZE_EMAIL);
         $pideAnticipo   = isset($_POST['pide_anticipo']) ? 1 : 0;
         $zonaLat        = isset($_POST['zona_lat'])  && $_POST['zona_lat']  !== '' ? (float)$_POST['zona_lat']  : null;
@@ -351,6 +353,7 @@ class PerfilesController extends Controller
             'id_categoria'     => $idCategoria,
             'whatsapp'         => $whatsapp,
             'telegram'         => $telegram,
+            'telegram_usar_whatsapp' => $tgUsaWa,
             'email_contacto'   => $emailContacto,
             'pide_anticipo'    => $pideAnticipo,
             'zona_lat'         => $zonaLat,
@@ -408,6 +411,7 @@ class PerfilesController extends Controller
             'imagen_token'    => null,
             'whatsapp'        => $whatsapp       ?: null,
             'telegram'        => $telegram        ?: null,
+            'telegram_usar_whatsapp' => $tgUsaWa,
             'email_contacto'  => $emailContacto  ?: null,
             'pide_anticipo'   => $pideAnticipo,
             'zona_lat'        => $zonaLat,
@@ -730,6 +734,8 @@ class PerfilesController extends Controller
         $idCategoria   = (int)($_POST['id_categoria'] ?? 0);
         $whatsapp      = Security::sanitizePhone($_POST['whatsapp']        ?? '');
         $telegram      = Security::sanitizeString($_POST['telegram']       ?? '');
+        $tgUsaWa       = isset($_POST['telegram_usar_whatsapp']) ? 1 : 0;
+        if ($tgUsaWa) $telegram = '';
         $emailContacto = filter_var($_POST['email_contacto'] ?? '', FILTER_SANITIZE_EMAIL);
         $pideAnticipo  = isset($_POST['pide_anticipo']) ? 1 : 0;
         $zonaLat       = isset($_POST['zona_lat'])  && $_POST['zona_lat']  !== '' ? (float)$_POST['zona_lat']  : null;
@@ -820,6 +826,7 @@ class PerfilesController extends Controller
             'id_categoria'    => $idCategoria,
             'whatsapp'        => $whatsapp       ?: null,
             'telegram'        => $telegram        ?: null,
+            'telegram_usar_whatsapp' => $tgUsaWa,
             'email_contacto'  => $emailContacto  ?: null,
             'pide_anticipo'   => $pideAnticipo,
             'zona_lat'        => $zonaLat,
@@ -869,7 +876,17 @@ class PerfilesController extends Controller
             $this->perfiles->registrarClickWhatsapp($id);
         }
 
-        $waUrl = 'https://wa.me/' . preg_replace('/\D/', '', $perfil['whatsapp']);
+        $nombre  = trim($perfil['nombre'] ?? '');
+        $desc    = trim(strip_tags($perfil['descripcion'] ?? ''));
+        $desc    = preg_replace('/\s+/u', ' ', $desc);
+        $snippet = mb_strlen($desc) > 80 ? mb_substr($desc, 0, 80) . '…' : $desc;
+
+        $mensaje = $snippet !== ''
+            ? "Hola {$nombre}, vi tu perfil en PlacerSelecto («{$snippet}») y me interesa contactarte."
+            : "Hola {$nombre}, vi tu perfil en PlacerSelecto y me interesa contactarte.";
+
+        $waUrl = 'https://wa.me/' . preg_replace('/\D/', '', $perfil['whatsapp'])
+               . '?text=' . rawurlencode($mensaje);
         header('Location: ' . $waUrl);
         exit;
     }

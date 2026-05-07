@@ -55,7 +55,7 @@ $idMunicipio  = (int)($filtros['id_municipio'] ?? 0);
             $descTxt = trim(strip_tags($p['descripcion'] ?? ''));
             $descCorta = mb_strlen($descTxt) > 180 ? mb_substr($descTxt, 0, 180) . '…' : $descTxt;
             $tieneWA = !empty($p['whatsapp']);
-            $tieneTG = !empty($p['telegram']);
+            $tieneTG = Security::telegramUrl($p) !== null;
             $tieneEM = !empty($p['email_contacto']);
             $sinAnticipo = empty($p['pide_anticipo']);
             $tiempoRel = !empty($p['fecha_publicacion']) ? Security::timeAgo($p['fecha_publicacion']) : null;

@@ -3,7 +3,9 @@
  * perfiles/show.php — Detalle público de un perfil.
  */
 $tieneWA  = !empty($perfil['whatsapp']);
-$tieneTG  = !empty($perfil['telegram']);
+$tgUrl    = Security::telegramUrl($perfil);
+$tgHandle = Security::telegramHandle($perfil);
+$tieneTG  = $tgUrl !== null;
 $tieneEM  = !empty($perfil['email_contacto']);
 $tieneZona= !empty($perfil['zona_lat']) && !empty($perfil['zona_lng']);
 $tieneContacto = $tieneWA || $tieneTG || $tieneEM;
@@ -605,13 +607,13 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
                         <?php endif; ?>
 
                         <?php if ($tieneTG): ?>
-                        <a href="https://t.me/<?= e($perfil['telegram']) ?>"
+                        <a href="<?= e($tgUrl) ?>"
                            target="_blank" rel="noopener noreferrer"
                            class="contact-cta contact-cta--telegram">
                             <div class="contact-cta__icon"><i class="bi bi-telegram"></i></div>
                             <div class="contact-cta__body">
                                 <div class="contact-cta__title">Chat en Telegram</div>
-                                <div class="contact-cta__sub">@<?= e($perfil['telegram']) ?></div>
+                                <div class="contact-cta__sub"><?= e($tgHandle) ?></div>
                             </div>
                             <i class="bi bi-arrow-right contact-cta__arrow"></i>
                         </a>
