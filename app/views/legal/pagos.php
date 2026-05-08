@@ -24,8 +24,8 @@
 
 Funciones premium (opcionales, de pago con tokens):
 • Tokens: saldo virtual que se adquiere mediante paquetes y se consume al activar boosts. Los tokens son la única moneda interna del Sitio. No tienen valor monetario fuera del Sitio, no son canjeables por dinero, ni transferibles a otra cuenta.
-• Boost TOP: hace que tu perfil aparezca en la primera fila del listado de tu municipio durante el tiempo que elijas. Tarifa por hora medida en tokens.
-• Boost RESALTADO: cambia la apariencia visual de tu tarjeta en los listados (fondo distintivo) para llamar la atención, sin alterar la posición. Tarifa por hora medida en tokens, generalmente menor que la del TOP.
+• Boost TOP: hace que tu perfil aparezca en las primeras posiciones del listado de tu municipio durante el tiempo que elijas. Cuando varias usuarias tienen TOP activo simultáneamente en el mismo municipio, el orden entre ellas rota automáticamente cada minuto para garantizar visibilidad equitativa. Tarifa por hora medida en tokens.
+• Boost RESALTADO: cambia la apariencia visual de tu tarjeta en los listados (fondo distintivo) para llamar la atención, sin alterar la posición. Cuando hay varias Resaltadas, el orden entre ellas también rota cada minuto. Tarifa por hora medida en tokens, generalmente menor que la del TOP.
 
 El contenido de cada paquete (cantidad de tokens y precio en MXN) y la tarifa de cada tipo de boost se muestran en el panel de usuario y pueden actualizarse periódicamente. El precio y la tarifa aplicables son siempre los que se muestran al momento de confirmar la operación.'],
 

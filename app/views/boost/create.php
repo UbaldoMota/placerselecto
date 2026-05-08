@@ -70,7 +70,7 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
                         </p>
                         <ul class="mb-2 ps-3" style="font-size:.8rem;line-height:1.6">
                             <li><strong><?= $tphTop ?> tokens / hora</strong> de boost</li>
-                            <li>Posición: <strong>primera fila</strong> del listado</li>
+                            <li>Posición: <strong>entre las primeras</strong>, rotando con otras TOPs cada minuto</li>
                             <li>Visibilidad: <strong>máxima</strong></li>
                         </ul>
                         <?php if ($horasTopAlcance > 0): ?>
@@ -116,6 +116,11 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
                 <i class="bi bi-lightbulb-fill" style="color:#3B82F6"></i>
                 <strong>Recomendación:</strong> activa <strong>TOP en tus horas peak</strong> (vie/sáb/dom de 8pm a 4am) y <strong>Resaltado el resto del tiempo</strong> para mantenerte visible siempre con menor consumo.
             </div>
+
+            <div class="mt-2 p-2 rounded" style="background:rgba(0,0,0,.04);font-size:.78rem;color:var(--color-text-muted);line-height:1.5">
+                <i class="bi bi-info-circle me-1"></i>
+                <strong>Nota importante:</strong> cuando varias usuarias tienen TOP activo en el mismo municipio, el orden entre ellas <strong>rota automáticamente cada minuto</strong> para que todas tengan tiempo en la posición #1. Lo mismo aplica para Resaltado.
+            </div>
         </div>
     </div>
 
@@ -135,7 +140,7 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
                         </div>
                         <div class="plan-price" style="font-size:1.5rem"><?= $tphTop ?></div>
                         <div class="text-muted" style="font-size:.75rem">tokens / hora</div>
-                        <div class="mt-2 text-muted" style="font-size:.78rem;line-height:1.4">Aparece en la primera fila del listado</div>
+                        <div class="mt-2 text-muted" style="font-size:.78rem;line-height:1.4">Aparece entre las primeras del listado (rotación equitativa)</div>
                     </label>
                 </div>
                 <div class="col-md-6">

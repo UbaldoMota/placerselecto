@@ -268,9 +268,9 @@ $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado)
                                     <i class="bi bi-arrow-up-square-fill" style="font-size:1.2rem"></i>
                                 </div>
                                 <div>
-                                    <div class="fw-semibold" style="font-size:.92rem">Sales primero en tu zona</div>
+                                    <div class="fw-semibold" style="font-size:.92rem">Sales en la cabecera de tu zona</div>
                                     <div class="text-muted" style="font-size:.78rem;line-height:1.4">
-                                        TOP coloca tu perfil en la cabecera de tu municipio. Más visibilidad = más contactos.
+                                        TOP coloca tu perfil en las primeras posiciones de tu municipio, rotando con otras TOPs cada minuto. Más visibilidad = más contactos.
                                     </div>
                                 </div>
                             </div>

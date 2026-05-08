@@ -344,9 +344,10 @@ class PerfilModel extends Model
              ORDER BY
                 IFNULL(b.has_top, 0)       DESC,
                 IFNULL(b.has_resaltado, 0) DESC,
+                IF(IFNULL(b.has_top, 0) = 1 OR IFNULL(b.has_resaltado, 0) = 1, RAND(?), 0) DESC,
                 p.fecha_publicacion DESC
              LIMIT ? OFFSET ?",
-            array_merge($params, [$perPage, $offset])
+            array_merge($params, [(int)floor(time() / 60), $perPage, $offset])
         )->fetchAll(PDO::FETCH_ASSOC);
 
         return [

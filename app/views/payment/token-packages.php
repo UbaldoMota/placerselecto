@@ -114,7 +114,7 @@
                         <div>
                             <div class="fw-semibold" style="font-size:.92rem">Boost TOP — sales primero</div>
                             <div class="text-muted" style="font-size:.78rem;line-height:1.4">
-                                Tu perfil aparece en la <strong>cabecera de tu municipio</strong> durante las horas que actives el boost. Más visibilidad = más contactos.
+                                Tu perfil aparece en la <strong>cabecera de tu municipio</strong>, rotando con otras TOPs cada minuto para que todas tengan tiempo en #1. Más visibilidad = más contactos.
                             </div>
                         </div>
                     </div>
