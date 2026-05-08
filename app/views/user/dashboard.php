@@ -198,7 +198,7 @@ $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado)
                                             · <i class="bi bi-geo-alt me-1"></i><?= e($p['municipio_nombre'] ?? $p['ciudad'] ?? '—') ?>
                                         </div>
 
-                                        <!-- Visitas -->
+                                        <!-- Visitas + acciones secundarias -->
                                         <div class="d-flex align-items-center justify-content-between pt-2 mt-auto"
                                              style="border-top:1px solid var(--color-border)">
                                             <span style="font-size:.78rem;color:var(--color-primary);font-weight:600">
@@ -206,11 +206,6 @@ $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado)
                                             </span>
                                             <div class="d-flex gap-1">
                                                 <?php if ($p['estado'] === 'publicado'): ?>
-                                                <a href="<?= APP_URL ?>/perfil/<?= (int)$p['id'] ?>/destacar"
-                                                   class="btn btn-sm btn-primary" style="font-size:.7rem;padding:.2rem .5rem"
-                                                   title="Destacar con tokens">
-                                                    <i class="bi bi-stars"></i>
-                                                </a>
                                                 <a href="<?= APP_URL ?>/perfil/<?= (int)$p['id'] ?>"
                                                    class="btn btn-sm btn-secondary" style="font-size:.7rem;padding:.2rem .5rem"
                                                    title="Ver" target="_blank">
@@ -236,6 +231,15 @@ $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado)
                                                 </form>
                                             </div>
                                         </div>
+
+                                        <!-- CTA: Destacar con tokens (prominente, solo si publicado) -->
+                                        <?php if ($p['estado'] === 'publicado'): ?>
+                                        <a href="<?= APP_URL ?>/perfil/<?= (int)$p['id'] ?>/destacar"
+                                           class="btn btn-primary w-100 mt-2"
+                                           style="font-weight:700;font-size:.82rem;padding:.5rem .75rem">
+                                            <i class="bi bi-stars me-1"></i>Destacar con tokens
+                                        </a>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
