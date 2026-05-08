@@ -1,1 +1,38 @@
+# uploads/.htaccess — defensa raíz para todo /uploads/
+# Las subcarpetas (anuncios/, videos/, verificacion/, verificaciones/) tienen sus propios
+# Require all denied; este archivo añade defensa en profundidad ante:
+#   1. Subcarpeta nueva creada sin .htaccess.
+#   2. Polyglot upload: archivo .jpg con contenido PHP que algún mod_mime mal configurado
+#      pudiera ejecutar.
+
 Options -Indexes
+Options -ExecCGI
+
+# Bloquear ejecución de cualquier extensión que el server pudiera interpretar.
+<FilesMatch "\.(php|phtml|phar|php3|php4|php5|php7|php8|pl|py|pyc|sh|cgi|rb|asp|aspx|jsp|exe|dll|so)$">
+    Require all denied
+</FilesMatch>
+
+# Forzar que .htaccess y archivos ocultos no se sirvan.
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Desactivar handlers PHP por si la subcarpeta los hereda.
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# Como último seguro: si algo se sirve con tipo "text/x-php" forzar bajada como octet-stream.
+<IfModule mod_headers.c>
+    <FilesMatch "\.(php|phtml|phar)$">
+        Header set Content-Type "application/octet-stream"
+        Header set Content-Disposition "attachment"
+    </FilesMatch>
+</IfModule>

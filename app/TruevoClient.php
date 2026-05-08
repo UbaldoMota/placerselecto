@@ -40,13 +40,21 @@ class TruevoClient
      */
     public static function verifyWebhook(string $rawBody, array $headers): bool
     {
-        if (defined('TRUEVO_ENABLED') && TRUEVO_ENABLED) {
-            // PROD TODO: comparar HMAC SHA256 de rawBody con TRUEVO_SECRET vs header
-            $sig = $headers['X-Signature'] ?? '';
-            $expected = hash_hmac('sha256', $rawBody, defined('TRUEVO_SECRET') ? TRUEVO_SECRET : '');
-            return hash_equals($expected, $sig);
+        // Si la pasarela no está habilitada, rechazar TODO webhook entrante.
+        // De lo contrario, cualquiera podría POSTear a /webhook/truevo y acreditar tokens.
+        if (!defined('TRUEVO_ENABLED') || !TRUEVO_ENABLED) {
+            error_log('[TruevoClient] webhook recibido con TRUEVO_ENABLED=false — rechazado');
+            return false;
         }
-        // STUB: aceptar siempre en dev
-        return true;
+        // Header lookup case-insensitive
+        $sig = $headers['X-Signature'] ?? $headers['x-signature'] ?? $headers['X-SIGNATURE'] ?? '';
+        if ($sig === '') return false;
+        $secret = defined('TRUEVO_SECRET') ? TRUEVO_SECRET : '';
+        if ($secret === '') {
+            error_log('[TruevoClient] TRUEVO_SECRET vacío con TRUEVO_ENABLED=true — config inválida');
+            return false;
+        }
+        $expected = hash_hmac('sha256', $rawBody, $secret);
+        return hash_equals($expected, $sig);
     }
 }

@@ -15,7 +15,13 @@ AddDefaultCharset UTF-8
     RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
 
-<FilesMatch "\.(env|env\.local\.php|env\.production\.php|env\.development\.php|log|sql|bak|sh|json|lock|md|htaccess|gitignore|gitattributes|yml)$">
+<FilesMatch "\.(env|env\.local\.php|env\.production\.php|env\.development\.php|log|sql|bak|sh|json|lock|md|htaccess|gitignore|gitattributes|yml|zip|tar|gz|tar\.gz|txt|old|swp)$">
+    Require all denied
+</FilesMatch>
+
+# Bloqueo explícito de scripts auxiliares de diagnóstico/instalación que NUNCA deben ser
+# accesibles vía web — defensa en profundidad ante un olvido en .gitignore o subida manual.
+<FilesMatch "^(debug|diagnostico|dump_schema|instalar|check_bom|config_server|config_bom|test|phpinfo|info)\.php$">
     Require all denied
 </FilesMatch>
 

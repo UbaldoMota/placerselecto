@@ -1,0 +1,6 @@
+# uploads/verificaciones/.htaccess
+# Aquí viven INE/pasaporte (documentos/) y videos/fotos de verificación con cara visible
+# (perfiles/). NUNCA deben ser servidos directo: solo via proxy /img/{token}, /video/{token}
+# o /admin/archivo con autenticación.
+
+Require all denied

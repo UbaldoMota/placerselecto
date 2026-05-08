@@ -31,7 +31,7 @@ class PayCashClient
         }
 
         // STUB: referencia numérica de 14 dígitos (formato típico de tienda de conveniencia)
-        $reference = str_pad((string)mt_rand(0, 99999999999999), 14, '0', STR_PAD_LEFT);
+        $reference = str_pad((string)random_int(0, 99999999999999), 14, '0', STR_PAD_LEFT);
         // Barcode = mismo número (en producción sería data SVG/PNG codificado por la pasarela)
         return [
             'reference' => $reference,
@@ -42,11 +42,21 @@ class PayCashClient
 
     public static function verifyWebhook(string $rawBody, array $headers): bool
     {
-        if (defined('PAYCASH_ENABLED') && PAYCASH_ENABLED) {
-            $sig = $headers['X-Signature'] ?? '';
-            $expected = hash_hmac('sha256', $rawBody, defined('PAYCASH_SECRET') ? PAYCASH_SECRET : '');
-            return hash_equals($expected, $sig);
+        // Si la pasarela no está habilitada, rechazar TODO webhook entrante.
+        // De lo contrario, cualquiera podría POSTear a /webhook/paycash y acreditar tokens.
+        if (!defined('PAYCASH_ENABLED') || !PAYCASH_ENABLED) {
+            error_log('[PayCashClient] webhook recibido con PAYCASH_ENABLED=false — rechazado');
+            return false;
         }
-        return true;
+        // Header lookup case-insensitive (Apache normaliza a X-Signature, otros entornos pueden variar)
+        $sig = $headers['X-Signature'] ?? $headers['x-signature'] ?? $headers['X-SIGNATURE'] ?? '';
+        if ($sig === '') return false;
+        $secret = defined('PAYCASH_SECRET') ? PAYCASH_SECRET : '';
+        if ($secret === '') {
+            error_log('[PayCashClient] PAYCASH_SECRET vacío con PAYCASH_ENABLED=true — config inválida');
+            return false;
+        }
+        $expected = hash_hmac('sha256', $rawBody, $secret);
+        return hash_equals($expected, $sig);
     }
 }
