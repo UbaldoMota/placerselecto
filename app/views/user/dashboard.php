@@ -222,6 +222,18 @@ $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado)
                                                    title="Editar">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
+                                                <form method="POST"
+                                                      action="<?= APP_URL ?>/perfil/<?= (int)$p['id'] ?>/eliminar"
+                                                      class="d-inline">
+                                                    <?= $csrfField ?>
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-danger"
+                                                            style="font-size:.7rem;padding:.2rem .5rem"
+                                                            data-confirm="¿Eliminar el perfil «<?= e($p['nombre']) ?>»? Esta acción no se puede deshacer."
+                                                            title="Eliminar">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
                                             </div>
                                         </div>
                                     </div>
