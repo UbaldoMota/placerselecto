@@ -20,21 +20,24 @@
 • Publicar hasta tres (3) perfiles por cuenta tras el proceso de verificación de identidad.
 • Subir fotografías y videos a tus perfiles dentro de los límites del Sitio.
 • Recibir contactos y comentarios moderados.
+• Estadísticas de visitas y clics de tus perfiles.
 
-Funciones premium (opcionales, de pago):
-• Tokens: saldo virtual que puedes adquirir y consumir para activar destacados, posicionamiento o renovaciones.
-• Boost de posicionamiento: hace que tu perfil aparezca en posiciones superiores de los listados durante un periodo determinado.
-• Resaltado visual: cambia la apariencia de tu perfil en los listados para llamar la atención.
-• Renovación de fecha de publicación: actualiza la fecha de tu perfil para que vuelva a aparecer como reciente.
+Funciones premium (opcionales, de pago con tokens):
+• Tokens: saldo virtual que se adquiere mediante paquetes y se consume al activar boosts. Los tokens son la única moneda interna del Sitio. No tienen valor monetario fuera del Sitio, no son canjeables por dinero, ni transferibles a otra cuenta.
+• Boost TOP: hace que tu perfil aparezca en la primera fila del listado de tu municipio durante el tiempo que elijas. Tarifa por hora medida en tokens.
+• Boost RESALTADO: cambia la apariencia visual de tu tarjeta en los listados (fondo distintivo) para llamar la atención, sin alterar la posición. Tarifa por hora medida en tokens, generalmente menor que la del TOP.
 
-Las tarifas vigentes de cada producto se muestran dentro del panel de usuario en el momento de la contratación. Pueden actualizarse periódicamente; el precio aplicable es siempre el que se muestra al momento de confirmar el pago.'],
+El contenido de cada paquete (cantidad de tokens y precio en MXN) y la tarifa de cada tipo de boost se muestran en el panel de usuario y pueden actualizarse periódicamente. El precio y la tarifa aplicables son siempre los que se muestran al momento de confirmar la operación.'],
 
         ['titulo' => '2. Métodos de pago',
-         'cuerpo' => 'Aceptamos pagos por:
-• Tarjeta de crédito o débito (Visa, MasterCard) procesada por proveedor externo.
-• Otros métodos que se vayan habilitando y se mostrarán en el panel de usuario.
+         'cuerpo' => 'Los pagos para adquirir paquetes de tokens se procesan a través de los siguientes métodos:
+• Tarjeta de crédito o débito (Visa, MasterCard) procesada mediante Truevo.
+• Efectivo en tienda de conveniencia (Walmart, 7-Eleven, Soriana, Santander) mediante PayCash.
+• Otros métodos que se vayan habilitando se mostrarán en el panel de usuario al momento de la compra.
 
-Los pagos con tarjeta se procesan a través de pasarelas externas con cumplimiento PCI-DSS. ' . APP_NAME . ' nunca recibe ni almacena el número completo de tu tarjeta, el código CVC ni la fecha de vencimiento. De cada transacción conservamos únicamente el identificador, el monto, los últimos cuatro dígitos de la tarjeta y los datos mínimos para la emisión del comprobante.'],
+Los pagos con tarjeta se procesan con cumplimiento PCI-DSS. ' . APP_NAME . ' nunca recibe ni almacena el número completo de tu tarjeta, el código CVC ni la fecha de vencimiento. De cada transacción conservamos únicamente el identificador, el monto, los últimos cuatro dígitos de la tarjeta y los datos mínimos para la emisión del comprobante.
+
+Para pagos en efectivo, al confirmar la compra recibes una referencia con vigencia de siete (7) días para acudir a la tienda. Los tokens se acreditan al saldo de tu cuenta de forma automática una vez que la tienda confirma la recepción del pago al proveedor.'],
 
         ['titulo' => '3. Activación del servicio',
          'cuerpo' => 'Pagos con tarjeta: el servicio premium se activa automáticamente al confirmarse el pago, normalmente en menos de un minuto. Si el pago se procesa pero el servicio no se activa, escribe a legal@placerselecto.com indicando el ID de la transacción y revisaremos manualmente.
@@ -47,17 +50,19 @@ Pagos por otros métodos (transferencia, efectivo): se activan tras la confirmac
 Cada vez que quieras adquirir un servicio premium, debes ingresar nuevamente los datos de tu medio de pago a través de la pasarela del proveedor externo. ' . APP_NAME . ' no almacena tu información bancaria.'],
 
         ['titulo' => '5. Política de devoluciones',
-         'cuerpo' => 'Reembolso íntegro:
-Si solicitas la cancelación dentro de las primeras veinticuatro (24) horas posteriores al pago, se reembolsa el cien por ciento (100%) del importe pagado, siempre que el servicio no se haya consumido por completo.
+         'cuerpo' => 'Distinguimos dos tipos de reembolso porque los tokens son la moneda interna del Sitio y los boosts son consumos de esos tokens.
 
-Reembolso proporcional:
-Después de las primeras 24 horas, se reembolsa la parte proporcional al tiempo no consumido del servicio. Por ejemplo, si compraste un destacado de siete (7) días y solicitas la cancelación al día tres (3), recibes el reembolso correspondiente a los cuatro (4) días restantes.
+A) Reembolso del paquete de tokens al medio de pago original
+Si solicitas la cancelación de la compra de un paquete dentro de las primeras veinticuatro (24) horas posteriores al pago Y los tokens del paquete no han sido consumidos (ni siquiera parcialmente en un boost), se reembolsa el cien por ciento (100%) del importe pagado al medio de pago original (tarjeta o método de origen). Una vez consumido cualquier token del paquete, no procede el reembolso al medio de pago original.
 
-Servicios consumidos:
-No procede reembolso por servicios cuyo periodo ya finalizó, ni por consumos derivados del uso normal del Sitio (visualizaciones, clics, interacciones recibidas, tokens ya gastados en boosts ejecutados, etc.).
+B) Cancelación de un boost (reembolso al saldo de tokens)
+Cuando ya tienes tokens en tu saldo y los gastas en un boost, las reglas son:
+• Boost programado (aún no ha iniciado): puedes cancelarlo en cualquier momento desde el panel del perfil. Se devuelve el cien por ciento (100%) de los tokens gastados al saldo de tu cuenta. No se reembolsa al medio de pago original.
+• Boost activo (corriendo): no es cancelable. Los tokens están consumiéndose en visibilidad efectiva en el listado, por lo que no procede reembolso.
+• Boost finalizado: no aplica reembolso.
 
-Forma y plazo del reembolso:
-El reembolso se procesa por la misma vía utilizada para el pago original. Una vez aprobado, el reflejo en tu cuenta o tarjeta depende del banco emisor y del proveedor de pagos, lo cual puede tardar entre siete (7) y treinta (30) días hábiles. ' . APP_NAME . ' notificará por correo cuando el reembolso haya sido emitido.
+Forma y plazo del reembolso al medio de pago:
+El reembolso del tipo A se procesa por la misma vía utilizada para el pago original. Una vez aprobado, el reflejo en tu cuenta o tarjeta depende del banco emisor y del proveedor de pagos, lo cual puede tardar entre siete (7) y treinta (30) días hábiles. ' . APP_NAME . ' notifica por correo cuando el reembolso ha sido emitido. La cancelación de boosts del tipo B se aplica al saldo de tokens de forma inmediata, sin intervención del banco.
 
 Casos excluidos del reembolso:
 No procede reembolso, total ni parcial, cuando la cuenta o el contenido sean retirados por:
@@ -67,10 +72,10 @@ No procede reembolso, total ni parcial, cuando la cuenta o el contenido sean ret
 • Verificación de identidad fallida o negativa a entregar identificación cuando se solicite.
 • Cualquier otro incumplimiento grave de los Términos y Condiciones.
 
-Estas exclusiones no aplican cuando el contenido del usuario sea retirado por moderación discrecional del Sitio sin que medie incumplimiento; en ese caso aplica la regla de reembolso proporcional descrita arriba.
+Estas exclusiones no aplican cuando el contenido del usuario sea retirado por moderación discrecional del Sitio sin que medie incumplimiento. En ese caso aplica la regla A si el paquete está dentro de las 24 horas y sin tokens consumidos.
 
 Límite anti-abuso:
-Para prevenir el uso fraudulento de la política de devoluciones (contratar servicios con la única intención de cancelarlos), nos reservamos el derecho de limitar a una (1) devolución por usuario en un periodo de doce meses. Solicitudes adicionales serán evaluadas caso por caso.'],
+Para prevenir el uso fraudulento de la política de devoluciones (contratar paquetes con la única intención de cancelarlos), nos reservamos el derecho de limitar a dos (2) devoluciones del tipo A por usuario en un periodo de doce (12) meses. La cancelación de boosts programados (tipo B) no tiene límite de uso, dado que solo reembolsa al saldo interno de tokens y no implica movimiento bancario.'],
 
         ['titulo' => '6. Disputas',
          'cuerpo' => 'Las disputas relacionadas con cargos deben presentarse a legal@placerselecto.com dentro de los treinta (30) días naturales siguientes al cargo, indicando:
