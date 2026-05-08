@@ -99,6 +99,16 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
             </div>
             <?php endif; ?>
 
+            <!-- Aviso: perfil de muestra (demo/seed) -->
+            <?php if (!empty($perfil['es_demo'])): ?>
+            <div class="alert d-flex align-items-start mb-3" style="background:rgba(13,202,240,.08);border:1px solid rgba(13,202,240,.3);color:#055160;border-radius:var(--radius-md)" role="status">
+                <i class="bi bi-info-circle-fill me-2 mt-1" style="color:#0DCAF0"></i>
+                <div style="font-size:.88rem">
+                    <strong>Perfil de muestra</strong> — este perfil es demostrativo y forma parte del catálogo inicial para mostrar la funcionalidad del sitio.
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- 1. NOMBRE Y DESCRIPCIÓN -->
             <div class="card mb-3">
                 <div class="card-body p-4">

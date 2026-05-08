@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `perfiles` (
   `imagen_token`              CHAR(40)        NULL,
   `whatsapp`                  VARCHAR(20)     NULL,
   `estado`                    ENUM('pendiente','publicado','rechazado') NOT NULL DEFAULT 'pendiente',
+  `es_demo`                   TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Perfil seed/demostrativo: muestra badge "Perfil de muestra" en UI',
   `destacado`                 TINYINT(1)      NOT NULL DEFAULT 0,
   `fecha_destacado`           DATETIME        NULL,
   `fecha_expiracion_destacado` DATETIME       NULL,

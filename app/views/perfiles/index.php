@@ -93,6 +93,11 @@ $idMunicipio  = (int)($filtros['id_municipio'] ?? 0);
                         <?php if (!empty($p['edad']) && (int)($p['edad_publica'] ?? 1)): ?>
                             <span class="text-muted fw-normal" style="font-size:.88em">, <?= (int)$p['edad'] ?></span>
                         <?php endif; ?>
+                        <?php if (!empty($p['es_demo'])): ?>
+                            <span style="display:inline-flex;align-items:center;gap:.25rem;color:#0DCAF0;font-size:.7rem;font-weight:600;background:rgba(13,202,240,.1);border:1px solid rgba(13,202,240,.3);border-radius:20px;padding:.1em .55em;vertical-align:middle;margin-left:.25rem">
+                                <i class="bi bi-info-circle-fill"></i>Perfil de muestra
+                            </span>
+                        <?php endif; ?>
                     </h3>
                     <?php if ($tiempoRel): ?>
                     <span class="perfil-row__time"><i class="bi bi-clock-history"></i> <?= e($tiempoRel) ?></span>
