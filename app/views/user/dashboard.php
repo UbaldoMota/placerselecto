@@ -82,7 +82,7 @@ $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado)
             <div class="row align-items-center g-3">
 
                 <!-- Saldo + tip -->
-                <div class="col-12 col-md-5">
+                <div class="col-12 col-md-7">
                     <div class="text-uppercase fw-bold mb-1"
                          style="font-size:.7rem;letter-spacing:.1em;color:var(--color-primary)">
                         <i class="bi bi-coin me-1"></i>Mi saldo de tokens
@@ -104,40 +104,11 @@ $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado)
                     <?php endif; ?>
                 </div>
 
-                <!-- Tarifas -->
-                <div class="col-6 col-md-3">
-                    <div class="p-3 rounded" style="background:rgba(255,255,255,.7);border:1px solid rgba(255,45,117,.12);font-size:.85rem">
-                        <div class="fw-semibold mb-1" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-muted)">Tarifas</div>
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <i class="bi bi-arrow-up-square-fill text-primary"></i>
-                            <span><strong>TOP:</strong> <?= $tarifaTop ?> tk/h</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-stars" style="color:#F59E0B"></i>
-                            <span><strong>Resaltado:</strong> <?= $tarifaResaltado ?> tk/h</span>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- CTA -->
-                <div class="col-12 col-md-4 text-md-end">
+                <div class="col-12 col-md-5 text-md-end">
                     <a href="<?= APP_URL ?>/tokens/comprar" class="btn btn-primary btn-lg w-100" style="font-size:1rem;font-weight:700">
                         <i class="bi bi-cart-plus me-1"></i>Recargar tokens
                     </a>
-                    <?php if (!empty($paqueteDestacado)): ?>
-                    <div class="text-muted mt-2" style="font-size:.78rem;line-height:1.4">
-                        <i class="bi bi-star-fill text-warning"></i>
-                        <strong><?= e($paqueteDestacado['nombre']) ?></strong>:
-                        <?= number_format((int)$paqueteDestacado['tokens']) ?> tk por
-                        $<?= number_format((float)$paqueteDestacado['monto_mxn'], 0) ?>
-                    </div>
-                    <?php else: ?>
-                    <div class="text-muted mt-2" style="font-size:.78rem">
-                        <a href="<?= APP_URL ?>/mis-tokens" style="color:var(--color-primary);text-decoration:none">
-                            Ver historial de movimientos →
-                        </a>
-                    </div>
-                    <?php endif; ?>
                 </div>
 
             </div>
@@ -318,13 +289,6 @@ $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado)
                         </div>
 
                     </div>
-
-                    <div class="p-3 rounded" style="background:rgba(255,45,117,.05);border:1px solid rgba(255,45,117,.15);font-size:.85rem">
-                        <i class="bi bi-info-circle text-primary me-1"></i>
-                        <strong>Ejemplo:</strong> con el paquete <strong>Activa (549 MXN / 450 tokens)</strong> destacas
-                        en TOP <strong style="color:var(--color-primary)"><?= $tarifaTop > 0 ? floor(450 / $tarifaTop) : 150 ?> horas</strong>
-                        — equivale a <strong>≈ 18 noches de 8h</strong> en horario peak (vie-sáb-dom durante 6 semanas).
-                    </div>
                 </div>
             </div>
 
@@ -445,22 +409,6 @@ $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado)
                             <div class="dash-menu__title">Explorar perfiles</div>
                             <div class="dash-menu__hint">Ver perfiles públicos del directorio</div>
                         </div>
-                        <i class="bi bi-chevron-right dash-menu__arrow"></i>
-                    </a>
-
-                    <a href="<?= APP_URL ?>/cuenta/reactivar" class="dash-menu__item">
-                        <div class="dash-menu__icon" style="color:#F59E0B;background:rgba(245,158,11,.14)">
-                            <i class="bi bi-envelope-fill"></i>
-                        </div>
-                        <div class="dash-menu__body">
-                            <div class="dash-menu__title">Soporte</div>
-                            <div class="dash-menu__hint">
-                                <?= $mensajesAbiertos > 0 ? 'Tienes conversación(es) activa(s)' : 'Contactar al equipo' ?>
-                            </div>
-                        </div>
-                        <?php if ($mensajesAbiertos > 0): ?>
-                        <span class="dash-menu__value dash-menu__value--warning"><?= (int)$mensajesAbiertos ?></span>
-                        <?php endif; ?>
                         <i class="bi bi-chevron-right dash-menu__arrow"></i>
                     </a>
                 </div>

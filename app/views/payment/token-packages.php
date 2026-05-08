@@ -140,11 +140,6 @@
                         <div class="text-muted" style="font-size:.82rem;line-height:1.5">
                             No hay mensualidades. Activas el boost solo en tus mejores horarios — vie/sáb/dom de 8pm a 4am, por ejemplo. El resto del tiempo no consumes nada.
                         </div>
-                        <div class="mt-3 pt-3" style="border-top:1px dashed rgba(255,45,117,.25)">
-                            <div class="text-muted" style="font-size:.78rem">
-                                <strong style="color:var(--color-primary)">Ejemplo:</strong> con el paquete <strong>Activa (549 MXN)</strong> destacas en TOP <strong>150 horas</strong> ≈ 18 noches de 8h durante 6 semanas.
-                            </div>
-                        </div>
                     </div>
                 </div>
 
