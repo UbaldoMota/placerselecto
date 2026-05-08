@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title><?= e($pageTitle ?? 'Crear cuenta') ?> | <?= e(APP_NAME) ?></title>
+    <?php require VIEWS_PATH . '/partials/head-meta.php'; ?>
     <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/bootstrap-icons/bootstrap-icons.min.css">
     <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/css/app.css">

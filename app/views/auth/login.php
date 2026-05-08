@@ -14,6 +14,7 @@ SessionManager::delete('form_old');
     <meta name="robots" content="noindex, nofollow">
     <meta name="csrf-token" content="<?= e(Middleware::generateCsrfToken()) ?>">
     <title><?= e($pageTitle ?? 'Login') ?> | <?= e(APP_NAME) ?></title>
+    <?php require VIEWS_PATH . '/partials/head-meta.php'; ?>
     <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/bootstrap-icons/bootstrap-icons.min.css">
     <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/css/app.css">

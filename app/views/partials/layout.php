@@ -14,6 +14,8 @@
     <title><?= e($pageTitle ?? 'Inicio') ?> | <?= e(APP_NAME) ?></title>
     <meta name="description" content="<?= e($pageDescription ?? 'Plataforma de clasificados para adultos. Solo mayores de 18 años.') ?>">
 
+    <?php require VIEWS_PATH . '/partials/head-meta.php'; ?>
+
     <!-- Fuente Inter (self-hosted) -->
     <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/inter/inter.css">
     <!-- Bootstrap 5.3 -->

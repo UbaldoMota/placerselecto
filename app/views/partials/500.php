@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>500 — Error del servidor | <?= APP_NAME ?></title>
+    <?php require VIEWS_PATH . '/partials/head-meta.php'; ?>
     <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/bootstrap/bootstrap.min.css">
     <style>
         body { background: #FFFFFF; color: #1A1A1A; font-family: Inter,system-ui,sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
