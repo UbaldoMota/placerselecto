@@ -1,7 +1,8 @@
 <?php
 /**
  * dashboard.php — Panel principal del usuario.
- * Layout tipo "home de app": grid de módulos con estado actual.
+ * Layout: hero compacto + card hero de tokens (CTA primario) + cards de perfiles
+ * + seccion educativa "por que destacar" + sidebar con verificacion/menu/pasos.
  */
 $estadoVer  = $currentUser['estado_verificacion'];
 $verificado = $currentUser['verificado'];
@@ -20,9 +21,14 @@ $docInfo = [
 ];
 $doc = $docTiene ? ($docInfo[$docEstado] ?? $docInfo['pendiente']) : $docInfo[null];
 
-// Confiabilidad — cuántos activos
+// Confiabilidad
 $confActivos = count(array_filter($confiabilidad['indicadores'] ?? [], fn($i) => !empty($i['activo'])));
-$confTotal   = count($confiabilidad['indicadores'] ?? []);
+
+// Tarifas (default si vienen vacias)
+$tarifaTop       = (int)($tarifaTop       ?? 3);
+$tarifaResaltado = (int)($tarifaResaltado ?? 1);
+$horasTop        = $tarifaTop       > 0 ? floor($saldoTokens / $tarifaTop)       : 0;
+$horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado) : 0;
 ?>
 
 <!-- HERO compacto -->
@@ -67,18 +73,93 @@ $confTotal   = count($confiabilidad['indicadores'] ?? []);
 
 <div class="container py-4">
 
+    <!-- ============================================================
+         HERO TOKENS — CTA primario de monetizacion
+         ============================================================ -->
+    <div class="card mb-4 border-0"
+         style="background:linear-gradient(135deg,#FFE0EC 0%,#FFF5F8 60%,#FFFFFF 100%);border:1px solid rgba(255,45,117,.22);box-shadow:0 4px 18px rgba(255,45,117,.08)">
+        <div class="card-body p-4">
+            <div class="row align-items-center g-3">
+
+                <!-- Saldo + tip -->
+                <div class="col-12 col-md-5">
+                    <div class="text-uppercase fw-bold mb-1"
+                         style="font-size:.7rem;letter-spacing:.1em;color:var(--color-primary)">
+                        <i class="bi bi-coin me-1"></i>Mi saldo de tokens
+                    </div>
+                    <div class="fw-black" style="font-size:2.6rem;line-height:1;color:#1A1A1A">
+                        <?= number_format($saldoTokens) ?>
+                        <small class="fw-semibold text-muted ms-1" style="font-size:.95rem">tokens</small>
+                    </div>
+                    <?php if ($saldoTokens > 0): ?>
+                    <div class="text-muted mt-2" style="font-size:.85rem">
+                        Con tu saldo te destacas
+                        <strong style="color:var(--color-primary)"><?= number_format($horasTop) ?> h</strong>
+                        en TOP o <strong style="color:#F59E0B"><?= number_format($horasResaltado) ?> h</strong> Resaltada
+                    </div>
+                    <?php else: ?>
+                    <div class="text-muted mt-2" style="font-size:.85rem">
+                        Aún no tienes tokens. Compra un paquete y empieza a destacarte.
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Tarifas -->
+                <div class="col-6 col-md-3">
+                    <div class="p-3 rounded" style="background:rgba(255,255,255,.7);border:1px solid rgba(255,45,117,.12);font-size:.85rem">
+                        <div class="fw-semibold mb-1" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-muted)">Tarifas</div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-arrow-up-square-fill text-primary"></i>
+                            <span><strong>TOP:</strong> <?= $tarifaTop ?> tk/h</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-stars" style="color:#F59E0B"></i>
+                            <span><strong>Resaltado:</strong> <?= $tarifaResaltado ?> tk/h</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA -->
+                <div class="col-12 col-md-4 text-md-end">
+                    <a href="<?= APP_URL ?>/tokens/comprar" class="btn btn-primary btn-lg w-100" style="font-size:1rem;font-weight:700">
+                        <i class="bi bi-cart-plus me-1"></i>Recargar tokens
+                    </a>
+                    <?php if (!empty($paqueteDestacado)): ?>
+                    <div class="text-muted mt-2" style="font-size:.78rem;line-height:1.4">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <strong><?= e($paqueteDestacado['nombre']) ?></strong>:
+                        <?= number_format((int)$paqueteDestacado['tokens']) ?> tk por
+                        $<?= number_format((float)$paqueteDestacado['monto_mxn'], 0) ?>
+                    </div>
+                    <?php else: ?>
+                    <div class="text-muted mt-2" style="font-size:.78rem">
+                        <a href="<?= APP_URL ?>/mis-tokens" style="color:var(--color-primary);text-decoration:none">
+                            Ver historial de movimientos →
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <div class="row g-4">
 
-        <!-- ====== COLUMNA DERECHA (desktop): Mis perfiles ====== -->
+        <!-- ============================================================
+             COLUMNA PRINCIPAL — perfiles + educativo
+             ============================================================ -->
         <div class="col-12 col-lg-8 order-lg-2">
-            <div class="card">
+
+            <!-- Mis perfiles recientes (cards estilo /mis-perfiles) -->
+            <div class="card mb-4">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <span class="fw-semibold">
                         <i class="bi bi-person-lines-fill text-primary me-2"></i>Mis perfiles recientes
                     </span>
                     <a href="<?= APP_URL ?>/mis-perfiles" class="btn btn-sm btn-secondary">Ver todos</a>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body">
                     <?php if (empty($misPerfiles)): ?>
                         <div class="text-center py-5 px-3">
                             <i class="bi bi-person-x" style="font-size:3rem;color:var(--color-border)"></i>
@@ -88,219 +169,303 @@ $confTotal   = count($confiabilidad['indicadores'] ?? []);
                             </a>
                         </div>
                     <?php else: ?>
-                        <div class="table-responsive">
-                            <table class="table mb-0">
-                                <thead>
-                                    <tr>
-                                        <th style="width:48px"></th>
-                                        <th>Perfil</th>
-                                        <th>Estado</th>
-                                        <th class="d-none d-md-table-cell">Ubicación</th>
-                                        <th>Visitas</th>
-                                        <th class="text-end">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach (array_slice($misPerfiles, 0, 5) as $p):
-                                        $imgUrl = !empty($p['imagen_token'])
-                                            ? APP_URL . '/img/' . $p['imagen_token'] . '?size=thumb'
-                                            : null;
-                                        $estadoMap = [
-                                            'pendiente' => ['badge-pendiente','En revisión'],
-                                            'publicado' => ['badge-publicado','Publicado'],
-                                            'rechazado' => ['badge-rechazado','Rechazado'],
-                                        ];
-                                        [$cls, $lbl] = $estadoMap[$p['estado']] ?? ['','?'];
-                                    ?>
-                                    <tr>
-                                        <td>
-                                            <?php if ($imgUrl): ?>
-                                            <img src="<?= e($imgUrl) ?>" alt=""
-                                                 style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--color-border)">
-                                            <?php else: ?>
-                                            <div style="width:40px;height:40px;border-radius:6px;background:var(--color-bg-alt);border:1px solid var(--color-border);display:flex;align-items:center;justify-content:center;color:var(--color-text-muted)">
-                                                <i class="bi bi-person"></i>
-                                            </div>
+                        <div class="row g-3">
+                            <?php foreach (array_slice($misPerfiles, 0, 3) as $p):
+                                $imgUrl = !empty($p['imagen_token'])
+                                    ? APP_URL . '/img/' . $p['imagen_token'] . '?size=medium'
+                                    : null;
+                                $estadoMap = [
+                                    'pendiente' => ['clase' => 'badge-pendiente', 'icono' => 'bi-clock',         'label' => 'En revisión'],
+                                    'publicado' => ['clase' => 'badge-publicado', 'icono' => 'bi-check-circle',  'label' => 'Publicado'],
+                                    'rechazado' => ['clase' => 'badge-rechazado', 'icono' => 'bi-x-circle',      'label' => 'Rechazado'],
+                                ];
+                                $info = $estadoMap[$p['estado']] ?? ['clase'=>'','icono'=>'bi-question','label'=>$p['estado']];
+                            ?>
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <div class="card h-100" style="overflow:hidden">
+
+                                    <!-- Foto -->
+                                    <div style="position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--color-bg-card2)">
+                                        <?php if ($imgUrl): ?>
+                                        <img src="<?= e($imgUrl) ?>"
+                                             alt="<?= e($p['nombre']) ?>"
+                                             style="width:100%;height:100%;object-fit:cover"
+                                             loading="lazy">
+                                        <?php else: ?>
+                                        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--color-text-muted)">
+                                            <i class="bi bi-person" style="font-size:3rem"></i>
+                                        </div>
+                                        <?php endif; ?>
+
+                                        <!-- Badge estado -->
+                                        <span class="badge-estado <?= $info['clase'] ?>"
+                                              style="position:absolute;top:8px;left:8px">
+                                            <i class="bi <?= $info['icono'] ?> me-1"></i><?= $info['label'] ?>
+                                        </span>
+
+                                        <?php if (!empty($p['boost_top'])): ?>
+                                        <span style="position:absolute;top:8px;right:8px;background:var(--color-primary);color:#fff;font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:4px;box-shadow:0 2px 6px rgba(255,45,117,.4)">
+                                            <i class="bi bi-arrow-up-square-fill me-1"></i>TOP
+                                        </span>
+                                        <?php elseif (!empty($p['boost_resaltado'])): ?>
+                                        <span style="position:absolute;top:8px;right:8px;background:#F59E0B;color:#fff;font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:4px">
+                                            <i class="bi bi-stars me-1"></i>RESALT.
+                                        </span>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <!-- Body compacto -->
+                                    <div class="card-body p-3 d-flex flex-column">
+                                        <div class="fw-bold mb-1" style="font-size:.95rem">
+                                            <?= e($p['nombre']) ?>
+                                            <?php if (!empty($p['edad'])): ?>
+                                            <span class="fw-normal text-muted" style="font-size:.85em">, <?= (int)$p['edad'] ?></span>
                                             <?php endif; ?>
-                                        </td>
-                                        <td>
-                                            <div class="fw-semibold" style="font-size:.88rem">
-                                                <?= e($p['nombre']) ?>
-                                                <?php if (!empty($p['edad'])): ?><span class="text-muted fw-normal">, <?= (int)$p['edad'] ?></span><?php endif; ?>
-                                            </div>
-                                            <div class="text-muted" style="font-size:.74rem"><?= e($p['categoria_nombre'] ?? '—') ?></div>
-                                        </td>
-                                        <td><span class="badge-estado <?= $cls ?>"><?= $lbl ?></span></td>
-                                        <td class="d-none d-md-table-cell text-muted" style="font-size:.82rem">
-                                            <?= e($p['municipio_nombre'] ?? $p['ciudad'] ?? '—') ?>
-                                        </td>
-                                        <td style="font-size:.82rem;min-width:80px">
-                                            <div class="fw-semibold" style="color:var(--color-primary)">
-                                                <i class="bi bi-eye me-1" style="font-size:.75rem"></i><?= number_format((int)$p['vistas']) ?>
-                                            </div>
-                                        </td>
-                                        <td class="text-end">
-                                            <div class="d-flex gap-1 justify-content-end">
+                                        </div>
+                                        <div class="text-muted mb-2" style="font-size:.74rem">
+                                            <i class="bi bi-tag me-1"></i><?= e($p['categoria_nombre'] ?? '—') ?>
+                                            · <i class="bi bi-geo-alt me-1"></i><?= e($p['municipio_nombre'] ?? $p['ciudad'] ?? '—') ?>
+                                        </div>
+
+                                        <!-- Visitas -->
+                                        <div class="d-flex align-items-center justify-content-between pt-2 mt-auto"
+                                             style="border-top:1px solid var(--color-border)">
+                                            <span style="font-size:.78rem;color:var(--color-primary);font-weight:600">
+                                                <i class="bi bi-eye me-1"></i><?= number_format((int)$p['vistas']) ?>
+                                            </span>
+                                            <div class="d-flex gap-1">
                                                 <?php if ($p['estado'] === 'publicado'): ?>
+                                                <a href="<?= APP_URL ?>/perfil/<?= (int)$p['id'] ?>/destacar"
+                                                   class="btn btn-sm btn-primary" style="font-size:.7rem;padding:.2rem .5rem"
+                                                   title="Destacar con tokens">
+                                                    <i class="bi bi-stars"></i>
+                                                </a>
                                                 <a href="<?= APP_URL ?>/perfil/<?= (int)$p['id'] ?>"
-                                                   class="btn btn-sm btn-secondary" title="Ver">
+                                                   class="btn btn-sm btn-secondary" style="font-size:.7rem;padding:.2rem .5rem"
+                                                   title="Ver" target="_blank">
                                                     <i class="bi bi-eye"></i>
                                                 </a>
                                                 <?php endif; ?>
                                                 <a href="<?= APP_URL ?>/perfil/<?= (int)$p['id'] ?>/editar"
-                                                   class="btn btn-sm btn-secondary" title="Editar">
+                                                   class="btn btn-sm btn-secondary" style="font-size:.7rem;padding:.2rem .5rem"
+                                                   title="Editar">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
                                             </div>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
+
+            <!-- ¿Por qué destacar tu perfil? — seccion educativa para convencer de comprar tokens -->
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <span class="fw-semibold">
+                        <i class="bi bi-lightbulb-fill text-primary me-2"></i>¿Por qué destacar tu perfil?
+                    </span>
+                    <a href="<?= APP_URL ?>/tokens/comprar" class="btn btn-sm btn-primary">
+                        <i class="bi bi-cart-plus me-1"></i>Recargar
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 mb-3">
+
+                        <div class="col-12 col-md-4">
+                            <div class="d-flex align-items-start gap-2">
+                                <div style="width:40px;height:40px;border-radius:8px;background:rgba(255,45,117,.12);color:var(--color-primary);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                    <i class="bi bi-arrow-up-square-fill" style="font-size:1.2rem"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold" style="font-size:.92rem">Sales primero en tu zona</div>
+                                    <div class="text-muted" style="font-size:.78rem;line-height:1.4">
+                                        TOP coloca tu perfil en la cabecera de tu municipio. Más visibilidad = más contactos.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <div class="d-flex align-items-start gap-2">
+                                <div style="width:40px;height:40px;border-radius:8px;background:rgba(245,158,11,.12);color:#F59E0B;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                    <i class="bi bi-stars" style="font-size:1.2rem"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold" style="font-size:.92rem">Resaltado para llamar la atención</div>
+                                    <div class="text-muted" style="font-size:.78rem;line-height:1.4">
+                                        Un fondo amarillo distintivo hace que tu tarjeta destaque entre las demás.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <div class="d-flex align-items-start gap-2">
+                                <div style="width:40px;height:40px;border-radius:8px;background:rgba(16,185,129,.12);color:#10B981;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                    <i class="bi bi-clock-history" style="font-size:1.2rem"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold" style="font-size:.92rem">Pagas solo por las horas que TÚ eliges</div>
+                                    <div class="text-muted" style="font-size:.78rem;line-height:1.4">
+                                        Sin mensualidades. Activas el boost solo en tus mejores horarios (noches, findes).
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="p-3 rounded" style="background:rgba(255,45,117,.05);border:1px solid rgba(255,45,117,.15);font-size:.85rem">
+                        <i class="bi bi-info-circle text-primary me-1"></i>
+                        <strong>Ejemplo:</strong> con el paquete <strong>Activa (549 MXN / 450 tokens)</strong> destacas
+                        en TOP <strong style="color:var(--color-primary)"><?= $tarifaTop > 0 ? floor(450 / $tarifaTop) : 150 ?> horas</strong>
+                        — equivale a <strong>≈ 18 noches de 8h</strong> en horario peak (vie-sáb-dom durante 6 semanas).
+                    </div>
+                </div>
+            </div>
+
         </div><!-- /col-lg-8 -->
 
-        <!-- ====== COLUMNA IZQUIERDA (desktop): menú + cómo funciona + confiabilidad ====== -->
+        <!-- ============================================================
+             SIDEBAR — verificacion + menu + pasos
+             ============================================================ -->
         <div class="col-12 col-lg-4 order-lg-1 d-flex flex-column gap-4">
 
-            <!-- ====== MENÚ PRINCIPAL (tipo lista) ====== -->
+            <!-- Menu rapido -->
             <div class="dash-menu">
 
-                <!-- Sección: MI CUENTA -->
-        <div class="dash-menu__section">
-            <div class="dash-menu__heading">Mi cuenta</div>
+                <div class="dash-menu__section">
+                    <div class="dash-menu__heading">Mi cuenta</div>
 
-            <a href="<?= APP_URL ?>/mis-perfiles" class="dash-menu__item">
-                <div class="dash-menu__icon" style="color:var(--color-primary);background:rgba(255,45,117,.12)">
-                    <i class="bi bi-person-lines-fill"></i>
-                </div>
-                <div class="dash-menu__body">
-                    <div class="dash-menu__title">Mis perfiles</div>
-                    <div class="dash-menu__hint">
-                        <?php
-                        $pub = (int)($statsPerfiles['publicados'] ?? 0);
-                        $pen = (int)($statsPerfiles['pendientes'] ?? 0);
-                        $tot = (int)($statsPerfiles['total']     ?? 0);
-                        if ($tot === 0) echo 'Aún no has creado perfiles';
-                        else {
-                            $parts = [];
-                            if ($pub > 0) $parts[] = $pub . ' publicado(s)';
-                            if ($pen > 0) $parts[] = $pen . ' en revisión';
-                            echo implode(' · ', $parts) ?: ($tot . ' perfil(es)');
-                        }
-                        ?>
-                    </div>
-                </div>
-                <span class="dash-menu__value"><?= (int)($statsPerfiles['total'] ?? 0) ?></span>
-                <i class="bi bi-chevron-right dash-menu__arrow"></i>
-            </a>
+                    <a href="<?= APP_URL ?>/mis-perfiles" class="dash-menu__item">
+                        <div class="dash-menu__icon" style="color:var(--color-primary);background:rgba(255,45,117,.12)">
+                            <i class="bi bi-person-lines-fill"></i>
+                        </div>
+                        <div class="dash-menu__body">
+                            <div class="dash-menu__title">Mis perfiles</div>
+                            <div class="dash-menu__hint">
+                                <?php
+                                $pub = (int)($statsPerfiles['publicados'] ?? 0);
+                                $pen = (int)($statsPerfiles['pendientes'] ?? 0);
+                                $tot = (int)($statsPerfiles['total']     ?? 0);
+                                if ($tot === 0) echo 'Aún no has creado perfiles';
+                                else {
+                                    $parts = [];
+                                    if ($pub > 0) $parts[] = $pub . ' publicado(s)';
+                                    if ($pen > 0) $parts[] = $pen . ' en revisión';
+                                    echo implode(' · ', $parts) ?: ($tot . ' perfil(es)');
+                                }
+                                ?>
+                            </div>
+                        </div>
+                        <span class="dash-menu__value"><?= (int)($statsPerfiles['total'] ?? 0) ?></span>
+                        <i class="bi bi-chevron-right dash-menu__arrow"></i>
+                    </a>
 
-            <a href="<?= APP_URL ?>/mis-tokens" class="dash-menu__item">
-                <div class="dash-menu__icon" style="color:var(--color-primary);background:rgba(255,45,117,.12)">
-                    <i class="bi bi-coin"></i>
-                </div>
-                <div class="dash-menu__body">
-                    <div class="dash-menu__title">Mis tokens</div>
-                    <div class="dash-menu__hint">Saldo para destacar tus perfiles</div>
-                </div>
-                <span class="dash-menu__value"><?= number_format((int)$saldoTokens) ?></span>
-                <i class="bi bi-chevron-right dash-menu__arrow"></i>
-            </a>
+                    <a href="<?= APP_URL ?>/mis-estadisticas" class="dash-menu__item">
+                        <div class="dash-menu__icon" style="color:#3B82F6;background:rgba(59,130,246,.12)">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+                        <div class="dash-menu__body">
+                            <div class="dash-menu__title">Estadísticas</div>
+                            <div class="dash-menu__hint">Visitas y clics de tus perfiles</div>
+                        </div>
+                        <span class="dash-menu__value"><?= number_format((int)($statsPerfiles['total_vistas'] ?? 0)) ?></span>
+                        <i class="bi bi-chevron-right dash-menu__arrow"></i>
+                    </a>
 
-            <a href="<?= APP_URL ?>/mis-estadisticas" class="dash-menu__item">
-                <div class="dash-menu__icon" style="color:#3B82F6;background:rgba(59,130,246,.12)">
-                    <i class="bi bi-graph-up-arrow"></i>
-                </div>
-                <div class="dash-menu__body">
-                    <div class="dash-menu__title">Estadísticas</div>
-                    <div class="dash-menu__hint">Visitas y clics de tus perfiles</div>
-                </div>
-                <span class="dash-menu__value"><?= number_format((int)($statsPerfiles['total_vistas'] ?? 0)) ?></span>
-                <i class="bi bi-chevron-right dash-menu__arrow"></i>
-            </a>
+                    <a href="<?= APP_URL ?>/mis-tokens" class="dash-menu__item">
+                        <div class="dash-menu__icon" style="color:#10B981;background:rgba(16,185,129,.12)">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <div class="dash-menu__body">
+                            <div class="dash-menu__title">Historial de tokens</div>
+                            <div class="dash-menu__hint">Recargas y consumos pasados</div>
+                        </div>
+                        <i class="bi bi-chevron-right dash-menu__arrow"></i>
+                    </a>
 
-            <a href="<?= APP_URL ?>/notificaciones" class="dash-menu__item">
-                <div class="dash-menu__icon" style="color:#8B5CF6;background:rgba(139,92,246,.12)">
-                    <i class="bi bi-bell-fill"></i>
+                    <a href="<?= APP_URL ?>/notificaciones" class="dash-menu__item">
+                        <div class="dash-menu__icon" style="color:#8B5CF6;background:rgba(139,92,246,.12)">
+                            <i class="bi bi-bell-fill"></i>
+                        </div>
+                        <div class="dash-menu__body">
+                            <div class="dash-menu__title">Notificaciones</div>
+                            <div class="dash-menu__hint"><?= $notifCount > 0 ? 'Tienes notificaciones sin leer' : 'Sin notificaciones pendientes' ?></div>
+                        </div>
+                        <?php if ($notifCount > 0): ?>
+                        <span class="dash-menu__value dash-menu__value--danger"><?= (int)$notifCount ?></span>
+                        <?php else: ?>
+                        <span class="dash-menu__value dash-menu__value--muted">0</span>
+                        <?php endif; ?>
+                        <i class="bi bi-chevron-right dash-menu__arrow"></i>
+                    </a>
                 </div>
-                <div class="dash-menu__body">
-                    <div class="dash-menu__title">Notificaciones</div>
-                    <div class="dash-menu__hint"><?= $notifCount > 0 ? 'Tienes notificaciones sin leer' : 'Sin notificaciones pendientes' ?></div>
-                </div>
-                <?php if ($notifCount > 0): ?>
-                <span class="dash-menu__value dash-menu__value--danger"><?= (int)$notifCount ?></span>
-                <?php else: ?>
-                <span class="dash-menu__value dash-menu__value--muted">0</span>
-                <?php endif; ?>
-                <i class="bi bi-chevron-right dash-menu__arrow"></i>
-            </a>
-        </div>
 
-        <!-- Sección: VERIFICACIÓN -->
-        <div class="dash-menu__section">
-            <div class="dash-menu__heading">Verificación y confianza</div>
+                <div class="dash-menu__section">
+                    <div class="dash-menu__heading">Verificación y confianza</div>
 
-            <a href="<?= APP_URL ?>/mi-cuenta/documento" class="dash-menu__item">
-                <div class="dash-menu__icon" style="color:<?= e($doc['color']) ?>;background:rgba(0,0,0,.04)">
-                    <i class="bi bi-<?= e($doc['icon']) ?>"></i>
-                </div>
-                <div class="dash-menu__body">
-                    <div class="dash-menu__title">Documento de identidad</div>
-                    <div class="dash-menu__hint">INE, IFE o pasaporte vigente</div>
-                </div>
-                <span class="dash-menu__value" style="color:<?= e($doc['color']) ?>;font-size:.78rem;font-weight:600"><?= e($doc['label']) ?></span>
-                <i class="bi bi-chevron-right dash-menu__arrow"></i>
-            </a>
+                    <a href="<?= APP_URL ?>/mi-cuenta/documento" class="dash-menu__item">
+                        <div class="dash-menu__icon" style="color:<?= e($doc['color']) ?>;background:rgba(0,0,0,.04)">
+                            <i class="bi bi-<?= e($doc['icon']) ?>"></i>
+                        </div>
+                        <div class="dash-menu__body">
+                            <div class="dash-menu__title">Documento de identidad</div>
+                            <div class="dash-menu__hint">INE, IFE o pasaporte vigente</div>
+                        </div>
+                        <span class="dash-menu__value" style="color:<?= e($doc['color']) ?>;font-size:.78rem;font-weight:600"><?= e($doc['label']) ?></span>
+                        <i class="bi bi-chevron-right dash-menu__arrow"></i>
+                    </a>
 
-            <a href="#confiabilidad-detalle" class="dash-menu__item">
-                <div class="dash-menu__icon" style="color:#10B981;background:rgba(16,185,129,.12)">
-                    <i class="bi bi-patch-check-fill"></i>
+                    <a href="#confiabilidad-detalle" class="dash-menu__item">
+                        <div class="dash-menu__icon" style="color:#10B981;background:rgba(16,185,129,.12)">
+                            <i class="bi bi-patch-check-fill"></i>
+                        </div>
+                        <div class="dash-menu__body">
+                            <div class="dash-menu__title">Mi confiabilidad</div>
+                            <div class="dash-menu__hint">Indicadores activos en tu perfil</div>
+                        </div>
+                        <span class="dash-menu__value dash-menu__value--muted"><?= (int)$confActivos ?></span>
+                        <i class="bi bi-chevron-down dash-menu__arrow"></i>
+                    </a>
                 </div>
-                <div class="dash-menu__body">
-                    <div class="dash-menu__title">Mi confiabilidad</div>
-                    <div class="dash-menu__hint">Indicadores activos en tu perfil</div>
-                </div>
-                <span class="dash-menu__value dash-menu__value--muted"><?= (int)$confActivos ?></span>
-                <i class="bi bi-chevron-down dash-menu__arrow"></i>
-            </a>
-        </div>
 
-        <!-- Sección: OTROS -->
-        <div class="dash-menu__section">
-            <div class="dash-menu__heading">Otros</div>
+                <div class="dash-menu__section">
+                    <div class="dash-menu__heading">Otros</div>
 
-            <a href="<?= APP_URL ?>/perfiles" class="dash-menu__item">
-                <div class="dash-menu__icon" style="color:#3B82F6;background:rgba(59,130,246,.12)">
-                    <i class="bi bi-compass-fill"></i>
-                </div>
-                <div class="dash-menu__body">
-                    <div class="dash-menu__title">Explorar perfiles</div>
-                    <div class="dash-menu__hint">Ver perfiles públicos del directorio</div>
-                </div>
-                <i class="bi bi-chevron-right dash-menu__arrow"></i>
-            </a>
+                    <a href="<?= APP_URL ?>/perfiles" class="dash-menu__item">
+                        <div class="dash-menu__icon" style="color:#3B82F6;background:rgba(59,130,246,.12)">
+                            <i class="bi bi-compass-fill"></i>
+                        </div>
+                        <div class="dash-menu__body">
+                            <div class="dash-menu__title">Explorar perfiles</div>
+                            <div class="dash-menu__hint">Ver perfiles públicos del directorio</div>
+                        </div>
+                        <i class="bi bi-chevron-right dash-menu__arrow"></i>
+                    </a>
 
-            <a href="<?= APP_URL ?>/cuenta/reactivar" class="dash-menu__item">
-                <div class="dash-menu__icon" style="color:#F59E0B;background:rgba(245,158,11,.14)">
-                    <i class="bi bi-envelope-fill"></i>
+                    <a href="<?= APP_URL ?>/cuenta/reactivar" class="dash-menu__item">
+                        <div class="dash-menu__icon" style="color:#F59E0B;background:rgba(245,158,11,.14)">
+                            <i class="bi bi-envelope-fill"></i>
+                        </div>
+                        <div class="dash-menu__body">
+                            <div class="dash-menu__title">Soporte</div>
+                            <div class="dash-menu__hint">
+                                <?= $mensajesAbiertos > 0 ? 'Tienes conversación(es) activa(s)' : 'Contactar al equipo' ?>
+                            </div>
+                        </div>
+                        <?php if ($mensajesAbiertos > 0): ?>
+                        <span class="dash-menu__value dash-menu__value--warning"><?= (int)$mensajesAbiertos ?></span>
+                        <?php endif; ?>
+                        <i class="bi bi-chevron-right dash-menu__arrow"></i>
+                    </a>
                 </div>
-                <div class="dash-menu__body">
-                    <div class="dash-menu__title">Soporte</div>
-                    <div class="dash-menu__hint">
-                        <?= $mensajesAbiertos > 0 ? 'Tienes conversación(es) activa(s)' : 'Contactar al equipo' ?>
-                    </div>
-                </div>
-                <?php if ($mensajesAbiertos > 0): ?>
-                <span class="dash-menu__value dash-menu__value--warning"><?= (int)$mensajesAbiertos ?></span>
-                <?php endif; ?>
-                <i class="bi bi-chevron-right dash-menu__arrow"></i>
-            </a>
-        </div>
 
-            </div><!-- /menu -->
+            </div>
 
             <!-- ¿Cómo funciona? -->
             <div class="card">
@@ -318,6 +483,7 @@ $confTotal   = count($confiabilidad['indicadores'] ?? []);
                         ['icono' => 'bi-plus-circle-fill',  'texto' => 'Crear un perfil',           'hecho' => $tienePerfiles],
                         ['icono' => 'bi-hourglass-split',   'texto' => 'Revisión por moderación',   'hecho' => $tienePublicados],
                         ['icono' => 'bi-eye-fill',          'texto' => 'Perfil visible al público', 'hecho' => $tienePublicados],
+                        ['icono' => 'bi-stars',             'texto' => 'Destacarte con tokens',     'hecho' => $saldoTokens > 0],
                     ];
                     ?>
                     <div class="d-flex flex-column gap-2">
@@ -340,7 +506,7 @@ $confTotal   = count($confiabilidad['indicadores'] ?? []);
                 </div>
             </div>
 
-            <!-- Mi confiabilidad detalle -->
+            <!-- Confiabilidad detalle -->
             <div class="card" id="confiabilidad-detalle">
                 <div class="card-header">
                     <span class="fw-semibold">

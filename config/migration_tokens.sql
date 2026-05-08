@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `token_paquetes` (
     `monto_mxn`           DECIMAL(10,2) NOT NULL,
     `tokens`              INT UNSIGNED  NOT NULL,
     `bonus_pct`           INT UNSIGNED  NOT NULL DEFAULT 0,
+    `destacado`           TINYINT(1)    NOT NULL DEFAULT 0 COMMENT 'Marca el paquete como MAS POPULAR en la UI',
     `orden`               INT UNSIGNED  NOT NULL DEFAULT 0,
     `activo`              TINYINT(1)    NOT NULL DEFAULT 1,
     `fecha_creacion`      DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,

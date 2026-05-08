@@ -80,15 +80,29 @@ class UserController extends Controller
         $s->execute([$idUser]);
         $mensajesAbiertos = (int)$s->fetchColumn();
 
+        // Tarifas de boost para mostrar "con tu saldo puedes destacarte X horas"
+        $tarifas = $db->query("SELECT tipo, tokens_por_hora FROM token_tarifas")->fetchAll(PDO::FETCH_KEY_PAIR);
+        $tarifaTop       = (int)($tarifas['top']       ?? 3);
+        $tarifaResaltado = (int)($tarifas['resaltado'] ?? 1);
+
+        // Paquete recomendado (destacado=1) para CTA del dashboard
+        $paqueteDestacado = $db->query(
+            "SELECT id, nombre, monto_mxn, tokens FROM token_paquetes
+              WHERE activo = 1 AND destacado = 1 ORDER BY orden LIMIT 1"
+        )->fetch(PDO::FETCH_ASSOC) ?: null;
+
         $this->render('user/dashboard', [
-            'pageTitle'       => 'Mi panel',
-            'statsPerfiles'   => $statsPerfiles,
-            'misPerfiles'     => $misPerfiles,
-            'usuarioCompleto' => $usuarioCompleto,
-            'confiabilidad'   => $confiabilidad,
-            'saldoTokens'     => $saldoTokens,
-            'notifCount'      => $notifCount,
-            'mensajesAbiertos'=> $mensajesAbiertos,
+            'pageTitle'        => 'Mi panel',
+            'statsPerfiles'    => $statsPerfiles,
+            'misPerfiles'      => $misPerfiles,
+            'usuarioCompleto'  => $usuarioCompleto,
+            'confiabilidad'    => $confiabilidad,
+            'saldoTokens'      => $saldoTokens,
+            'notifCount'       => $notifCount,
+            'mensajesAbiertos' => $mensajesAbiertos,
+            'tarifaTop'        => $tarifaTop,
+            'tarifaResaltado'  => $tarifaResaltado,
+            'paqueteDestacado' => $paqueteDestacado,
         ]);
     }
 
