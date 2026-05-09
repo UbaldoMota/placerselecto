@@ -1417,16 +1417,14 @@ body.lightbox-open .foto-thumb img {
 }
 
 /* ---------- Combo: TOP + Resaltado al mismo tiempo ----------
-   Borde rosa (TOP gana en jerarquia) + zona de texto en amarillo
-   (Resaltado se imprime en el cuerpo). */
+   Borde rosa + interior amarillo claro. El fondo se aplica al
+   row/card completo (no al body) para que cubra TODO incluyendo
+   los gaps del grid y la columna de la flecha. */
 .ad-card--top.ad-card--resaltado,
 .perfil-row--top.perfil-row--resaltado {
     border: 3px solid var(--color-primary) !important;
+    background: rgba(252,211,77,.32) !important;
     box-shadow: 0 8px 22px rgba(255,45,117,.14) !important;
-}
-.ad-card--top.ad-card--resaltado .ad-card__body,
-.perfil-row--top.perfil-row--resaltado .perfil-row__body {
-    background: rgba(245,158,11,.25) !important;
 }
 .ad-card--top.ad-card--resaltado:hover,
 .perfil-row--top.perfil-row--resaltado:hover {
