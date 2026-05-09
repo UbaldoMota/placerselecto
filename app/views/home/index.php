@@ -11,7 +11,6 @@
     Promo de lanzamiento: <strong>las primeras 50 chicas</strong> que se registren reciben
     <strong><?= number_format((int)PROMO_LANZAMIENTO_TOKENS) ?> tokens GRATIS</strong>
     de bienvenida.
-    <span style="opacity:.92;margin-left:.5rem;white-space:nowrap">Termina el <?= date('j', strtotime(PROMO_LANZAMIENTO_FIN)) ?> de mayo a mediodía</span>
     <?php if (empty($currentUser)): ?>
     <a href="<?= APP_URL ?>/registro" style="background:#FFFFFF;color:#0891B2;padding:.22rem .8rem;border-radius:16px;margin-left:.75rem;font-size:.78rem;font-weight:800;text-decoration:none;display:inline-block;vertical-align:middle;box-shadow:0 2px 6px rgba(0,0,0,.12)">
         Regístrate <i class="bi bi-arrow-right ms-1"></i>

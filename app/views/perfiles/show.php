@@ -36,7 +36,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
 <?php require VIEWS_PATH . '/partials/perfil-search.php'; ?>
 
 <div class="container py-4">
-    <div class="row g-4">
+    <div class="row g-4 perfil-show-row">
 
         <!-- COLUMNA PRINCIPAL -->
         <div class="col-12 col-lg-8">
@@ -110,7 +110,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
             <?php endif; ?>
 
             <!-- 1. NOMBRE Y DESCRIPCIÓN -->
-            <div class="card mb-3">
+            <div class="card mb-3" style="order:1">
                 <div class="card-body p-4">
 
                     <!-- Meta tags -->
@@ -269,7 +269,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
 
             <!-- 2. FOTOS -->
             <?php if ($totalFotos > 0): ?>
-            <div class="card mb-3">
+            <div class="card mb-3" style="order:2">
                 <?php if ($totalFotos === 1): ?>
                 <div class="foto-galeria--1">
                     <img src="<?= e($gridUrls[0]) ?>"
@@ -304,7 +304,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
 
             <!-- 2.b VIDEOS (si el perfil tiene) -->
             <?php if (!empty($videos)): ?>
-            <div class="card mb-3">
+            <div class="card mb-3" style="order:2">
                 <div class="card-header">
                     <span class="fw-semibold" style="font-size:.875rem">
                         <i class="bi bi-play-btn-fill text-primary me-2"></i>Videos <span class="text-muted fw-normal">(<?= count($videos) ?>)</span>
@@ -327,7 +327,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
             <?php endif; ?>
 
             <!-- 3. VERIFICACIONES DEL PERFIL -->
-            <div class="card mb-3">
+            <div class="card mb-3" style="order:6">
                 <div class="card-body" style="padding:1rem 1.1rem">
                     <ul class="list-unstyled mb-0" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.6rem">
                     <?php foreach ($confiabilidad['indicadores'] as $ind): ?>
@@ -346,7 +346,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
             </div>
 
             <!-- 4. COMENTARIOS -->
-            <div class="card mb-3" id="comentarios">
+            <div class="card mb-3" id="comentarios" style="order:7">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <span class="fw-semibold" style="font-size:.875rem">
                         <i class="bi bi-chat-square-text-fill text-primary me-2"></i>Comentarios
@@ -529,7 +529,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
 
             <!-- Perfiles relacionados -->
             <?php if (!empty($relacionados)): ?>
-            <div class="mt-2">
+            <div class="mt-2" style="order:8">
                 <h2 class="h6 fw-bold mb-3 text-muted text-uppercase" style="letter-spacing:.5px">
                     <i class="bi bi-grid me-2"></i>Perfiles similares
                 </h2>
@@ -576,7 +576,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
 
             <!-- Medios de contacto -->
             <?php if ($tieneContacto): ?>
-            <div class="card mb-4 contact-card">
+            <div class="card mb-4 contact-card" style="order:3">
                 <div class="card-body" style="padding:1rem">
 
                     <!-- Badge de confianza arriba -->
@@ -648,7 +648,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
 
             <!-- Zona de trabajo -->
             <?php if ($tieneZona): ?>
-            <div class="card mb-4">
+            <div class="card mb-4" style="order:5">
                 <div class="card-header">
                     <span class="fw-semibold" style="font-size:.875rem">
                         <i class="bi bi-geo-alt text-primary me-2"></i>Zona de trabajo
@@ -673,7 +673,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
             <?php endif; ?>
 
             <!-- Información del perfil -->
-            <div class="card">
+            <div class="card" style="order:4">
                 <div class="card-body">
                     <h3 class="h6 fw-bold mb-3">
                         <i class="bi bi-info-circle text-primary me-2"></i>Información

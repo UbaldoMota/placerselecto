@@ -1417,6 +1417,17 @@ body.lightbox-open .foto-thumb img {
     text-transform: uppercase;
 }
 
+/* =========================================================
+   Reorden mobile en /perfil/{id} — main + sidebar se mezclan
+   en este orden visual:
+     1. descripcion  2. fotos  3. contacto  4. info
+     5. zona  6. confianza  7. comentarios  8. similares
+   En desktop, las dos columnas mantienen su layout normal.
+   ========================================================= */
+@media (max-width: 991.98px) {
+    .perfil-show-row > .col-12 { display: contents; }
+}
+
 /* ---------- Combo: TOP + Resaltado al mismo tiempo ----------
    Borde rosa + interior amarillo claro. El fondo se aplica al
    row/card completo (no al body) para que cubra TODO incluyendo
