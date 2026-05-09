@@ -125,7 +125,7 @@ function asset(string $path): string {
 // Al pasar la fecha FIN, el regalo se desactiva automaticamente.
 // =====================================================
 define('PROMO_LANZAMIENTO_INICIO', '2026-05-08 00:00:00');
-define('PROMO_LANZAMIENTO_FIN',    '2026-05-11 06:00:00');
+define('PROMO_LANZAMIENTO_FIN',    '2026-05-11 12:00:00');
 define('PROMO_LANZAMIENTO_TOKENS', 100);
 
 function promoLanzamientoVigente(): bool {
