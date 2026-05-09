@@ -1374,26 +1374,8 @@ body.lightbox-open .foto-thumb img {
 /* ---------- TOP (rosa) ---------- */
 .ad-card--top,
 .perfil-row--top {
-    position: relative !important;
     border: 3px solid var(--color-primary) !important;
     box-shadow: 0 8px 22px rgba(255,45,117,.14) !important;
-    overflow: hidden;
-}
-.ad-card--top::before,
-.perfil-row--top::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 6px;
-    height: 100%;
-    background: var(--color-primary);
-    z-index: 2;
-    pointer-events: none;
-}
-/* Tinte solido y sutil en la zona de texto */
-.ad-card--top .ad-card__body,
-.perfil-row--top .perfil-row__body {
-    background: rgba(255,45,117,.08) !important;
 }
 .ad-card--top:hover,
 .perfil-row--top:hover {
@@ -1406,26 +1388,8 @@ body.lightbox-open .foto-thumb img {
 .ad-card--resaltado,
 .perfil-row--resaltado,
 .perfil-resaltado {
-    position: relative !important;
     border: 3px solid var(--color-warning) !important;
     box-shadow: 0 8px 22px rgba(245,158,11,.16) !important;
-    overflow: hidden;
-}
-.ad-card--resaltado::before,
-.perfil-row--resaltado::before,
-.perfil-resaltado::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 6px;
-    height: 100%;
-    background: var(--color-warning);
-    z-index: 2;
-    pointer-events: none;
-}
-.ad-card--resaltado .ad-card__body,
-.perfil-row--resaltado .perfil-row__body {
-    background: rgba(245,158,11,.12) !important;
 }
 .ad-card--resaltado:hover,
 .perfil-row--resaltado:hover,
@@ -1453,28 +1417,19 @@ body.lightbox-open .foto-thumb img {
 }
 
 /* ---------- Combo: TOP + Resaltado al mismo tiempo ----------
-   Borde rosa (TOP gana en jerarquia), body con tinte amarillo
-   (Resaltado se nota mas en el fondo), tira mitad/mitad. */
+   Borde rosa (TOP gana en jerarquia), sombra mezcla rosa+ambar. */
 .ad-card--top.ad-card--resaltado,
 .perfil-row--top.perfil-row--resaltado {
     border: 3px solid var(--color-primary) !important;
-    box-shadow: 0 10px 26px rgba(255,45,117,.17) !important;
-}
-.ad-card--top.ad-card--resaltado::before,
-.perfil-row--top.perfil-row--resaltado::before {
-    background: linear-gradient(180deg,
-        var(--color-primary)  0%,
-        var(--color-primary) 50%,
-        var(--color-warning) 50%,
-        var(--color-warning) 100%) !important;
-}
-.ad-card--top.ad-card--resaltado .ad-card__body,
-.perfil-row--top.perfil-row--resaltado .perfil-row__body {
-    background: rgba(245,158,11,.14) !important;
+    box-shadow:
+        0 8px 22px rgba(255,45,117,.14),
+        0 8px 22px rgba(245,158,11,.10) !important;
 }
 .ad-card--top.ad-card--resaltado:hover,
 .perfil-row--top.perfil-row--resaltado:hover {
-    box-shadow: 0 14px 34px rgba(255,45,117,.24) !important;
+    box-shadow:
+        0 12px 30px rgba(255,45,117,.20),
+        0 12px 30px rgba(245,158,11,.14) !important;
 }
 
 /* Form de destacar: plan-card seleccionado en el flujo de boost */
