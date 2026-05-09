@@ -153,11 +153,11 @@
                 <a href="<?= APP_URL ?>/perfil/<?= (int)$p['id'] ?>"
                    class="text-decoration-none d-block h-100">
                     <?php
-                        $boostCls = '';
-                        if (!empty($p['boost_top']))            $boostCls = 'ad-card--top';
-                        elseif (!empty($p['boost_resaltado']))  $boostCls = 'ad-card--resaltado';
+                        $boostCls = [];
+                        if (!empty($p['boost_top']))         $boostCls[] = 'ad-card--top';
+                        if (!empty($p['boost_resaltado']))   $boostCls[] = 'ad-card--resaltado';
                     ?>
-                    <div class="ad-card h-100 <?= $boostCls ?>">
+                    <div class="ad-card h-100 <?= implode(' ', $boostCls) ?>">
                         <div class="ad-card__image">
                             <?php if ($imgUrl): ?>
                                 <img src="<?= e($imgUrl) ?>"

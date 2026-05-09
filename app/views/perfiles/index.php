@@ -60,9 +60,10 @@ $idMunicipio  = (int)($filtros['id_municipio'] ?? 0);
             $sinAnticipo = empty($p['pide_anticipo']);
             $tiempoRel = !empty($p['fecha_publicacion']) ? Security::timeAgo($p['fecha_publicacion']) : null;
 
-            $rowCls = '';
-            if (!empty($p['boost_top']))            $rowCls = 'perfil-row--top';
-            elseif (!empty($p['boost_resaltado']))  $rowCls = 'perfil-row--resaltado';
+            $rowClsArr = [];
+            if (!empty($p['boost_top']))         $rowClsArr[] = 'perfil-row--top';
+            if (!empty($p['boost_resaltado']))   $rowClsArr[] = 'perfil-row--resaltado';
+            $rowCls = implode(' ', $rowClsArr);
         ?>
         <a href="<?= APP_URL ?>/perfil/<?= (int)$p['id'] ?><?= $qsNav ? '?' . $qsNav : '' ?>" class="perfil-row <?= $rowCls ?>">
 
