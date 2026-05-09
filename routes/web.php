@@ -145,6 +145,12 @@ return [
     ['GET',  '/admin/tokens/movimientos',           'AdminController', 'tokensMovimientos',   ['auth', 'admin']],
 
     // ---------------------------------------------------------
+    // ADMIN — configuracion general (numeros WA, emails, etc.)
+    // ---------------------------------------------------------
+    ['GET',  '/admin/configuracion',                'AdminController', 'configuracion',         ['auth', 'admin']],
+    ['POST', '/admin/configuracion',                'AdminController', 'configuracionGuardar',  ['auth', 'admin', 'csrf']],
+
+    // ---------------------------------------------------------
     // ADMIN — almacenamiento
     // ---------------------------------------------------------
     ['GET',  '/admin/almacenamiento',                 'AdminController', 'almacenamiento',         ['auth', 'admin']],

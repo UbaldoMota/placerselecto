@@ -45,6 +45,9 @@
                 <a href="<?= APP_URL ?>/admin/almacenamiento" class="btn btn-sm btn-outline-primary">
                     <i class="bi bi-hdd me-1"></i>Almacenamiento
                 </a>
+                <a href="<?= APP_URL ?>/admin/configuracion" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-sliders me-1"></i>Configuración
+                </a>
             </div>
         </div>
     </div>

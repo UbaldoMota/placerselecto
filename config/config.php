@@ -137,6 +137,23 @@ function promoLanzamientoVigente(): bool {
     return $now >= $ini && $now < $fin;
 }
 
+/**
+ * Helper global para leer configuracion editable desde admin.
+ * Wrap de ConfiguracionModel::get(). Cachea en estatico por request.
+ *   setting('whatsapp_pagos') -> '5215555555555' o null
+ *   setting('whatsapp_pagos', '52000') -> default si vacio
+ */
+function setting(string $clave, $default = null) {
+    static $model = null;
+    if ($model === null) {
+        if (!class_exists('ConfiguracionModel')) {
+            require_once APP_PATH . '/models/ConfiguracionModel.php';
+        }
+        $model = new ConfiguracionModel();
+    }
+    return $model->get($clave, $default);
+}
+
 define('PLANES_DESTACADO', [
     3  => ['precio' => 99.00,  'label' => '3 días'],
     7  => ['precio' => 199.00, 'label' => '7 días'],

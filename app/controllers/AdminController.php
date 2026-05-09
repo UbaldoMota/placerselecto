@@ -1233,6 +1233,50 @@ class AdminController extends Controller
     }
 
     // =========================================================
+    // CONFIGURACION GENERAL — key/value editable
+    // =========================================================
+
+    public function configuracion(array $params = []): void
+    {
+        $this->requireAdmin();
+        require_once APP_PATH . '/models/ConfiguracionModel.php';
+        $cfg = new ConfiguracionModel();
+
+        $this->render('admin/configuracion', [
+            'pageTitle' => 'Configuración general',
+            'items'     => $cfg->getAll(),
+        ]);
+    }
+
+    public function configuracionGuardar(array $params = []): void
+    {
+        $this->requireAdmin();
+        require_once APP_PATH . '/models/ConfiguracionModel.php';
+        $cfg = new ConfiguracionModel();
+
+        $valores = $_POST['cfg'] ?? [];
+        if (!is_array($valores)) $valores = [];
+
+        $actualizadas = 0;
+        foreach ($valores as $clave => $valor) {
+            $clave = preg_replace('/[^a-z0-9_]/i', '', (string)$clave);
+            if ($clave === '') continue;
+
+            $valor = is_string($valor) ? trim($valor) : '';
+            // Normalizacion ligera por tipo conocido
+            if (str_contains($clave, 'whatsapp') || str_contains($clave, 'telefono')) {
+                // Solo digitos
+                $valor = preg_replace('/\D/', '', $valor);
+            }
+            $cfg->set($clave, $valor === '' ? null : $valor);
+            $actualizadas++;
+        }
+
+        SessionManager::flash('success', "Configuración actualizada ({$actualizadas} campo(s)).");
+        $this->redirect('/admin/configuracion');
+    }
+
+    // =========================================================
     // SALDO DE USUARIO — ajuste manual por admin
     // =========================================================
 
