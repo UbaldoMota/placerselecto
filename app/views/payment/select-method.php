@@ -4,8 +4,10 @@
 /** @var bool  $truevoEnabled */
 /** @var bool  $paycashEnabled */
 /** @var string|null $whatsappPagos */
+/** @var bool  $tienePerfilAprobado */
 
 $tieneWA = !empty($whatsappPagos);
+$puedeComprar = $tieneWA && !empty($tienePerfilAprobado);
 ?>
 <div class="container py-4" style="max-width:780px">
 
@@ -54,7 +56,26 @@ $tieneWA = !empty($whatsappPagos);
     </div>
 
     <!-- CTA principal -->
-    <?php if ($tieneWA): ?>
+    <?php if (empty($tienePerfilAprobado)): ?>
+    <div class="card" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.35)">
+        <div class="card-body p-4 text-center">
+            <i class="bi bi-person-badge" style="font-size:2.5rem;color:#F59E0B"></i>
+            <h2 class="h6 fw-bold mt-3 mb-2">Primero necesitas un perfil publicado</h2>
+            <p class="text-muted mb-3" style="font-size:.9rem;line-height:1.55">
+                Para comprar tokens debes tener al menos <strong>un perfil creado y aceptado</strong> por nuestro equipo.
+                Crea tu perfil, completa la verificación y espera la aprobación. En cuanto sea publicado podrás recargar tokens y destacarlo.
+            </p>
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                <a href="<?= APP_URL ?>/perfil/nuevo" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i>Crear perfil
+                </a>
+                <a href="<?= APP_URL ?>/mis-perfiles" class="btn btn-secondary">
+                    <i class="bi bi-person-lines-fill me-1"></i>Mis perfiles
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php elseif ($tieneWA): ?>
     <form method="POST" action="<?= APP_URL ?>/tokens/comprar/<?= (int)$paquete['id'] ?>/whatsapp" class="m-0">
         <?= $csrfField ?>
         <button type="submit" class="btn w-100 d-flex align-items-center justify-content-center gap-2"

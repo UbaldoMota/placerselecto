@@ -342,14 +342,27 @@ class PaymentController extends Controller
             $this->redirect('/tokens/comprar');
         }
 
+        $user  = $this->currentUser();
+        $tienePerfilAprobado = $this->usuarioTienePerfilPublicado((int)$user['id']);
+
         $this->render('payment/select-method', [
-            'pageTitle'      => 'Elegir método de pago',
-            'paquete'        => $paquete,
-            'devMode'        => self::isDevMode(),
-            'truevoEnabled'  => defined('TRUEVO_ENABLED')  && TRUEVO_ENABLED,
-            'paycashEnabled' => defined('PAYCASH_ENABLED') && PAYCASH_ENABLED,
-            'whatsappPagos'  => function_exists('setting') ? setting('whatsapp_pagos') : null,
+            'pageTitle'           => 'Elegir método de pago',
+            'paquete'             => $paquete,
+            'devMode'             => self::isDevMode(),
+            'truevoEnabled'       => defined('TRUEVO_ENABLED')  && TRUEVO_ENABLED,
+            'paycashEnabled'      => defined('PAYCASH_ENABLED') && PAYCASH_ENABLED,
+            'whatsappPagos'       => function_exists('setting') ? setting('whatsapp_pagos') : null,
+            'tienePerfilAprobado' => $tienePerfilAprobado,
         ]);
+    }
+
+    /** ¿El usuario tiene al menos un perfil con estado='publicado'? */
+    private function usuarioTienePerfilPublicado(int $idUsuario): bool
+    {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT 1 FROM perfiles WHERE id_usuario = ? AND estado = 'publicado' LIMIT 1");
+        $stmt->execute([$idUsuario]);
+        return (bool)$stmt->fetchColumn();
     }
 
     /**
@@ -369,6 +382,14 @@ class PaymentController extends Controller
 
         if (!$paquete || !(int)$paquete['activo']) {
             SessionManager::flash('error', 'Paquete no disponible.');
+            $this->redirect('/tokens/comprar');
+        }
+
+        // Bloqueo: solo se puede pagar si tiene un perfil ya publicado.
+        if (!$this->usuarioTienePerfilPublicado((int)$user['id'])) {
+            SessionManager::flash('error',
+                'Para comprar tokens primero necesitas tener al menos un perfil publicado. '
+                . 'Crea tu perfil y espera la aprobación del equipo.');
             $this->redirect('/tokens/comprar');
         }
 
