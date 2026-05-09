@@ -93,11 +93,11 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
                             <strong style="font-size:1rem;color:#92400E">RESALTADO — destaca visualmente</strong>
                         </div>
                         <p class="mb-2" style="font-size:.85rem;line-height:1.5">
-                            Tu tarjeta tiene un <strong>fondo amarillo distintivo</strong> que llama la atención entre las demás del listado. <strong>No</strong> sube tu posición. Es ideal como complemento del TOP o cuando el TOP está saturado.
+                            Tu tarjeta tiene un <strong>fondo amarillo distintivo</strong> que llama la atención entre las demás del listado. <strong>No</strong> altera tu posición — quedas donde corresponde por fecha. Es solo el color, ideal como complemento del TOP o cuando quieres destacar visualmente sin pagar la posición premium.
                         </p>
                         <ul class="mb-2 ps-3" style="font-size:.8rem;line-height:1.6">
                             <li><strong><?= $tphRes ?> token / hora</strong> de boost (<?= $tphTop > 0 ? round($tphTop / max(1,$tphRes), 1) : '?' ?>× más barato que TOP)</li>
-                            <li>Posición: <strong>donde te toque</strong> por orden normal</li>
+                            <li>Posición: <strong>la que te toque</strong> por orden de publicación</li>
                             <li>Visibilidad: <strong>tarjeta amarilla en el listado</strong></li>
                         </ul>
                         <?php if ($horasResAlcance > 0): ?>
@@ -119,7 +119,7 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
 
             <div class="mt-2 p-2 rounded" style="background:rgba(0,0,0,.04);font-size:.78rem;color:var(--color-text-muted);line-height:1.5">
                 <i class="bi bi-info-circle me-1"></i>
-                <strong>Nota importante:</strong> cuando varias usuarias tienen TOP activo en el mismo municipio, el orden entre ellas <strong>rota automáticamente cada minuto</strong> para que todas tengan tiempo en la posición #1. Lo mismo aplica para Resaltado.
+                <strong>Nota importante:</strong> cuando varias usuarias tienen TOP activo en el mismo municipio, el orden entre ellas <strong>rota automáticamente cada minuto</strong> para que todas tengan tiempo en la posición #1. Resaltado solo cambia el color de tu tarjeta — no afecta el orden.
             </div>
         </div>
     </div>

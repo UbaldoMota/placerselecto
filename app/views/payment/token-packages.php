@@ -126,7 +126,7 @@
                         <div>
                             <div class="fw-semibold" style="font-size:.92rem">Boost RESALTADO — destaca visualmente</div>
                             <div class="text-muted" style="font-size:.78rem;line-height:1.4">
-                                Un <strong>fondo distintivo</strong> hace que tu tarjeta llame la atención entre las demás del listado.
+                                Un <strong>fondo amarillo distintivo</strong> hace que tu tarjeta llame la atención entre las demás del listado. No altera tu posición.
                             </div>
                         </div>
                     </div>

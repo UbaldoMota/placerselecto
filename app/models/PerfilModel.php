@@ -342,9 +342,8 @@ class PerfilModel extends Model
              LEFT JOIN municipios m ON m.id = p.id_municipio
              WHERE {$whereSQL}
              ORDER BY
-                IFNULL(b.has_top, 0)       DESC,
-                IFNULL(b.has_resaltado, 0) DESC,
-                IF(IFNULL(b.has_top, 0) = 1 OR IFNULL(b.has_resaltado, 0) = 1, RAND(? + p.id), 0) DESC,
+                IFNULL(b.has_top, 0) DESC,
+                IF(IFNULL(b.has_top, 0) = 1, RAND(? + p.id), 0) DESC,
                 p.fecha_publicacion DESC
              LIMIT ? OFFSET ?",
             array_merge($params, [(int)floor(time() / 60), $perPage, $offset])
