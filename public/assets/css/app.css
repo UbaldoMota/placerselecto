@@ -1389,6 +1389,7 @@ body.lightbox-open .foto-thumb img {
 .perfil-row--resaltado,
 .perfil-resaltado {
     border: 3px solid var(--color-warning) !important;
+    background: rgba(252,211,77,.32) !important;
     box-shadow: 0 8px 22px rgba(245,158,11,.16) !important;
 }
 .ad-card--resaltado:hover,
