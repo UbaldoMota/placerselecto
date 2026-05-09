@@ -77,11 +77,12 @@ $estado = $filtros['estado'] ?? '';
                             <th>Estado</th>
                             <th class="d-none d-md-table-cell">Referencia</th>
                             <th class="d-none d-lg-table-cell">Fecha</th>
+                            <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                     <?php if (empty($pagos)): ?>
-                        <tr><td colspan="8" class="text-center text-muted py-5">Sin pagos registrados.</td></tr>
+                        <tr><td colspan="9" class="text-center text-muted py-5">Sin pagos registrados.</td></tr>
                     <?php else: ?>
                     <?php foreach ($pagos as $p): ?>
                     <tr>
@@ -132,6 +133,21 @@ $estado = $filtros['estado'] ?? '';
                             <?= $p['fecha_pago']
                                 ? e(date('d/m/Y H:i', strtotime($p['fecha_pago'])))
                                 : e(Security::timeAgo($p['fecha_creacion'])) ?>
+                        </td>
+                        <td class="text-end" style="white-space:nowrap">
+                            <?php if ($p['estado'] === 'pendiente'): ?>
+                            <form method="POST" action="<?= APP_URL ?>/admin/pago/<?= (int)$p['id'] ?>/marcar-pagado" class="m-0 d-inline">
+                                <?= $csrfField ?>
+                                <button type="submit"
+                                        class="btn btn-sm btn-primary"
+                                        data-confirm="¿Marcar como pagado y acreditar <?= number_format((int)($p['tokens_otorgados'] ?? 0)) ?> tokens al usuario?"
+                                        title="Marcar como pagado y acreditar tokens">
+                                    <i class="bi bi-check-circle me-1"></i>Marcar pagado
+                                </button>
+                            </form>
+                            <?php else: ?>
+                            <span class="text-muted" style="font-size:.78rem">—</span>
+                            <?php endif; ?>
                         </td>
                     </tr>
                     <?php endforeach; ?>

@@ -593,6 +593,46 @@ class AdminController extends Controller
         ]);
     }
 
+    /**
+     * POST /admin/pago/{id}/marcar-pagado
+     * Marca un pago manual (externo_wa) como completado y acredita
+     * los tokens al usuario. Idempotente.
+     */
+    public function paymentMarcarPagado(array $params = []): void
+    {
+        $this->requireAdmin();
+        require_once APP_PATH . '/controllers/PaymentController.php';
+
+        $idPago = (int)($params['id'] ?? 0);
+        if ($idPago <= 0) {
+            SessionManager::flash('error', 'ID de pago inválido.');
+            $this->redirect('/admin/pagos');
+        }
+
+        $pago = $this->pagos->find($idPago);
+        if (!$pago) {
+            SessionManager::flash('error', 'Pago no encontrado.');
+            $this->redirect('/admin/pagos');
+        }
+        if ($pago['estado'] === 'completado') {
+            SessionManager::flash('warning', 'Este pago ya estaba marcado como completado.');
+            $this->redirect('/admin/pagos');
+        }
+
+        $payCtrl = new PaymentController();
+        $ok = $payCtrl->acreditarTokens($idPago);
+
+        if ($ok) {
+            $tokens = (int)$pago['tokens_otorgados'];
+            SessionManager::flash('success',
+                "Pago #{$idPago} marcado como completado. Se acreditaron {$tokens} tokens al usuario.");
+        } else {
+            SessionManager::flash('error',
+                'No se pudo acreditar el pago. Revisa el log y el saldo del usuario.');
+        }
+        $this->redirect('/admin/pagos');
+    }
+
     // ---------------------------------------------------------
     // PERFILES
     // ---------------------------------------------------------

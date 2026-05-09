@@ -348,7 +348,67 @@ class PaymentController extends Controller
             'devMode'        => self::isDevMode(),
             'truevoEnabled'  => defined('TRUEVO_ENABLED')  && TRUEVO_ENABLED,
             'paycashEnabled' => defined('PAYCASH_ENABLED') && PAYCASH_ENABLED,
+            'whatsappPagos'  => function_exists('setting') ? setting('whatsapp_pagos') : null,
         ]);
+    }
+
+    /**
+     * POST /tokens/comprar/{id_paquete}/whatsapp
+     * Crea un pago en estado 'pendiente' y redirige a WhatsApp con
+     * mensaje pre-armado para que el cliente coordine el pago externo
+     * (link de pago, transferencia, OXXO, etc.). El admin activa los
+     * tokens manualmente desde /admin/pagos.
+     */
+    public function payWithWhatsapp(array $params = []): void
+    {
+        $this->requireAuth();
+
+        $idPaquete = (int)($params['id_paquete'] ?? 0);
+        $user      = $this->currentUser();
+        $paquete   = $this->paquetes->find($idPaquete);
+
+        if (!$paquete || !(int)$paquete['activo']) {
+            SessionManager::flash('error', 'Paquete no disponible.');
+            $this->redirect('/tokens/comprar');
+        }
+
+        $whatsapp = function_exists('setting') ? setting('whatsapp_pagos') : null;
+        if (!$whatsapp) {
+            SessionManager::flash('error', 'El método de pago no está configurado todavía. Intenta más tarde.');
+            $this->redirect('/tokens/comprar');
+        }
+
+        if (!Security::checkRateLimit('compra_tokens_' . $user['id'], 5, 3600)) {
+            SessionManager::flash('error', 'Demasiados intentos. Espera un momento.');
+            $this->redirect('/tokens/comprar');
+        }
+
+        $idPago = $this->pagos->iniciarPago([
+            'id_usuario'       => (int)$user['id'],
+            'id_paquete'       => $idPaquete,
+            'tokens_otorgados' => (int)$paquete['tokens'],
+            'monto'            => (float)$paquete['monto_mxn'],
+            'tipo_destacado'   => 7, // legacy NOT NULL en prod
+            'metodo_pago'      => 'externo_wa',
+            'ip_pago'          => Security::getClientIp(),
+        ]);
+
+        // Referencia para auditoria/seguimiento del admin
+        $referencia = 'PS-' . str_pad((string)$idPago, 5, '0', STR_PAD_LEFT) . '-' . strtoupper(bin2hex(random_bytes(2)));
+        $this->pagos->update($idPago, ['referencia_pasarela' => $referencia]);
+
+        // Mensaje pre-armado para WhatsApp
+        $mensaje =
+            "Hola, quiero comprar el paquete \"" . $paquete['nombre'] . "\" "
+            . "(" . number_format((int)$paquete['tokens']) . " tokens) por $" . number_format((float)$paquete['monto_mxn'], 2) . " MXN.\n\n"
+            . "Mi correo: " . ($user['email'] ?? '') . "\n"
+            . "Referencia: " . $referencia;
+
+        // Construir URL wa.me. El numero ya viene solo digitos por la normalizacion en el panel admin.
+        $url = 'https://wa.me/' . preg_replace('/\D/', '', $whatsapp) . '?text=' . rawurlencode($mensaje);
+
+        header('Location: ' . $url);
+        exit;
     }
 
     /**
@@ -608,7 +668,7 @@ class PaymentController extends Controller
      * Completa el pago y acredita los tokens correspondientes al usuario.
      * Idempotente: si ya está completado, no hace nada.
      */
-    private function acreditarTokens(int $idPago): bool
+    public function acreditarTokens(int $idPago): bool
     {
         $pago = $this->pagos->find($idPago);
         if (!$pago) return false;

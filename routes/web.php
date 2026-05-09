@@ -84,6 +84,7 @@ return [
     // ---------------------------------------------------------
     ['GET',  '/tokens/comprar',                          'PaymentController', 'showPackages',             ['auth']],
     ['GET',  '/tokens/comprar/{id_paquete}/metodo',      'PaymentController', 'selectMethod',             ['auth']],
+    ['POST', '/tokens/comprar/{id_paquete}/whatsapp',    'PaymentController', 'payWithWhatsapp',          ['auth', 'csrf']],
     ['POST', '/tokens/comprar/{id_paquete}/truevo',      'PaymentController', 'payWithTruevo',            ['auth', 'csrf']],
     ['POST', '/tokens/comprar/{id_paquete}/paycash',     'PaymentController', 'payWithPayCash',           ['auth', 'csrf']],
     ['POST', '/tokens/comprar/{id_paquete}',             'PaymentController', 'buyPackage',               ['auth', 'csrf']],
@@ -127,7 +128,8 @@ return [
     ['POST', '/admin/reporte/{id}/nota',            'AdminController','saveNotaReport',      ['auth', 'admin', 'csrf']],
     ['POST', '/admin/reporte/{id}/eliminar-perfil', 'AdminController','deletePerfilFromReport', ['auth', 'admin', 'csrf']],
     ['POST', '/admin/reporte/{id}/suspender',       'AdminController','suspendUserFromReport',  ['auth', 'admin', 'csrf']],
-    ['GET',  '/admin/pagos',              'AdminController',   'payments',            ['auth', 'admin']],
+    ['GET',  '/admin/pagos',                       'AdminController','payments',             ['auth', 'admin']],
+    ['POST', '/admin/pago/{id}/marcar-pagado',     'AdminController','paymentMarcarPagado',  ['auth', 'admin', 'csrf']],
     ['POST', '/admin/usuario/{id}/verificacion', 'AdminController', 'toggleVerificacion', ['auth', 'admin', 'csrf']],
     ['POST', '/admin/usuario/{id}/saldo',        'AdminController', 'ajustarSaldo',       ['auth', 'admin', 'csrf']],
 
