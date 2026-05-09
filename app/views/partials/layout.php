@@ -17,13 +17,13 @@
     <?php require VIEWS_PATH . '/partials/head-meta.php'; ?>
 
     <!-- Fuente Inter (self-hosted) -->
-    <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/inter/inter.css">
+    <link rel="stylesheet" href="<?= asset('assets/vendor/inter/inter.css') ?>">
     <!-- Bootstrap 5.3 -->
-    <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="<?= asset('assets/vendor/bootstrap/bootstrap.min.css') ?>">
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/vendor/bootstrap-icons/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="<?= asset('assets/vendor/bootstrap-icons/bootstrap-icons.min.css') ?>">
     <!-- App CSS -->
-    <link rel="stylesheet" href="<?= APP_URL ?>/public/assets/css/app.css">
+    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>">
 
     <?php if (isset($extraCss)): ?>
         <?= $extraCss ?>

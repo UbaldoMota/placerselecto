@@ -107,6 +107,17 @@ define('UPLOAD_ALLOWED_EXT',   ['jpg', 'jpeg', 'png', 'webp']);
 
 define('ITEMS_PER_PAGE', 20);
 
+/**
+ * Helper para versionar assets — invalida caché de Cloudflare/browser
+ * cuando el archivo cambia. Genera URL como /public/assets/css/app.css?v=1715200000
+ */
+function asset(string $path): string {
+    $clean = ltrim($path, '/');
+    $abs = __DIR__ . '/../public/' . $clean;
+    $v = file_exists($abs) ? filemtime($abs) : '0';
+    return APP_URL . '/public/' . $clean . '?v=' . $v;
+}
+
 define('PLANES_DESTACADO', [
     3  => ['precio' => 99.00,  'label' => '3 días'],
     7  => ['precio' => 199.00, 'label' => '7 días'],
