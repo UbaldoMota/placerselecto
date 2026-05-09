@@ -1417,21 +1417,20 @@ body.lightbox-open .foto-thumb img {
 }
 
 /* ---------- Combo: TOP + Resaltado al mismo tiempo ----------
-   Doble anillo concentrico: borde rosa (TOP) por dentro, anillo
-   ambar (Resaltado) pegado por fuera. Se ven los dos colores
-   simultaneamente sin tintar el cuerpo. */
+   Borde rosa (TOP gana en jerarquia) + zona de texto en amarillo
+   (Resaltado se imprime en el cuerpo). */
 .ad-card--top.ad-card--resaltado,
 .perfil-row--top.perfil-row--resaltado {
     border: 3px solid var(--color-primary) !important;
-    box-shadow:
-        0 0 0 3px var(--color-warning),
-        0 8px 22px rgba(255,45,117,.14) !important;
+    box-shadow: 0 8px 22px rgba(255,45,117,.14) !important;
+}
+.ad-card--top.ad-card--resaltado .ad-card__body,
+.perfil-row--top.perfil-row--resaltado .perfil-row__body {
+    background: rgba(245,158,11,.25) !important;
 }
 .ad-card--top.ad-card--resaltado:hover,
 .perfil-row--top.perfil-row--resaltado:hover {
-    box-shadow:
-        0 0 0 3px var(--color-warning),
-        0 12px 30px rgba(255,45,117,.20) !important;
+    box-shadow: 0 12px 30px rgba(255,45,117,.20) !important;
 }
 
 /* Form de destacar: plan-card seleccionado en el flujo de boost */
