@@ -36,12 +36,14 @@ $isComentarista = ($currentUser['rol'] ?? '') === 'comentarista';
                        class="btn btn-sm btn-primary d-flex align-items-center gap-1">
                         <i class="bi bi-plus-lg"></i>
                         <span class="d-none d-sm-inline">Nuevo perfil</span>
+                        <span class="d-inline d-sm-none">Crear</span>
                     </a>
                     <?php else: ?>
                     <a href="<?= APP_URL ?>/perfiles"
                        class="btn btn-sm btn-primary d-flex align-items-center gap-1">
                         <i class="bi bi-compass"></i>
                         <span class="d-none d-sm-inline">Explorar</span>
+                        <span class="d-inline d-sm-none">Ver</span>
                     </a>
                     <?php endif; ?>
 

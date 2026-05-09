@@ -187,11 +187,11 @@
                 </a>
                 <?php if (!$currentUser): ?>
                 <a href="<?= APP_URL ?>/registro" class="btn btn-secondary">
-                    <i class="bi bi-person-plus me-1"></i><span class="d-none d-sm-inline">Registrarse</span>
+                    <i class="bi bi-person-plus me-1"></i>Registrarme
                 </a>
                 <?php else: ?>
                 <a href="<?= APP_URL ?>/perfil/nuevo" class="btn btn-secondary">
-                    <i class="bi bi-plus-lg me-1"></i><span class="d-none d-sm-inline">Crear perfil</span>
+                    <i class="bi bi-plus-lg me-1"></i>Crear perfil
                 </a>
                 <?php endif; ?>
             </div>
