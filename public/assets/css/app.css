@@ -1366,15 +1366,93 @@ body.lightbox-open .foto-thumb img {
 
 /* =========================================================
    BOOSTS — resaltado visual de perfiles con tokens
+   Disenados para destacar a primera vista sin gritar.
+   Aplica a tarjetas (.ad-card) en home y a filas (.perfil-row)
+   en /perfiles.
    ========================================================= */
+
+/* ---------- TOP (rosa, mas prominente) ---------- */
+.ad-card--top,
+.perfil-row--top {
+    position: relative !important;
+    border: 2px solid var(--color-primary) !important;
+    background:
+        linear-gradient(135deg, rgba(255,45,117,.10) 0%, rgba(255,45,117,.02) 35%, #fff 70%) !important;
+    box-shadow:
+        0 6px 20px rgba(255,45,117,.18),
+        0 0 0 1px rgba(255,45,117,.08) !important;
+    overflow: hidden;
+}
+.ad-card--top::before,
+.perfil-row--top::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--color-primary) 0%, #FF6BA0 100%);
+    z-index: 2;
+    pointer-events: none;
+}
+.ad-card--top:hover,
+.perfil-row--top:hover {
+    border-color: var(--color-primary) !important;
+    box-shadow:
+        0 10px 30px rgba(255,45,117,.30),
+        0 0 0 2px rgba(255,45,117,.12) !important;
+    transform: translateY(-3px);
+}
+
+/* ---------- RESALTADO (amarillo, complementario) ---------- */
 .ad-card--resaltado,
+.perfil-row--resaltado,
 .perfil-resaltado {
-    border-color: var(--color-warning) !important;
-    box-shadow: 0 0 0 2px rgba(245,158,11,.15), var(--shadow-md);
+    position: relative !important;
+    border: 2px solid var(--color-warning) !important;
+    background:
+        linear-gradient(135deg, rgba(245,158,11,.14) 0%, rgba(245,158,11,.04) 40%, #fff 75%) !important;
+    box-shadow:
+        0 6px 20px rgba(245,158,11,.18),
+        0 0 0 1px rgba(245,158,11,.08) !important;
+    overflow: hidden;
+}
+.ad-card--resaltado::before,
+.perfil-row--resaltado::before,
+.perfil-resaltado::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--color-warning) 0%, #FBBF24 100%);
+    z-index: 2;
+    pointer-events: none;
 }
 .ad-card--resaltado:hover,
+.perfil-row--resaltado:hover,
 .perfil-resaltado:hover {
-    box-shadow: 0 0 0 2px rgba(245,158,11,.25), var(--shadow-lg);
+    border-color: var(--color-warning) !important;
+    box-shadow:
+        0 10px 30px rgba(245,158,11,.28),
+        0 0 0 2px rgba(245,158,11,.14) !important;
+    transform: translateY(-3px);
+}
+
+/* ---------- Badge mas visible en card y row ---------- */
+.ad-card--top .ad-card__badge-destacado {
+    font-size: .72rem !important;
+    font-weight: 800 !important;
+    letter-spacing: .06em !important;
+    padding: .3rem .7rem !important;
+    text-transform: uppercase;
+    box-shadow: 0 4px 14px rgba(255,45,117,.45) !important;
+}
+.ad-card--resaltado .ad-card__badge-destacado {
+    font-size: .72rem !important;
+    font-weight: 800 !important;
+    letter-spacing: .06em !important;
+    padding: .3rem .7rem !important;
+    text-transform: uppercase;
 }
 
 /* Form de destacar: plan-card seleccionado en el flujo de boost */
