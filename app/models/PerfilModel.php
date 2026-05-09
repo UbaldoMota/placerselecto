@@ -342,6 +342,7 @@ class PerfilModel extends Model
              LEFT JOIN municipios m ON m.id = p.id_municipio
              WHERE {$whereSQL}
              ORDER BY
+                IFNULL(p.es_demo, 0) ASC,
                 IFNULL(b.has_top, 0) DESC,
                 IF(IFNULL(b.has_top, 0) = 1, RAND(? + p.id), 0) DESC,
                 p.fecha_publicacion DESC

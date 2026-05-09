@@ -17,9 +17,9 @@ class HomeController extends Controller
         $categorias  = new CategoriaModel();
         $estados     = new EstadoModel();
 
-        // 8 perfiles a mostrar — listarPublicos ya ordena top > resaltado > recientes
+        // 15 perfiles a mostrar — listarPublicos ya ordena reales > demos, top > recientes
         $result = $perfilModel->listarPublicos([], 1);
-        $top    = array_slice($result['items'], 0, 8);
+        $top    = array_slice($result['items'], 0, 15);
 
         $this->render('home/index', [
             'pageTitle'     => 'Inicio — Clasificados adultos',
