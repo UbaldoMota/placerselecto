@@ -440,7 +440,8 @@ class PaymentController extends Controller
             error_log('[payWithWhatsapp][notif] ' . $e->getMessage());
         }
 
-        // Email al admin (best-effort, no bloquea el redirect si falla)
+        // Email al admin (best-effort, no bloquea el redirect si falla).
+        // Usa template HTML estructurado y subject sin brackets para mejor deliverability.
         try {
             $adminEmail = null;
             $envProd = APP_PATH . '/../config/env.production.php';
@@ -452,13 +453,27 @@ class PaymentController extends Controller
             }
             if ($adminEmail) {
                 require_once APP_PATH . '/Mailer.php';
-                $body = "<p>Nueva solicitud de pago recibida.</p>"
-                    . "<p><strong>Usuario:</strong> " . htmlspecialchars(($user['nombre'] ?? '—') . ' — ' . ($user['email'] ?? '')) . "<br>"
-                    . "<strong>Paquete:</strong> " . htmlspecialchars($paquete['nombre']) . " (" . number_format((int)$paquete['tokens']) . " tokens)<br>"
-                    . "<strong>Monto:</strong> $" . number_format((float)$paquete['monto_mxn'], 2) . " MXN<br>"
-                    . "<strong>Referencia:</strong> " . htmlspecialchars($referencia) . "</p>"
-                    . "<p>Envíale el link de pago por WhatsApp y al confirmarse, marca el pago como pagado en /admin/pagos.</p>";
-                Mailer::send($adminEmail, "[PlacerSelecto] Solicitud de pago $referencia", $body);
+                $html = Mailer::render('pago-solicitud-admin', [
+                    'usuario_nombre'  => $user['nombre'] ?? '',
+                    'usuario_email'   => $user['email']  ?? '',
+                    'paquete_nombre'  => $paquete['nombre'] ?? '',
+                    'tokens'          => (int)$paquete['tokens'],
+                    'monto'           => (float)$paquete['monto_mxn'],
+                    'referencia'      => $referencia,
+                    'url_admin_pagos' => APP_URL . '/admin/pagos?estado=pendiente',
+                ]);
+                $alt = "Nueva solicitud de pago.\n"
+                    . "Usuaria: " . ($user['nombre'] ?? '—') . " (" . ($user['email'] ?? '—') . ")\n"
+                    . "Paquete: " . ($paquete['nombre'] ?? '—') . " (" . number_format((int)$paquete['tokens']) . " tokens)\n"
+                    . "Monto: $" . number_format((float)$paquete['monto_mxn'], 2) . " MXN\n"
+                    . "Referencia: $referencia\n\n"
+                    . "Pendientes: " . APP_URL . '/admin/pagos?estado=pendiente';
+                Mailer::send(
+                    $adminEmail,
+                    'Nueva solicitud de pago ' . $referencia . ' — ' . APP_NAME,
+                    $html,
+                    $alt
+                );
             }
         } catch (\Throwable $e) {
             error_log('[payWithWhatsapp][email] ' . $e->getMessage());
@@ -787,27 +802,34 @@ class PaymentController extends Controller
                 error_log('[acreditarTokens][notif] ' . $e->getMessage());
             }
 
-            // Email al usuario — best-effort
+            // Email al usuario — best-effort. Usa template estructurado +
+            // subject sin brackets para mejor deliverability (no spam).
             try {
                 require_once APP_PATH . '/models/UsuarioModel.php';
                 $usuario = (new UsuarioModel())->find((int)$pago['id_usuario']);
                 if (!empty($usuario['email'])) {
                     require_once APP_PATH . '/Mailer.php';
-                    $nombre = htmlspecialchars($usuario['nombre'] ?? '');
-                    $body = "<p>Hola <strong>{$nombre}</strong>,</p>"
-                        . "<p>¡Tu pago fue confirmado! Acabamos de acreditar "
-                        . "<strong>" . number_format($tokens) . " tokens</strong> a tu cuenta.</p>"
-                        . "<p><strong>Paquete:</strong> " . htmlspecialchars($paquete['nombre'] ?? '—') . "<br>"
-                        . "<strong>Monto:</strong> $" . number_format((float)$pago['monto'], 2) . " MXN<br>"
-                        . "<strong>Referencia:</strong> " . htmlspecialchars($referencia) . "<br>"
-                        . "<strong>Saldo actual:</strong> " . number_format((int)$res['saldo_despues']) . " tokens</p>"
-                        . "<p>Ya puedes destacar tu perfil cuando quieras desde el dashboard.</p>"
-                        . "<p><a href='" . APP_URL . "/dashboard'>Ir al dashboard</a></p>"
-                        . "<hr><p style='color:#999;font-size:.85em'>Si no realizaste esta compra, escribe a soporte de inmediato.</p>";
+                    $html = Mailer::render('pago-confirmado', [
+                        'nombre'         => $usuario['nombre'] ?? '',
+                        'tokens'         => $tokens,
+                        'paquete_nombre' => $paquete['nombre'] ?? '',
+                        'monto'          => (float)$pago['monto'],
+                        'referencia'     => $referencia,
+                        'saldo_actual'   => (int)$res['saldo_despues'],
+                        'url_dashboard'  => APP_URL . '/dashboard',
+                    ]);
+                    $alt = "Hola " . ($usuario['nombre'] ?? '') . ",\n"
+                        . "Tu pago fue confirmado y acreditamos " . number_format($tokens) . " tokens a tu cuenta.\n\n"
+                        . "Paquete: " . ($paquete['nombre'] ?? '—') . "\n"
+                        . "Monto: $" . number_format((float)$pago['monto'], 2) . " MXN\n"
+                        . "Referencia: $referencia\n"
+                        . "Saldo actual: " . number_format((int)$res['saldo_despues']) . " tokens\n\n"
+                        . "Ir al dashboard: " . APP_URL . '/dashboard';
                     Mailer::send(
                         $usuario['email'],
-                        "[PlacerSelecto] Pago confirmado — +" . number_format($tokens) . " tokens acreditados",
-                        $body
+                        'Pago confirmado — ' . number_format($tokens) . ' tokens acreditados — ' . APP_NAME,
+                        $html,
+                        $alt
                     );
                 }
             } catch (\Throwable $e) {
