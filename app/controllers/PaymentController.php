@@ -750,6 +750,49 @@ class PaymentController extends Controller
             if (!$res['ok']) throw new RuntimeException($res['error'] ?? 'Error acreditando tokens.');
 
             $db->commit();
+
+            // Notificacion al usuario (campanita) — best-effort
+            try {
+                require_once APP_PATH . '/models/NotificacionModel.php';
+                (new NotificacionModel())->crear((int)$pago['id_usuario'], [
+                    'tipo'    => 'pago_completado',
+                    'titulo'  => '¡Pago confirmado! +' . number_format($tokens) . ' tokens',
+                    'mensaje' => 'Tu pago de "' . ($paquete['nombre'] ?? 'paquete') . '" fue acreditado. Saldo actual: ' . number_format((int)$res['saldo_despues']) . ' tokens.',
+                    'url'     => '/mis-tokens',
+                    'icono'   => 'check-circle-fill',
+                    'color'   => 'success',
+                ]);
+            } catch (\Throwable $e) {
+                error_log('[acreditarTokens][notif] ' . $e->getMessage());
+            }
+
+            // Email al usuario — best-effort
+            try {
+                require_once APP_PATH . '/models/UsuarioModel.php';
+                $usuario = (new UsuarioModel())->find((int)$pago['id_usuario']);
+                if (!empty($usuario['email'])) {
+                    require_once APP_PATH . '/Mailer.php';
+                    $nombre = htmlspecialchars($usuario['nombre'] ?? '');
+                    $body = "<p>Hola <strong>{$nombre}</strong>,</p>"
+                        . "<p>¡Tu pago fue confirmado! Acabamos de acreditar "
+                        . "<strong>" . number_format($tokens) . " tokens</strong> a tu cuenta.</p>"
+                        . "<p><strong>Paquete:</strong> " . htmlspecialchars($paquete['nombre'] ?? '—') . "<br>"
+                        . "<strong>Monto:</strong> $" . number_format((float)$pago['monto'], 2) . " MXN<br>"
+                        . "<strong>Referencia:</strong> " . htmlspecialchars($referencia) . "<br>"
+                        . "<strong>Saldo actual:</strong> " . number_format((int)$res['saldo_despues']) . " tokens</p>"
+                        . "<p>Ya puedes destacar tu perfil cuando quieras desde el dashboard.</p>"
+                        . "<p><a href='" . APP_URL . "/dashboard'>Ir al dashboard</a></p>"
+                        . "<hr><p style='color:#999;font-size:.85em'>Si no realizaste esta compra, escribe a soporte de inmediato.</p>";
+                    Mailer::send(
+                        $usuario['email'],
+                        "[PlacerSelecto] Pago confirmado — +" . number_format($tokens) . " tokens acreditados",
+                        $body
+                    );
+                }
+            } catch (\Throwable $e) {
+                error_log('[acreditarTokens][email] ' . $e->getMessage());
+            }
+
             return true;
         } catch (\Throwable $e) {
             $db->rollBack();
