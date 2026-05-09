@@ -121,9 +121,10 @@ $estado = $filtros['estado'] ?? '';
                             <span class="badge-estado <?= $pc ?>"><?= $pl ?></span>
                         </td>
                         <td class="d-none d-md-table-cell">
-                            <?php if ($p['referencia_ext']): ?>
+                            <?php $ref = $p['referencia_ext'] ?: ($p['referencia_pasarela'] ?? null); ?>
+                            <?php if ($ref): ?>
                             <code style="font-size:.72rem;background:var(--color-bg-card2);color:var(--color-text);padding:.15rem .4rem;border-radius:3px">
-                                <?= e($p['referencia_ext']) ?>
+                                <?= e($ref) ?>
                             </code>
                             <?php else: ?>
                             <span class="text-muted" style="font-size:.78rem">—</span>

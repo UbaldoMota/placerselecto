@@ -404,6 +404,45 @@ class PaymentController extends Controller
             . "Mi correo: " . ($user['email'] ?? '') . "\n"
             . "Referencia: " . $referencia;
 
+        // Notificacion al admin (campanita)
+        try {
+            require_once APP_PATH . '/models/NotificacionModel.php';
+            (new NotificacionModel())->crearParaAdmins([
+                'tipo'    => 'pago_pendiente',
+                'titulo'  => 'Solicitud de pago — ' . $referencia,
+                'mensaje' => ($user['nombre'] ?? 'Usuario') . ' solicitó pagar el paquete "' . $paquete['nombre'] . '" ($' . number_format((float)$paquete['monto_mxn'], 0) . ' MXN). Envíale el link de pago por WhatsApp.',
+                'url'     => '/admin/pagos?estado=pendiente',
+                'icono'   => 'cash-coin',
+                'color'   => 'warning',
+            ]);
+        } catch (\Throwable $e) {
+            error_log('[payWithWhatsapp][notif] ' . $e->getMessage());
+        }
+
+        // Email al admin (best-effort, no bloquea el redirect si falla)
+        try {
+            $adminEmail = null;
+            $envProd = APP_PATH . '/../config/env.production.php';
+            $envDev  = APP_PATH . '/../config/env.development.php';
+            $envFile = file_exists($envProd) ? $envProd : (file_exists($envDev) ? $envDev : null);
+            if ($envFile) {
+                $cfg = require $envFile;
+                $adminEmail = $cfg['admin_notify_email'] ?? null;
+            }
+            if ($adminEmail) {
+                require_once APP_PATH . '/Mailer.php';
+                $body = "<p>Nueva solicitud de pago recibida.</p>"
+                    . "<p><strong>Usuario:</strong> " . htmlspecialchars(($user['nombre'] ?? '—') . ' — ' . ($user['email'] ?? '')) . "<br>"
+                    . "<strong>Paquete:</strong> " . htmlspecialchars($paquete['nombre']) . " (" . number_format((int)$paquete['tokens']) . " tokens)<br>"
+                    . "<strong>Monto:</strong> $" . number_format((float)$paquete['monto_mxn'], 2) . " MXN<br>"
+                    . "<strong>Referencia:</strong> " . htmlspecialchars($referencia) . "</p>"
+                    . "<p>Envíale el link de pago por WhatsApp y al confirmarse, marca el pago como pagado en /admin/pagos.</p>";
+                Mailer::send($adminEmail, "[PlacerSelecto] Solicitud de pago $referencia", $body);
+            }
+        } catch (\Throwable $e) {
+            error_log('[payWithWhatsapp][email] ' . $e->getMessage());
+        }
+
         // Construir URL wa.me. El numero ya viene solo digitos por la normalizacion en el panel admin.
         $url = 'https://wa.me/' . preg_replace('/\D/', '', $whatsapp) . '?text=' . rawurlencode($mensaje);
 
