@@ -30,14 +30,15 @@ Funciones premium (opcionales, de pago con tokens):
 El contenido de cada paquete (cantidad de tokens y precio en MXN) y la tarifa de cada tipo de boost se muestran en el panel de usuario y pueden actualizarse periódicamente. El precio y la tarifa aplicables son siempre los que se muestran al momento de confirmar la operación.'],
 
         ['titulo' => '2. Métodos de pago',
-         'cuerpo' => 'Los pagos para adquirir paquetes de tokens se procesan a través de los siguientes métodos:
-• Tarjeta de crédito o débito (Visa, MasterCard) procesada mediante Truevo.
-• Efectivo en tienda de conveniencia (Walmart, 7-Eleven, Soriana, Santander) mediante PayCash.
-• Otros métodos que se vayan habilitando se mostrarán en el panel de usuario al momento de la compra.
+         'cuerpo' => 'Los pagos para adquirir paquetes de tokens se procesan a través de proveedores externos autorizados. Los métodos disponibles pueden incluir:
+• Tarjeta de crédito o débito (Visa, MasterCard).
+• Transferencia bancaria (SPEI).
+• Efectivo en tiendas de conveniencia.
+• Otros métodos electrónicos disponibles según el proveedor de pagos vigente.
 
-Los pagos con tarjeta se procesan con cumplimiento PCI-DSS. ' . APP_NAME . ' nunca recibe ni almacena el número completo de tu tarjeta, el código CVC ni la fecha de vencimiento. De cada transacción conservamos únicamente el identificador, el monto, los últimos cuatro dígitos de la tarjeta y los datos mínimos para la emisión del comprobante.
+Los métodos exactos se muestran en el panel de usuario al momento de la compra. Los pagos con tarjeta se procesan con cumplimiento PCI-DSS por proveedores externos. ' . APP_NAME . ' nunca recibe ni almacena el número completo de tu tarjeta, el código CVC ni la fecha de vencimiento. De cada transacción conservamos únicamente el identificador, el monto, los últimos cuatro dígitos de la tarjeta cuando aplique, y los datos mínimos para la emisión del comprobante.
 
-Para pagos en efectivo, al confirmar la compra recibes una referencia con vigencia de siete (7) días para acudir a la tienda. Los tokens se acreditan al saldo de tu cuenta de forma automática una vez que la tienda confirma la recepción del pago al proveedor.'],
+En cuanto el proveedor de pagos confirma la recepción del importe acordado, los tokens se acreditan al saldo de tu cuenta de forma automática.'],
 
         ['titulo' => '3. Activación del servicio',
          'cuerpo' => 'Pagos con tarjeta: el servicio premium se activa automáticamente al confirmarse el pago, normalmente en menos de un minuto. Si el pago se procesa pero el servicio no se activa, escribe a legal@placerselecto.com indicando el ID de la transacción y revisaremos manualmente.

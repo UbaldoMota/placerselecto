@@ -149,8 +149,7 @@
 
     <div class="mt-4 p-3 rounded text-center" style="background:var(--color-bg-alt);font-size:.85rem;color:var(--color-text-muted)">
         <i class="bi bi-shield-check text-primary me-1"></i>
-        Pago seguro vía Truevo (tarjeta) o PayCash (efectivo: Walmart, 7-Eleven, Soriana, Santander).
-        Si compras y no usas en 48h, te devolvemos completo.
+        Pago seguro procesado fuera del sitio. En cuanto recibamos tu pago, los tokens se acreditan a tu saldo automáticamente.
     </div>
     <?php endif; ?>
 </div>
