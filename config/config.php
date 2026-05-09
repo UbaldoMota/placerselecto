@@ -118,6 +118,25 @@ function asset(string $path): string {
     return APP_URL . '/public/' . $clean . '?v=' . $v;
 }
 
+// =====================================================
+// PROMO DE LANZAMIENTO — primeras 50 chicas
+// El tope de 50 es solo marketing. Tecnicamente regalamos PROMO_LANZAMIENTO_TOKENS
+// a TODAS las publicadoras que completen registro entre INICIO y FIN.
+// Al pasar la fecha FIN, el regalo se desactiva automaticamente.
+// =====================================================
+define('PROMO_LANZAMIENTO_INICIO', '2026-05-08 00:00:00');
+define('PROMO_LANZAMIENTO_FIN',    '2026-05-11 06:00:00');
+define('PROMO_LANZAMIENTO_TOKENS', 100);
+
+function promoLanzamientoVigente(): bool {
+    if (!defined('PROMO_LANZAMIENTO_INICIO') || !defined('PROMO_LANZAMIENTO_FIN')) return false;
+    $ini = strtotime(PROMO_LANZAMIENTO_INICIO);
+    $fin = strtotime(PROMO_LANZAMIENTO_FIN);
+    if (!$ini || !$fin) return false;
+    $now = time();
+    return $now >= $ini && $now < $fin;
+}
+
 define('PLANES_DESTACADO', [
     3  => ['precio' => 99.00,  'label' => '3 días'],
     7  => ['precio' => 199.00, 'label' => '7 días'],

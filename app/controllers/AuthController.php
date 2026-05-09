@@ -593,10 +593,33 @@ class AuthController extends Controller
         // Limpiar sesión de registro
         SessionManager::delete('reg_pendiente');
 
+        // Promo de lanzamiento: regalo automatico de tokens si esta vigente.
+        $bonusTokens = 0;
+        if (promoLanzamientoVigente()) {
+            try {
+                require_once APP_PATH . '/models/TokenMovimientoModel.php';
+                $movs = new TokenMovimientoModel();
+                $res = $movs->aplicar(
+                    $idUsuario,
+                    'recarga',
+                    (int)PROMO_LANZAMIENTO_TOKENS,
+                    null,
+                    null,
+                    'Promo lanzamiento: bienvenida con ' . PROMO_LANZAMIENTO_TOKENS . ' tokens'
+                );
+                if (!empty($res['ok'])) {
+                    $bonusTokens = (int)PROMO_LANZAMIENTO_TOKENS;
+                }
+            } catch (\Throwable $e) {
+                // No bloqueamos el registro si el regalo falla — log y seguir.
+                error_log('[Promo lanzamiento] ' . $e->getMessage());
+            }
+        }
+
         (new NotificacionModel())->crearParaAdmins([
             'tipo'    => 'usuario_nuevo',
             'titulo'  => 'Nuevo usuario registrado',
-            'mensaje' => $nombre . ' (' . $reg['email'] . ') completó el registro.',
+            'mensaje' => $nombre . ' (' . $reg['email'] . ') completó el registro' . ($bonusTokens > 0 ? ' — promo lanzamiento +' . $bonusTokens . ' tk' : '') . '.',
             'url'     => '/admin/usuario/' . $idUsuario,
             'icono'   => 'person-fill-add',
             'color'   => 'info',
@@ -606,7 +629,14 @@ class AuthController extends Controller
         $usuario = $this->usuarios->find($idUsuario);
         $this->usuarios->guardarEnSesion($usuario);
 
-        SessionManager::flash('success', '¡Bienvenido/a ' . e($nombre) . '! Ya puedes crear y enviar tus perfiles a revisión.');
+        if ($bonusTokens > 0) {
+            SessionManager::flash('success',
+                '¡Felicidades ' . e($nombre) . '! 🎁 Te regalamos ' . number_format($bonusTokens) .
+                ' tokens de bienvenida por ser parte del lanzamiento. Ya puedes crear tu perfil y destacarte.');
+        } else {
+            SessionManager::flash('success',
+                '¡Bienvenido/a ' . e($nombre) . '! Ya puedes crear y enviar tus perfiles a revisión.');
+        }
         $this->redirect('/dashboard');
     }
 

@@ -4,6 +4,22 @@
  */
 ?>
 
+<?php if (function_exists('promoLanzamientoVigente') && promoLanzamientoVigente()): ?>
+<!-- BANNER DE PROMO DE LANZAMIENTO -->
+<div style="background:linear-gradient(90deg,var(--color-primary) 0%,#FF6BA0 100%);color:#fff;padding:.6rem 1rem;text-align:center;font-size:.85rem;font-weight:600;letter-spacing:.01em;box-shadow:0 2px 8px rgba(255,45,117,.18)">
+    <i class="bi bi-gift-fill me-2"></i>
+    Promo de lanzamiento: <strong>las primeras 50 chicas</strong> que se registren reciben
+    <strong><?= number_format((int)PROMO_LANZAMIENTO_TOKENS) ?> tokens GRATIS</strong>
+    de bienvenida.
+    <span style="opacity:.85;margin-left:.5rem">Termina <?= date('d M', strtotime(PROMO_LANZAMIENTO_FIN)) ?></span>
+    <?php if (empty($currentUser)): ?>
+    <a href="<?= APP_URL ?>/registro" style="background:#fff;color:var(--color-primary);padding:.18rem .65rem;border-radius:14px;margin-left:.6rem;font-size:.78rem;font-weight:700;text-decoration:none;display:inline-block;vertical-align:middle">
+        Regístrate <i class="bi bi-arrow-right ms-1"></i>
+    </a>
+    <?php endif; ?>
+</div>
+<?php endif; ?>
+
 <!-- HERO -->
 <section class="hero-section" style="padding:1.5rem 0">
     <div class="container">
