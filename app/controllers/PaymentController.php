@@ -443,11 +443,10 @@ class PaymentController extends Controller
             error_log('[payWithWhatsapp][email] ' . $e->getMessage());
         }
 
-        // Construir URL wa.me. El numero ya viene solo digitos por la normalizacion en el panel admin.
-        $url = 'https://wa.me/' . preg_replace('/\D/', '', $whatsapp) . '?text=' . rawurlencode($mensaje);
-
-        header('Location: ' . $url);
-        exit;
+        // Redirigir a la pantalla de espera. La URL de WhatsApp se construye alli
+        // y abre en pestaña nueva, manteniendo al usuario en placerselecto.com.
+        SessionManager::flash('success', 'Solicitud de pago registrada. Abrimos WhatsApp en otra pestaña.');
+        $this->redirect('/pago/' . $idPago . '/pendiente');
     }
 
     /**
@@ -584,11 +583,28 @@ class PaymentController extends Controller
 
         $paquete = !empty($pago['id_paquete']) ? $this->paquetes->find((int)$pago['id_paquete']) : null;
 
+        // Si el metodo es externo_wa, construir el link de WhatsApp con
+        // el mismo mensaje pre-armado para que el usuario pueda reabrirlo
+        // desde la pantalla de espera (target=_blank).
+        $whatsappUrl = null;
+        if (($pago['metodo_pago'] ?? '') === 'externo_wa') {
+            $waNumero = function_exists('setting') ? setting('whatsapp_pagos') : null;
+            if ($waNumero) {
+                $mensaje =
+                    'Hola, quiero comprar el paquete "' . ($paquete['nombre'] ?? '?') . '" '
+                    . '(' . number_format((int)($pago['tokens_otorgados'] ?? 0)) . ' tokens) por $' . number_format((float)$pago['monto'], 2) . " MXN.\n\n"
+                    . 'Mi correo: ' . ($user['email'] ?? '') . "\n"
+                    . 'Referencia: ' . ($pago['referencia_pasarela'] ?? '');
+                $whatsappUrl = 'https://wa.me/' . preg_replace('/\D/', '', $waNumero) . '?text=' . rawurlencode($mensaje);
+            }
+        }
+
         $this->render('payment/payment-pending', [
-            'pageTitle' => 'Pago pendiente',
-            'pago'      => $pago,
-            'paquete'   => $paquete,
-            'devMode'   => self::isDevMode(),
+            'pageTitle'   => 'Pago pendiente',
+            'pago'        => $pago,
+            'paquete'     => $paquete,
+            'devMode'     => self::isDevMode(),
+            'whatsappUrl' => $whatsappUrl,
         ]);
     }
 
