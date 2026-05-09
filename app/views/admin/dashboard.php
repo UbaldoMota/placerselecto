@@ -33,6 +33,14 @@
                     </span>
                     <?php endif; ?>
                 </a>
+                <a href="<?= APP_URL ?>/admin/pagos" class="btn btn-sm btn-outline-primary position-relative">
+                    <i class="bi bi-cash-coin me-1"></i>Pagos
+                    <?php if ((int)($statsPagos['pendientes'] ?? 0) > 0): ?>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size:.6rem">
+                        <?= (int)$statsPagos['pendientes'] ?>
+                    </span>
+                    <?php endif; ?>
+                </a>
                 <a href="<?= APP_URL ?>/admin/tokens" class="btn btn-sm btn-outline-primary">
                     <i class="bi bi-coin me-1"></i>Tokens
                 </a>
