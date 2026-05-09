@@ -1426,6 +1426,14 @@ body.lightbox-open .foto-thumb img {
    ========================================================= */
 @media (max-width: 991.98px) {
     .perfil-show-row > .col-12 { display: contents; }
+    /* Cuando el wrapper desaparece (display:contents), las cards pasan
+       a ser hijas directas del .row (flex container). Sin width
+       explicito quedan con su ancho natural — forzamos full-width. */
+    .perfil-show-row > .col-12 > * {
+        width: 100%;
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
 }
 
 /* ---------- Combo: TOP + Resaltado al mismo tiempo ----------
