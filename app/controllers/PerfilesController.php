@@ -389,6 +389,11 @@ class PerfilesController extends Controller
               $whatsapp === '' && $telegram === '' && !$tgUsaWa,
               'whatsapp',
               'Indica al menos un medio de contacto (WhatsApp o Telegram).'
+          )
+          ->custom(
+              $tgUsaWa && $whatsapp === '',
+              'whatsapp',
+              'Si Telegram usa tu WhatsApp, debes ingresar el número de WhatsApp.'
           );
 
         if ($v->fails()) {
@@ -780,6 +785,11 @@ class PerfilesController extends Controller
               $whatsapp === '' && $telegram === '' && !$tgUsaWa,
               'whatsapp',
               'Indica al menos un medio de contacto (WhatsApp o Telegram).'
+          )
+          ->custom(
+              $tgUsaWa && $whatsapp === '',
+              'whatsapp',
+              'Si Telegram usa tu WhatsApp, debes ingresar el número de WhatsApp.'
           );
 
         if ($v->fails()) {
