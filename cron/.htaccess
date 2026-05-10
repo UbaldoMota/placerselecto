@@ -1,0 +1,4 @@
+# Bloquear acceso web a scripts de cron — solo CLI.
+<RequireAll>
+    Require all denied
+</RequireAll>
