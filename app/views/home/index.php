@@ -223,6 +223,10 @@
 
 <div class="container py-5">
 
+    <?php // Sección "Explorar por categoría" oculta temporalmente para que los
+          // perfiles destacados aparezcan inmediatamente. Reactivar cuando haya
+          // suficientes perfiles publicados por categoría como para llenar cada tile. ?>
+    <?php if (false): ?>
     <!-- CATEGORÍAS -->
     <section class="mb-5">
         <div class="d-flex align-items-center justify-content-between mb-4">
@@ -247,6 +251,7 @@
             <?php endforeach; ?>
         </div>
     </section>
+    <?php endif; ?>
 
     <!-- PERFILES DESTACADOS -->
     <section>
