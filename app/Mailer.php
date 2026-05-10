@@ -40,6 +40,13 @@ class Mailer
             $mail->isSMTP();
             $mail->Host       = SMTP_HOST;
             $mail->Port       = SMTP_PORT;
+            // HELO/EHLO hostname — CRITICO para reverse DNS y deliverability.
+            // Por default PHPMailer usa gethostname() que en shared hosting
+            // devuelve el hostname interno (ej. web2.viceshared.com), causando
+            // mismatch con el IP del servidor SMTP. Forzamos el hostname del
+            // mail server (mail.placerselecto.com) que debe tener A record
+            // sin proxy apuntando al IP real del servidor.
+            $mail->Hostname   = SMTP_HOST;
             $mail->SMTPAuth   = true;
             $mail->AuthType   = 'LOGIN'; // evitar negotiation, usa LOGIN directamente
             $mail->Username   = trim(SMTP_USER);
