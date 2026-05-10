@@ -482,4 +482,79 @@ class UserController extends Controller
 
         $this->json(['ok' => true]);
     }
+
+    // ---------------------------------------------------------
+    // CAMBIAR CONTRASEÑA (con re-auth)
+    // ---------------------------------------------------------
+
+    public function showCambiarPassword(array $params = []): void
+    {
+        $this->requireAuth();
+        Security::setNoCacheHeaders();
+        $this->render('user/cambiar-password', [
+            'pageTitle' => 'Cambiar contraseña',
+        ]);
+    }
+
+    public function cambiarPassword(array $params = []): void
+    {
+        $this->requireAuth();
+
+        $user    = $this->currentUser();
+        $idUser  = (int)$user['id'];
+        $usuario = $this->usuarios->find($idUser);
+
+        $passActual = $_POST['password_actual']  ?? '';
+        $passNueva  = $_POST['password_nueva']   ?? '';
+        $passConf   = $_POST['password_confirm'] ?? '';
+
+        // Re-auth: verificar password actual antes de cualquier cambio.
+        if (!password_verify($passActual, $usuario['password'] ?? '')) {
+            // Tras 5 intentos en 15 min, bloquear (rate limit)
+            Security::checkRateLimit('cambio_pass_' . $idUser, 5, 900);
+            SessionManager::flash('error', 'La contraseña actual es incorrecta.');
+            $this->redirect('/mi-cuenta/password');
+        }
+
+        $v = new Validator([
+            'password_nueva'   => $passNueva,
+            'password_confirm' => $passConf,
+        ]);
+        $v->required('password_nueva', 'Nueva contraseña')
+          ->strongPassword('password_nueva')
+          ->matches('password_confirm', 'password_nueva', 'las contraseñas');
+
+        // No permitir reusar la misma password
+        if (!$v->fails() && password_verify($passNueva, $usuario['password'] ?? '')) {
+            SessionManager::flash('error', 'La nueva contraseña no puede ser igual a la actual.');
+            $this->redirect('/mi-cuenta/password');
+        }
+
+        if ($v->fails()) {
+            foreach ($v->allErrors() as $err) SessionManager::flash('error', $err);
+            $this->redirect('/mi-cuenta/password');
+        }
+
+        $this->usuarios->update($idUser, [
+            'password'            => password_hash($passNueva, PASSWORD_BCRYPT, ['cost' => 12]),
+            'fecha_actualizacion' => date('Y-m-d H:i:s'),
+        ]);
+
+        // Notificar por email — si la cuenta está comprometida, esto le da chance de reaccionar.
+        $html = Mailer::render('password-cambiado', [
+            'nombre' => $usuario['nombre'] ?? '',
+            'fecha'  => date('d/m/Y H:i'),
+            'ip'     => Security::getClientIp(),
+        ]);
+        Mailer::send(
+            $usuario['email'],
+            'Tu contraseña fue cambiada — ' . APP_NAME,
+            $html,
+            "Tu contraseña en " . APP_NAME . " fue cambiada el " . date('d/m/Y H:i') .
+            ".\nSi no fuiste tú, contacta a soporte@placerselecto.com inmediatamente."
+        );
+
+        SessionManager::flash('success', 'Contraseña actualizada. Te enviamos un correo de confirmación.');
+        $this->redirect('/dashboard');
+    }
 }

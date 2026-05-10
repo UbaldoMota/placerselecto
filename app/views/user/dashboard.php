@@ -483,6 +483,21 @@ $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado)
                 </div>
 
                 <div class="dash-menu__section">
+                    <div class="dash-menu__heading">Mi cuenta</div>
+
+                    <a href="<?= APP_URL ?>/mi-cuenta/password" class="dash-menu__item">
+                        <div class="dash-menu__icon" style="color:#6366F1;background:rgba(99,102,241,.12)">
+                            <i class="bi bi-key-fill"></i>
+                        </div>
+                        <div class="dash-menu__body">
+                            <div class="dash-menu__title">Cambiar contraseña</div>
+                            <div class="dash-menu__hint">Pide tu contraseña actual antes del cambio</div>
+                        </div>
+                        <i class="bi bi-chevron-right dash-menu__arrow"></i>
+                    </a>
+                </div>
+
+                <div class="dash-menu__section">
                     <div class="dash-menu__heading">Otros</div>
 
                     <a href="<?= APP_URL ?>/perfiles" class="dash-menu__item">
