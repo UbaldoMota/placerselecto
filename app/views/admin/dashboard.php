@@ -63,6 +63,41 @@
 
 <div class="container-fluid px-4 py-4">
 
+    <?php
+    $cuentasPorEliminar = (int)($cuentasPorEliminar ?? 0);
+    $cuentasEnGrace     = (int)($cuentasEnGrace ?? 0);
+    if ($cuentasPorEliminar > 0 || $cuentasEnGrace > 0):
+    ?>
+    <!-- Aviso de cuentas con eliminación pendiente -->
+    <div class="alert <?= $cuentasPorEliminar > 0 ? 'alert-danger' : 'alert-info' ?> d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div class="d-flex align-items-center gap-3" style="min-width:0">
+            <i class="bi bi-trash3-fill" style="font-size:1.6rem;flex-shrink:0"></i>
+            <div>
+                <?php if ($cuentasPorEliminar > 0): ?>
+                    <strong>Hay <?= $cuentasPorEliminar ?> cuenta<?= $cuentasPorEliminar === 1 ? '' : 's' ?> lista<?= $cuentasPorEliminar === 1 ? '' : 's' ?> para eliminación definitiva</strong>
+                    <div style="font-size:.85rem;opacity:.85">
+                        Pasaron los 30 días de gracia tras la solicitud de la usuaria. Al ejecutar se borran perfiles, fotos, videos y documento de identidad.
+                    </div>
+                <?php else: ?>
+                    <strong>Hay <?= $cuentasEnGrace ?> cuenta<?= $cuentasEnGrace === 1 ? '' : 's' ?> en periodo de gracia</strong>
+                    <div style="font-size:.85rem;opacity:.85">
+                        Solicitaron eliminar su cuenta. Tienen 30 días para revertir antes del borrado definitivo.
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php if ($cuentasPorEliminar > 0): ?>
+        <form method="POST" action="<?= APP_URL ?>/admin/cuentas/ejecutar-eliminaciones" class="m-0"
+              data-confirm-submit="¿Ejecutar eliminación definitiva de <?= $cuentasPorEliminar ?> cuenta(s)? No se puede deshacer.">
+            <?= $csrfField ?>
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash3-fill me-1"></i>Eliminar definitivamente
+            </button>
+        </form>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
     <!-- KPIs principales -->
     <div class="row g-3 mb-4">
         <?php

@@ -106,6 +106,19 @@ class AdminController extends Controller
         $stmtIngresos->execute();
         $ingresosMes = $stmtIngresos->fetchAll();
 
+        // Cuentas con eliminación pendiente cuyo grace period ya venció
+        $cuentasPorEliminar = (new CuentaEliminacionService())->contarPendientes();
+
+        // Cuentas en grace period activo (informativo)
+        $stmtGrace = $db->prepare(
+            "SELECT COUNT(*) FROM usuarios
+              WHERE eliminado_at IS NOT NULL
+                AND eliminacion_programada_para IS NOT NULL
+                AND eliminacion_programada_para >= NOW()"
+        );
+        $stmtGrace->execute();
+        $cuentasEnGrace = (int)$stmtGrace->fetchColumn();
+
         $this->render('admin/dashboard', [
             'pageTitle'           => 'Panel de administración',
             'statsUsuarios'       => $statsUsuarios,
@@ -116,7 +129,35 @@ class AdminController extends Controller
             'ultimosUsuarios'     => $ultimosUsuarios,
             'perfilesPendientes'  => $perfilesPendientes,
             'ingresosMes'         => $ingresosMes,
+            'cuentasPorEliminar'  => $cuentasPorEliminar,
+            'cuentasEnGrace'      => $cuentasEnGrace,
         ]);
+    }
+
+    public function ejecutarEliminacionesCuentas(array $params = []): void
+    {
+        $this->requireAdmin();
+
+        $svc = new CuentaEliminacionService();
+        $r   = $svc->ejecutarPendientes(50);
+
+        if ($r['procesadas'] === 0) {
+            SessionManager::flash('info', 'No hay cuentas pendientes de eliminar.');
+        } else {
+            $msg = "Eliminación ejecutada: {$r['ok']} cuentas borradas definitivamente";
+            if ($r['fail'] > 0) {
+                $msg .= ", {$r['fail']} con errores (revisa el log).";
+                SessionManager::flash('warning', $msg);
+                foreach (array_slice($r['errores'], 0, 5) as $e) {
+                    SessionManager::flash('error', $e);
+                }
+            } else {
+                $msg .= '.';
+                SessionManager::flash('success', $msg);
+            }
+        }
+
+        $this->redirect('/admin');
     }
 
     // ---------------------------------------------------------

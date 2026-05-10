@@ -524,12 +524,6 @@ class UserController extends Controller
           ->strongPassword('password_nueva')
           ->matches('password_confirm', 'password_nueva', 'las contraseñas');
 
-        // No permitir reusar la misma password
-        if (!$v->fails() && password_verify($passNueva, $usuario['password'] ?? '')) {
-            SessionManager::flash('error', 'La nueva contraseña no puede ser igual a la actual.');
-            $this->redirect('/mi-cuenta/password');
-        }
-
         if ($v->fails()) {
             foreach ($v->allErrors() as $err) SessionManager::flash('error', $err);
             $this->redirect('/mi-cuenta/password');

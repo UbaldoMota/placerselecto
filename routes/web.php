@@ -117,6 +117,7 @@ return [
     ['POST', '/admin/usuario/{id}/aprobar',  'AdminController','approveUser',         ['auth', 'admin', 'csrf']],
     ['POST', '/admin/usuario/{id}/rechazar', 'AdminController','rejectUser',          ['auth', 'admin', 'csrf']],
     ['POST', '/admin/usuario/{id}/eliminar', 'AdminController','deleteUser',          ['auth', 'admin', 'csrf']],
+    ['POST', '/admin/cuentas/ejecutar-eliminaciones', 'AdminController','ejecutarEliminacionesCuentas', ['auth', 'admin', 'csrf']],
     ['GET',  '/admin/anuncios',           'AdminController',   'ads',                 ['auth', 'admin']],
     ['POST', '/admin/anuncio/{id}/publicar', 'AdminController','publishAd',           ['auth', 'admin', 'csrf']],
     ['POST', '/admin/anuncio/{id}/eliminar', 'AdminController','deleteAd',            ['auth', 'admin', 'csrf']],
