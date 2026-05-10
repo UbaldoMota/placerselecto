@@ -69,8 +69,19 @@
         Debes hacer clic en el enlace del correo antes de poder iniciar sesión.
     </div>
 
+    <!-- Aviso destacado: revisar carpeta de spam -->
+    <div class="alert py-3 px-3 mb-3 text-start" style="background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.35);color:#92400E;font-size:.85rem;line-height:1.5">
+        <div class="d-flex align-items-start gap-2">
+            <i class="bi bi-exclamation-triangle-fill" style="font-size:1.1rem;color:#F59E0B;flex-shrink:0;margin-top:2px"></i>
+            <div>
+                <strong>¿No ves el correo en tu bandeja principal?</strong><br>
+                Revisa la carpeta de <strong>Spam</strong> o <strong>Correo no deseado</strong>.
+                Cuando lo encuentres, márcalo como <em>"No es spam"</em> para que los próximos correos lleguen a tu bandeja principal.
+            </div>
+        </div>
+    </div>
+
     <p class="text-muted mb-4" style="font-size:.78rem">
-        <strong>¿No lo ves?</strong> Revisa tu carpeta de <em>spam</em> o <em>correo no deseado</em>.
         El enlace expira en 24 horas.
     </p>
 

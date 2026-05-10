@@ -73,6 +73,31 @@ $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado)
 
 <div class="container py-4">
 
+    <!-- Tip de bandeja de spam (cerrable, sessionStorage) -->
+    <div id="tipSpam" class="alert py-2 px-3 mb-3 d-flex align-items-start gap-2"
+         style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.30);color:#92400E;font-size:.83rem;line-height:1.5">
+        <i class="bi bi-envelope-exclamation" style="font-size:1.05rem;color:#F59E0B;flex-shrink:0;margin-top:2px"></i>
+        <div class="flex-grow-1">
+            <strong>Revisa tu carpeta de spam.</strong>
+            Las notificaciones del sistema (perfil aprobado, pago confirmado, etc.) podrían llegar ahí mientras nuestro dominio gana reputación.
+            Cuando encuentres uno de nuestros correos, márcalo como <em>"No es spam"</em> para que los siguientes lleguen a tu bandeja principal.
+        </div>
+        <button type="button" class="btn-close" aria-label="Cerrar"
+                style="font-size:.7rem"
+                onclick="document.getElementById('tipSpam').style.display='none';try{sessionStorage.setItem('dashTipSpamCerrado','1');}catch(e){}">
+        </button>
+    </div>
+    <script>
+    (function(){
+        try {
+            if (sessionStorage.getItem('dashTipSpamCerrado') === '1') {
+                var t = document.getElementById('tipSpam');
+                if (t) t.style.display = 'none';
+            }
+        } catch(e) {}
+    })();
+    </script>
+
     <!-- ============================================================
          HERO TOKENS — CTA primario de monetizacion
          ============================================================ -->

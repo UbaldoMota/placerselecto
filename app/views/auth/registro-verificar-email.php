@@ -82,7 +82,7 @@
     <p class="text-muted text-center mb-1" style="font-size:.83rem">
         Enviamos un código de 6 dígitos a
     </p>
-    <p class="text-center fw-semibold mb-4" style="font-size:.9rem;color:var(--color-text)">
+    <p class="text-center fw-semibold mb-3" style="font-size:.9rem;color:var(--color-text)">
         <?= e($email ?? '') ?>
         <button type="button"
                 class="btn btn-sm ms-2"
@@ -91,6 +91,12 @@
             <i class="bi bi-pencil me-1"></i>Corregir
         </button>
     </p>
+
+    <!-- Aviso: revisar spam -->
+    <div class="alert py-2 px-3 mb-4 text-start" style="background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.35);color:#92400E;font-size:.8rem;line-height:1.45">
+        <i class="bi bi-exclamation-triangle-fill me-1" style="color:#F59E0B"></i>
+        <strong>Si no lo recibes en tu bandeja principal,</strong> revisa la carpeta de <strong>spam</strong> o <strong>correo no deseado</strong> y márcalo como <em>"No es spam"</em>.
+    </div>
 
     <!-- Form corregir email (oculto por defecto) -->
     <div id="formCorregirWrap" style="display:none" class="mb-4">
