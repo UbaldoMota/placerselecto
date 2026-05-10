@@ -855,6 +855,13 @@ class AuthController extends Controller
             $this->usuarios->actualizarPassword($usuario['id'], $pass);
         }
 
+        // Cuenta con eliminación pendiente (soft-delete activo) → redirige a pantalla
+        // de pendiente con opción de revertir. No al dashboard normal.
+        if (!empty($usuario['eliminado_at'])) {
+            SessionManager::flash('info', 'Tu cuenta tiene una eliminación pendiente. Revísala abajo.');
+            $this->redirect('/cuenta/pendiente-eliminacion');
+        }
+
         $homePorRol = ($usuario['rol'] ?? 'usuario') === 'comentarista' ? '/' : '/dashboard';
         $destino = SessionManager::get('intended_url', $homePorRol);
         SessionManager::delete('intended_url');
@@ -990,5 +997,49 @@ class AuthController extends Controller
 
         SessionManager::flash('success', $mensaje);
         $this->redirect('/recuperar-password');
+    }
+
+    // ---------------------------------------------------------
+    // REVERTIR ELIMINACIÓN — link desde email, sin auth
+    // ---------------------------------------------------------
+
+    /**
+     * GET /cuenta/restaurar/{token}
+     * El usuario hizo clic en el link "no fui yo, revertir" del email
+     * que se envió al solicitar eliminación.
+     */
+    public function revertirEliminacion(array $params = []): void
+    {
+        $token = $params['token'] ?? '';
+        if (!preg_match('/^[a-f0-9]{32,128}$/', $token)) {
+            SessionManager::flash('error', 'Enlace inválido.');
+            $this->redirect('/login');
+        }
+
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare(
+            "SELECT id, email, nombre FROM usuarios
+             WHERE eliminacion_token = ? AND eliminado_at IS NOT NULL LIMIT 1"
+        );
+        // El token plaintext va en email; en BD guardamos sha256 (mismo patrón que C5).
+        $stmt->execute([hash('sha256', $token)]);
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$usuario) {
+            SessionManager::flash('error', 'El enlace no es válido o la eliminación ya fue revertida.');
+            $this->redirect('/login');
+        }
+
+        $db->prepare(
+            "UPDATE usuarios SET
+                eliminado_at                = NULL,
+                eliminacion_programada_para = NULL,
+                eliminacion_token           = NULL,
+                fecha_actualizacion         = NOW()
+             WHERE id = ?"
+        )->execute([(int)$usuario['id']]);
+
+        SessionManager::flash('success', 'Tu cuenta fue restaurada. Ya puedes iniciar sesión normalmente.');
+        $this->redirect('/login');
     }
 }

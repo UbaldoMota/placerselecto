@@ -78,7 +78,7 @@ if (SessionManager::has('user_id') && !str_starts_with($_SERVER['REQUEST_URI'] ?
     try {
         $db   = Database::getInstance()->getConnection();
         $stmt = $db->prepare(
-            "SELECT rol, verificado, estado_verificacion
+            "SELECT rol, verificado, estado_verificacion, eliminado_at
              FROM usuarios WHERE id = ? LIMIT 1"
         );
         $stmt->execute([(int) SessionManager::get('user_id')]);
@@ -88,6 +88,26 @@ if (SessionManager::has('user_id') && !str_starts_with($_SERVER['REQUEST_URI'] ?
             SessionManager::set('user_rol',                 $u['rol']);
             SessionManager::set('user_verificado',          (bool) $u['verificado']);
             SessionManager::set('user_estado_verificacion', $u['estado_verificacion']);
+
+            // Soft-deleted: bloquear navegación normal, dejar solo la pantalla
+            // de pendiente, el cancelar-eliminacion (POST), logout y endpoints estáticos.
+            if (!empty($u['eliminado_at'])) {
+                $reqUri  = $_SERVER['REQUEST_URI'] ?? '';
+                $reqPath = parse_url($reqUri, PHP_URL_PATH) ?: '';
+                $allowed = [
+                    '/cuenta/pendiente-eliminacion',
+                    '/mi-cuenta/cancelar-eliminacion',
+                    '/logout',
+                ];
+                $isAllowed = in_array($reqPath, $allowed, true)
+                    || str_starts_with($reqPath, '/public/')
+                    || str_starts_with($reqPath, '/img/')
+                    || str_starts_with($reqPath, '/cuenta/restaurar/');
+                if (!$isAllowed) {
+                    header('Location: ' . APP_URL . '/cuenta/pendiente-eliminacion');
+                    exit;
+                }
+            }
         } else {
             // Usuario eliminado en BD → cerrar sesión
             SessionManager::destroy();

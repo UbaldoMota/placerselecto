@@ -557,4 +557,134 @@ class UserController extends Controller
         SessionManager::flash('success', 'Contraseña actualizada. Te enviamos un correo de confirmación.');
         $this->redirect('/dashboard');
     }
+
+    // ---------------------------------------------------------
+    // ELIMINAR CUENTA — soft delete + 30 días grace
+    // ---------------------------------------------------------
+
+    public function showEliminarCuenta(array $params = []): void
+    {
+        $this->requireAuth();
+        Security::setNoCacheHeaders();
+
+        $user = $this->currentUser();
+        $usuario = $this->usuarios->find((int)$user['id']);
+
+        // Si ya está pendiente, redirigir a la pantalla específica
+        if (!empty($usuario['eliminado_at'])) {
+            $this->redirect('/cuenta/pendiente-eliminacion');
+        }
+
+        $this->render('user/eliminar-cuenta', [
+            'pageTitle' => 'Eliminar cuenta',
+            'usuario'   => $usuario,
+        ]);
+    }
+
+    public function eliminarCuenta(array $params = []): void
+    {
+        $this->requireAuth();
+
+        $user    = $this->currentUser();
+        $idUser  = (int)$user['id'];
+        $usuario = $this->usuarios->find($idUser);
+
+        $passActual  = $_POST['password_actual'] ?? '';
+        $confirmacion = trim($_POST['confirmacion'] ?? '');
+
+        // Re-auth: pedir password antes de eliminar
+        if (!password_verify($passActual, $usuario['password'] ?? '')) {
+            Security::checkRateLimit('eliminar_cuenta_' . $idUser, 5, 900);
+            SessionManager::flash('error', 'Contraseña incorrecta.');
+            $this->redirect('/mi-cuenta/eliminar');
+        }
+
+        if ($confirmacion !== 'ELIMINAR') {
+            SessionManager::flash('error', 'Debes escribir la palabra ELIMINAR exactamente para confirmar.');
+            $this->redirect('/mi-cuenta/eliminar');
+        }
+
+        // Generar token plaintext (al email) + sha256 (BD)
+        $tokenPlain = bin2hex(random_bytes(32));
+        $fechaProg  = (new \DateTime('+30 days'))->format('Y-m-d H:i:s');
+
+        $this->usuarios->update($idUser, [
+            'eliminado_at'                => date('Y-m-d H:i:s'),
+            'eliminacion_programada_para' => $fechaProg,
+            'eliminacion_token'           => hash('sha256', $tokenPlain),
+            'fecha_actualizacion'         => date('Y-m-d H:i:s'),
+        ]);
+
+        // Ocultar todos sus perfiles del directorio público durante el grace period.
+        // Al cancelar la eliminación, la usuaria tendrá que reactivar manualmente
+        // los que quiera mostrar (no podemos saber cuáles estaban ocultos antes).
+        Database::getInstance()->getConnection()
+            ->prepare("UPDATE perfiles SET oculta = 1 WHERE id_usuario = ?")
+            ->execute([$idUser]);
+
+        // Email con link de revert
+        $linkRevert = APP_URL . '/cuenta/restaurar/' . $tokenPlain;
+        $html = Mailer::render('cuenta-eliminacion-solicitada', [
+            'nombre'      => $usuario['nombre'] ?? '',
+            'fechaProg'   => date('d/m/Y H:i', strtotime($fechaProg)),
+            'linkRevert'  => $linkRevert,
+            'ip'          => Security::getClientIp(),
+        ]);
+        Mailer::send(
+            $usuario['email'],
+            'Confirmación: tu cuenta se eliminará el ' . date('d/m/Y', strtotime($fechaProg)) . ' — ' . APP_NAME,
+            $html,
+            "Tu cuenta en " . APP_NAME . " quedará eliminada el " . date('d/m/Y H:i', strtotime($fechaProg)) .
+            ".\nSi cambias de opinión: {$linkRevert}\n\nO inicia sesión y cancela la eliminación desde tu cuenta."
+        );
+
+        // Cerrar sesión y redirigir a login con mensaje
+        $this->usuarios->limpiarSesion();
+        SessionManager::forgetLongTerm();
+        SessionManager::init();
+        SessionManager::set('age_verified', true);
+        SessionManager::flash('success',
+            'Tu cuenta se eliminará el ' . date('d/m/Y', strtotime($fechaProg)) .
+            '. Te enviamos un correo de confirmación con el enlace para revertir.');
+        $this->redirect('/login');
+    }
+
+    public function showCuentaPendiente(array $params = []): void
+    {
+        $this->requireAuth();
+        Security::setNoCacheHeaders();
+
+        $user    = $this->currentUser();
+        $usuario = $this->usuarios->find((int)$user['id']);
+
+        // Si no tiene eliminación pendiente, ir a dashboard
+        if (empty($usuario['eliminado_at'])) {
+            $this->redirect('/dashboard');
+        }
+
+        $this->render('user/cuenta-pendiente-eliminacion', [
+            'pageTitle' => 'Cuenta pendiente de eliminación',
+            'usuario'   => $usuario,
+        ]);
+    }
+
+    public function cancelarEliminacion(array $params = []): void
+    {
+        $this->requireAuth();
+
+        $user   = $this->currentUser();
+        $idUser = (int)$user['id'];
+
+        $this->usuarios->update($idUser, [
+            'eliminado_at'                => null,
+            'eliminacion_programada_para' => null,
+            'eliminacion_token'           => null,
+            'fecha_actualizacion'         => date('Y-m-d H:i:s'),
+        ]);
+
+        SessionManager::flash('success',
+            'Tu cuenta fue restaurada. Bienvenida de vuelta. ' .
+            'Tus perfiles quedaron ocultos durante la pausa — ve a "Mis perfiles" para volver a publicarlos cuando quieras.');
+        $this->redirect('/dashboard');
+    }
 }

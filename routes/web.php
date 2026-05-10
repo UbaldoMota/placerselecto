@@ -210,6 +210,11 @@ return [
     ['POST', '/mi-cuenta/documento',      'UserController',     'subirDocumento',        ['auth', 'csrf']],
     ['GET',  '/mi-cuenta/password',       'UserController',     'showCambiarPassword',   ['auth']],
     ['POST', '/mi-cuenta/password',       'UserController',     'cambiarPassword',       ['auth', 'csrf']],
+    ['GET',  '/mi-cuenta/eliminar',       'UserController',     'showEliminarCuenta',    ['auth']],
+    ['POST', '/mi-cuenta/eliminar',       'UserController',     'eliminarCuenta',        ['auth', 'csrf']],
+    ['GET',  '/cuenta/pendiente-eliminacion','UserController',  'showCuentaPendiente',   ['auth']],
+    ['POST', '/mi-cuenta/cancelar-eliminacion','UserController','cancelarEliminacion',   ['auth', 'csrf']],
+    ['GET',  '/cuenta/restaurar/{token}', 'AuthController',     'revertirEliminacion',   []],
     ['GET',  '/cuenta/reactivar',         'UserController',     'showReactivacion',      ['auth']],
     ['POST', '/cuenta/reactivar',         'UserController',     'enviarReactivacion',    ['auth', 'csrf']],
 

@@ -495,6 +495,17 @@ $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado)
                         </div>
                         <i class="bi bi-chevron-right dash-menu__arrow"></i>
                     </a>
+
+                    <a href="<?= APP_URL ?>/mi-cuenta/eliminar" class="dash-menu__item">
+                        <div class="dash-menu__icon" style="color:#EF4444;background:rgba(239,68,68,.12)">
+                            <i class="bi bi-trash3-fill"></i>
+                        </div>
+                        <div class="dash-menu__body">
+                            <div class="dash-menu__title">Eliminar mi cuenta</div>
+                            <div class="dash-menu__hint">30 días de gracia antes del borrado definitivo</div>
+                        </div>
+                        <i class="bi bi-chevron-right dash-menu__arrow"></i>
+                    </a>
                 </div>
 
                 <div class="dash-menu__section">
