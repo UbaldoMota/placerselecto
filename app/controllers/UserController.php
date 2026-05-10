@@ -218,13 +218,18 @@ class UserController extends Controller
         $page   = max(1, (int)$this->getParam('page', '1'));
         $result = $mov->historial($idUser, $page, 20);
 
+        // Primer perfil publicado del usuario (si existe) — para el boton "Destacar"
+        $publicados        = $this->perfiles->misPerfilesPublicados($idUser);
+        $primerPublicadoId = !empty($publicados) ? (int)$publicados[0]['id'] : null;
+
         $this->render('user/mis-tokens', [
-            'pageTitle'    => 'Mis tokens',
-            'saldo'        => $mov->saldo($idUser),
-            'historial'    => $result['items'],
-            'pagination'   => $result,
-            'boostsActivos'=> $boosts->porUsuario($idUser, 'activo'),
-            'boostsProg'   => $boosts->porUsuario($idUser, 'programado'),
+            'pageTitle'         => 'Mis tokens',
+            'saldo'             => $mov->saldo($idUser),
+            'historial'         => $result['items'],
+            'pagination'        => $result,
+            'boostsActivos'     => $boosts->porUsuario($idUser, 'activo'),
+            'boostsProg'        => $boosts->porUsuario($idUser, 'programado'),
+            'primerPublicadoId' => $primerPublicadoId,
         ]);
     }
 
