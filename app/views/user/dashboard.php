@@ -223,6 +223,49 @@ $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado)
                                             · <i class="bi bi-geo-alt me-1"></i><?= e($p['municipio_nombre'] ?? $p['ciudad'] ?? '—') ?>
                                         </div>
 
+                                        <!-- Estado de boost (badges con horas restantes) -->
+                                        <?php if ($p['estado'] === 'publicado'):
+                                            $boostBadges = [];
+                                            if (!empty($p['boost_top']) && !empty($p['boost_top_fin'])) {
+                                                $hRestT = max(0, (int)floor((strtotime($p['boost_top_fin']) - time()) / 3600));
+                                                $boostBadges[] = [
+                                                    'label' => 'TOP',
+                                                    'horas' => $hRestT,
+                                                    'bg'    => 'rgba(255,45,117,.12)',
+                                                    'color' => 'var(--color-primary)',
+                                                    'icon'  => 'bi-arrow-up-square-fill',
+                                                ];
+                                            }
+                                            if (!empty($p['boost_resaltado']) && !empty($p['boost_resaltado_fin'])) {
+                                                $hRestR = max(0, (int)floor((strtotime($p['boost_resaltado_fin']) - time()) / 3600));
+                                                $boostBadges[] = [
+                                                    'label' => 'Resaltado',
+                                                    'horas' => $hRestR,
+                                                    'bg'    => 'rgba(245,158,11,.12)',
+                                                    'color' => '#92400E',
+                                                    'icon'  => 'bi-stars',
+                                                ];
+                                            }
+                                        ?>
+                                        <?php if (!empty($boostBadges)): ?>
+                                        <div class="d-flex flex-wrap gap-1 mb-2">
+                                            <?php foreach ($boostBadges as $bb): ?>
+                                            <span style="background:<?= $bb['bg'] ?>;color:<?= $bb['color'] ?>;font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:10px;display:inline-flex;align-items:center;gap:.2rem">
+                                                <i class="bi <?= $bb['icon'] ?>"></i>
+                                                <?= e($bb['label']) ?>
+                                                <?php if ($bb['horas'] > 0): ?>
+                                                · <?= $bb['horas'] ?>h
+                                                <?php endif; ?>
+                                            </span>
+                                            <?php endforeach; ?>
+                                        </div>
+                                        <?php else: ?>
+                                        <div class="mb-2" style="font-size:.7rem;color:var(--color-text-muted)">
+                                            <i class="bi bi-circle me-1"></i>Sin boost activo
+                                        </div>
+                                        <?php endif; ?>
+                                        <?php endif; ?>
+
                                         <!-- Visitas + acciones secundarias -->
                                         <div class="d-flex align-items-center justify-content-between pt-2 mt-auto"
                                              style="border-top:1px solid var(--color-border)">

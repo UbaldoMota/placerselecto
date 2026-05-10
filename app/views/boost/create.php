@@ -25,13 +25,31 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
     </div>
 
     <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
-        <div>
+        <div class="flex-fill">
             <h1 class="h4 fw-bold mb-1">
                 <i class="bi bi-stars text-primary me-2"></i>Destacar perfil
             </h1>
+            <?php if (count($otrosPerfiles ?? []) > 1): ?>
+            <!-- Selector entre perfiles publicados del usuario -->
+            <div class="d-flex align-items-center gap-2" style="font-size:.9rem">
+                <label for="perfil-selector" class="text-muted mb-0" style="white-space:nowrap">Perfil a destacar:</label>
+                <select id="perfil-selector"
+                        class="form-select form-select-sm"
+                        style="max-width:260px"
+                        onchange="if(this.value)window.location.href=this.value">
+                    <?php foreach ($otrosPerfiles as $op): ?>
+                    <option value="<?= APP_URL ?>/perfil/<?= (int)$op['id'] ?>/destacar"
+                            <?= (int)$op['id'] === (int)$perfil['id'] ? 'selected' : '' ?>>
+                        <?= e($op['nombre']) ?><?= !empty($op['edad']) ? ', ' . (int)$op['edad'] : '' ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <?php else: ?>
             <p class="text-muted mb-0" style="font-size:.9rem">
                 Perfil: <strong><?= e($perfil['nombre']) ?></strong>
             </p>
+            <?php endif; ?>
         </div>
         <div class="d-flex gap-2 align-items-center">
             <span class="text-muted" style="font-size:.85rem">Tu saldo:</span>
@@ -43,6 +61,14 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
             </a>
         </div>
     </div>
+
+    <?php if (count($otrosPerfiles ?? []) > 1): ?>
+    <div class="alert py-2 px-3 mb-3" style="background:rgba(13,110,253,.06);border:1px solid rgba(13,110,253,.18);font-size:.82rem;color:#0a58ca">
+        <i class="bi bi-info-circle me-1"></i>
+        Tienes <strong><?= count($otrosPerfiles) ?> perfiles publicados</strong>. Tu saldo de tokens se comparte entre todos —
+        decides cuándo y a cuál destacar. Cada perfil puede tener su propio boost activo simultáneamente.
+    </div>
+    <?php endif; ?>
 
     <!-- ============================================================
          SECCION EDUCATIVA — diferencia entre TOP y Resaltado

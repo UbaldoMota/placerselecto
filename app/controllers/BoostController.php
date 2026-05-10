@@ -55,14 +55,18 @@ class BoostController extends Controller
         $tarifas   = $this->tarifas->mapa();
         $boosts    = $this->boosts->porPerfil($idPerfil, 20);
 
+        // Lista de otros perfiles publicados del usuario para el selector
+        $otrosPerfiles = $this->perfiles->misPerfilesPublicados((int)$user['id']);
+
         $this->render('boost/create', [
-            'pageTitle' => 'Destacar perfil',
-            'perfil'    => $perfil,
-            'saldo'     => $saldo,
-            'tarifas'   => $tarifas,
-            'boosts'    => $boosts,
-            'minHoras'  => self::MIN_HORAS,
-            'maxHoras'  => self::MAX_HORAS,
+            'pageTitle'     => 'Destacar perfil',
+            'perfil'        => $perfil,
+            'saldo'         => $saldo,
+            'tarifas'       => $tarifas,
+            'boosts'        => $boosts,
+            'minHoras'      => self::MIN_HORAS,
+            'maxHoras'      => self::MAX_HORAS,
+            'otrosPerfiles' => $otrosPerfiles,
         ]);
     }
 

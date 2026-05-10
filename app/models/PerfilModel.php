@@ -370,12 +370,16 @@ class PerfilModel extends Model
                     m.nombre AS municipio_nombre,
                     (SELECT COUNT(*) FROM perfil_fotos pf WHERE pf.id_perfil = p.id AND pf.es_verificacion = 1) AS fotos_ver,
                     b.has_top       AS boost_top,
-                    b.has_resaltado AS boost_resaltado
+                    b.has_resaltado AS boost_resaltado,
+                    b.top_fin       AS boost_top_fin,
+                    b.resalt_fin    AS boost_resaltado_fin
              FROM perfiles p
              LEFT JOIN (
                  SELECT id_perfil,
                         MAX(IF(tipo='top',       1, 0)) AS has_top,
-                        MAX(IF(tipo='resaltado', 1, 0)) AS has_resaltado
+                        MAX(IF(tipo='resaltado', 1, 0)) AS has_resaltado,
+                        MAX(IF(tipo='top',       fin, NULL)) AS top_fin,
+                        MAX(IF(tipo='resaltado', fin, NULL)) AS resalt_fin
                  FROM perfil_boost
                  WHERE estado IN ('programado','activo')
                    AND inicio <= NOW() AND fin > NOW()
@@ -386,6 +390,18 @@ class PerfilModel extends Model
              LEFT JOIN municipios m ON m.id = p.id_municipio
              WHERE p.id_usuario = ?
              ORDER BY p.fecha_creacion DESC",
+            [$idUsuario]
+        )->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /** Lista los perfiles PUBLICADOS de un usuario (subset de misPerfiles, simple). */
+    public function misPerfilesPublicados(int $idUsuario): array
+    {
+        return $this->raw(
+            "SELECT id, nombre, edad
+             FROM perfiles
+             WHERE id_usuario = ? AND estado = 'publicado'
+             ORDER BY fecha_creacion DESC",
             [$idUsuario]
         )->fetchAll(PDO::FETCH_ASSOC);
     }
