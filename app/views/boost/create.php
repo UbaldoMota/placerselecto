@@ -29,27 +29,9 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
             <h1 class="h4 fw-bold mb-1">
                 <i class="bi bi-stars text-primary me-2"></i>Destacar perfil
             </h1>
-            <?php if (count($otrosPerfiles ?? []) > 1): ?>
-            <!-- Selector entre perfiles publicados del usuario -->
-            <div class="d-flex align-items-center gap-2" style="font-size:.9rem">
-                <label for="perfil-selector" class="text-muted mb-0" style="white-space:nowrap">Perfil a destacar:</label>
-                <select id="perfil-selector"
-                        class="form-select form-select-sm"
-                        style="max-width:260px"
-                        onchange="if(this.value)window.location.href=this.value">
-                    <?php foreach ($otrosPerfiles as $op): ?>
-                    <option value="<?= APP_URL ?>/perfil/<?= (int)$op['id'] ?>/destacar"
-                            <?= (int)$op['id'] === (int)$perfil['id'] ? 'selected' : '' ?>>
-                        <?= e($op['nombre']) ?><?= !empty($op['edad']) ? ', ' . (int)$op['edad'] : '' ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <?php else: ?>
             <p class="text-muted mb-0" style="font-size:.9rem">
-                Perfil: <strong><?= e($perfil['nombre']) ?></strong>
+                Perfil seleccionado: <strong><?= e($perfil['nombre']) ?></strong>
             </p>
-            <?php endif; ?>
         </div>
         <div class="d-flex gap-2 align-items-center">
             <span class="text-muted" style="font-size:.85rem">Tu saldo:</span>
@@ -61,14 +43,6 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
             </a>
         </div>
     </div>
-
-    <?php if (count($otrosPerfiles ?? []) > 1): ?>
-    <div class="alert py-2 px-3 mb-3" style="background:rgba(13,110,253,.06);border:1px solid rgba(13,110,253,.18);font-size:.82rem;color:#0a58ca">
-        <i class="bi bi-info-circle me-1"></i>
-        Tienes <strong><?= count($otrosPerfiles) ?> perfiles publicados</strong>. Tu saldo de tokens se comparte entre todos —
-        decides cuándo y a cuál destacar. Cada perfil puede tener su propio boost activo simultáneamente.
-    </div>
-    <?php endif; ?>
 
     <!-- ============================================================
          SECCION EDUCATIVA — diferencia entre TOP y Resaltado
@@ -149,6 +123,79 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
             </div>
         </div>
     </div>
+
+    <?php if (count($otrosPerfiles ?? []) > 1): ?>
+    <!-- ============================================================
+         SELECTOR DE PERFIL (cards visuales con foto)
+         Aparece antes del paso 1 cuando hay 2+ perfiles publicados.
+         ============================================================ -->
+    <div class="card mb-4" style="border:2px solid var(--color-primary);box-shadow:0 4px 18px rgba(255,45,117,.12)">
+        <div class="card-body p-3 p-md-4">
+            <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+                <div>
+                    <h2 class="h6 fw-bold mb-1" style="color:var(--color-primary)">
+                        <i class="bi bi-person-badge-fill me-1"></i>¿A cuál perfil destacar?
+                    </h2>
+                    <p class="text-muted mb-0" style="font-size:.82rem">
+                        Tienes <strong><?= count($otrosPerfiles) ?> perfiles publicados</strong> — tu saldo de tokens se comparte entre todos. Elige cuál destacar.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row g-2">
+                <?php foreach ($otrosPerfiles as $op):
+                    $esActual = (int)$op['id'] === (int)$perfil['id'];
+                    $imgUrl = !empty($op['imagen_token'])
+                        ? APP_URL . '/img/' . $op['imagen_token'] . '?size=thumb'
+                        : null;
+                ?>
+                <div class="col-6 col-md-4">
+                    <a href="<?= APP_URL ?>/perfil/<?= (int)$op['id'] ?>/destacar"
+                       class="d-block text-decoration-none position-relative"
+                       style="border:2px solid <?= $esActual ? 'var(--color-primary)' : 'var(--color-border)' ?>;
+                              border-radius:12px;
+                              overflow:hidden;
+                              background:<?= $esActual ? 'rgba(255,45,117,.06)' : '#fff' ?>;
+                              transition:transform .15s, box-shadow .15s, border-color .15s;
+                              <?= $esActual ? 'box-shadow:0 4px 14px rgba(255,45,117,.22)' : '' ?>"
+                       onmouseover="if(!<?= $esActual ? 'true' : 'false' ?>){this.style.borderColor='var(--color-primary-l)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 14px rgba(0,0,0,.08)'}"
+                       onmouseout="if(!<?= $esActual ? 'true' : 'false' ?>){this.style.borderColor='var(--color-border)';this.style.transform='';this.style.boxShadow=''}">
+                        <?php if ($esActual): ?>
+                        <span style="position:absolute;top:6px;right:6px;background:var(--color-primary);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;z-index:2;box-shadow:0 2px 6px rgba(255,45,117,.4);font-size:.85rem">
+                            <i class="bi bi-check-lg"></i>
+                        </span>
+                        <?php endif; ?>
+
+                        <!-- Foto -->
+                        <div style="aspect-ratio:1/1;overflow:hidden;background:var(--color-bg-alt);position:relative">
+                            <?php if ($imgUrl): ?>
+                            <img src="<?= e($imgUrl) ?>"
+                                 alt="<?= e($op['nombre']) ?>"
+                                 style="width:100%;height:100%;object-fit:cover"
+                                 loading="lazy">
+                            <?php else: ?>
+                            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);font-size:2rem">
+                                <i class="bi bi-person"></i>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Info -->
+                        <div style="padding:.55rem .65rem">
+                            <div class="fw-bold" style="font-size:.88rem;color:var(--color-text);line-height:1.2">
+                                <?= e($op['nombre']) ?><?php if (!empty($op['edad'])): ?><span class="fw-normal text-muted">, <?= (int)$op['edad'] ?></span><?php endif; ?>
+                            </div>
+                            <div class="text-muted" style="font-size:.7rem">
+                                <i class="bi bi-tag-fill me-1"></i><?= e($op['categoria_nombre'] ?? '—') ?>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <form method="POST" action="<?= APP_URL ?>/perfil/<?= (int)$perfil['id'] ?>/destacar" id="boost-form">
         <?= $csrfField ?>

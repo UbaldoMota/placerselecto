@@ -398,10 +398,11 @@ class PerfilModel extends Model
     public function misPerfilesPublicados(int $idUsuario): array
     {
         return $this->raw(
-            "SELECT id, nombre, edad
-             FROM perfiles
-             WHERE id_usuario = ? AND estado = 'publicado'
-             ORDER BY fecha_creacion DESC",
+            "SELECT p.id, p.nombre, p.edad, p.imagen_token, c.nombre AS categoria_nombre
+             FROM perfiles p
+             LEFT JOIN categorias c ON c.id = p.id_categoria
+             WHERE p.id_usuario = ? AND p.estado = 'publicado'
+             ORDER BY p.fecha_creacion DESC",
             [$idUsuario]
         )->fetchAll(PDO::FETCH_ASSOC);
     }
