@@ -79,7 +79,7 @@ $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado)
         <i class="bi bi-envelope-exclamation" style="font-size:1.05rem;color:#F59E0B;flex-shrink:0;margin-top:2px"></i>
         <div class="flex-grow-1">
             <strong>Revisa tu carpeta de spam.</strong>
-            Las notificaciones del sistema (perfil aprobado, pago confirmado, etc.) podrían llegar ahí mientras nuestro dominio gana reputación.
+            Las notificaciones del sistema (perfil aprobado, pago confirmado, etc.) podrían llegar ahí.
             Cuando encuentres uno de nuestros correos, márcalo como <em>"No es spam"</em> para que los siguientes lleguen a tu bandeja principal.
         </div>
         <button type="button" class="btn-close" aria-label="Cerrar"
