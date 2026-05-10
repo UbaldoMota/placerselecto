@@ -252,38 +252,63 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
     <script>
     // Cambio de perfil SIN recargar — preserva scroll y datos llenados en el form.
     (function () {
-        var cards   = document.querySelectorAll('.ps-selector-card');
-        var form    = document.getElementById('boost-form');
-        var nombre  = document.getElementById('perfil-actual-nombre');
-        if (!cards.length || !form) return;
+        function init() {
+            var cards   = document.querySelectorAll('.ps-selector-card');
+            var form    = document.getElementById('boost-form');
+            var nombre  = document.getElementById('perfil-actual-nombre');
 
-        cards.forEach(function (card) {
-            card.addEventListener('click', function (e) {
-                if (card.classList.contains('selected')) {
+            console.log('[ps-selector] init — cards:', cards.length, 'form:', !!form, 'nombre:', !!nombre);
+
+            if (!cards.length) {
+                console.warn('[ps-selector] NO encontre cards — abortando');
+                return;
+            }
+            if (!form) {
+                console.warn('[ps-selector] NO encontre #boost-form — abortando');
+                return;
+            }
+
+            cards.forEach(function (card, idx) {
+                card.addEventListener('click', function (e) {
                     e.preventDefault();
-                    return;
-                }
-                e.preventDefault();
+                    e.stopPropagation();
+                    console.log('[ps-selector] click idx=' + idx + ' id=' + card.dataset.perfilId);
 
-                var newUrl     = card.getAttribute('href');
-                var newNombre  = card.dataset.perfilNombre;
+                    if (card.classList.contains('selected')) {
+                        console.log('[ps-selector] ya estaba seleccionado, no hago nada');
+                        return false;
+                    }
 
-                // 1) Cambia URL en el navegador sin reload (preserva scroll)
-                if (window.history && window.history.replaceState) {
-                    window.history.replaceState(null, '', newUrl);
-                }
+                    var newUrl    = card.getAttribute('href');
+                    var newNombre = card.dataset.perfilNombre;
 
-                // 2) Form action -> nuevo perfil (POST ira al perfil correcto)
-                form.action = newUrl;
+                    if (window.history && window.history.replaceState) {
+                        window.history.replaceState(null, '', newUrl);
+                    }
 
-                // 3) Texto del header
-                if (nombre) nombre.textContent = newNombre;
+                    form.action = newUrl;
+                    if (nombre) nombre.textContent = newNombre;
 
-                // 4) Marca visual: quita .selected de todas, pone en esta
-                cards.forEach(function (c) { c.classList.remove('selected'); });
-                card.classList.add('selected');
+                    cards.forEach(function (c) { c.classList.remove('selected'); });
+                    card.classList.add('selected');
+
+                    console.log('[ps-selector] cambiado a', newUrl);
+                    return false;
+                }, false);
+                // Refuerzo: bloquear navegacion default a nivel de mousedown
+                card.addEventListener('mousedown', function (e) {
+                    e.preventDefault();
+                });
             });
-        });
+
+            console.log('[ps-selector] handlers asignados a', cards.length, 'cards');
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     })();
     </script>
     <?php endif; ?>
