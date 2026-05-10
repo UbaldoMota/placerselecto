@@ -1,19 +1,23 @@
 <?php
 /**
  * Cifrado at-rest para archivos sensibles (documentos de identidad).
- * Usa libsodium (sodium_crypto_secretbox = XSalsa20-Poly1305 autenticado).
+ * Usa AES-256-GCM (openssl_encrypt) — autenticado, FIPS-friendly, disponible
+ * en todos los PHP con OpenSSL (siempre).
  *
  * Formato del archivo cifrado:
- *   [8 bytes "PSCRYPT1"][24 bytes nonce][N bytes ciphertext + 16 bytes auth tag]
+ *   [8 bytes "PSCRYPT1"][12 bytes nonce][16 bytes tag][N bytes ciphertext]
  *
  * Si el archivo no empieza con MAGIC, se asume legacy plaintext (compat de
  * transición). La migración convierte los legacy a cifrados.
  */
 class Crypto
 {
-    private const MAGIC        = "PSCRYPT1";
-    private const MAGIC_BYTES  = 8;
-    private const NONCE_BYTES  = SODIUM_CRYPTO_SECRETBOX_NONCEBYTES; // 24
+    private const MAGIC       = "PSCRYPT1";
+    private const MAGIC_BYTES = 8;
+    private const CIPHER      = 'aes-256-gcm';
+    private const KEY_BYTES   = 32;
+    private const NONCE_BYTES = 12;   // GCM standard IV size
+    private const TAG_BYTES   = 16;
 
     private static function key(): string
     {
@@ -22,7 +26,7 @@ class Crypto
             throw new RuntimeException('DOC_ENCRYPTION_KEY no configurada en env');
         }
         $key = base64_decode($b64, true);
-        if ($key === false || strlen($key) !== SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
+        if ($key === false || strlen($key) !== self::KEY_BYTES) {
             throw new RuntimeException('DOC_ENCRYPTION_KEY inválida (debe ser 32 bytes base64)');
         }
         return $key;
@@ -43,11 +47,15 @@ class Crypto
             return true; // ya cifrado
         }
 
-        $nonce      = random_bytes(self::NONCE_BYTES);
-        $ciphertext = sodium_crypto_secretbox($plaintext, $nonce, self::key());
-        sodium_memzero($plaintext);
+        $nonce = random_bytes(self::NONCE_BYTES);
+        $tag   = '';
+        $ciphertext = openssl_encrypt(
+            $plaintext, self::CIPHER, self::key(),
+            OPENSSL_RAW_DATA, $nonce, $tag
+        );
+        if ($ciphertext === false) return false;
 
-        $blob = self::MAGIC . $nonce . $ciphertext;
+        $blob = self::MAGIC . $nonce . $tag . $ciphertext;
         $ok   = file_put_contents($path, $blob, LOCK_EX) !== false;
         if ($ok) @chmod($path, 0644);
         return $ok;
@@ -55,7 +63,7 @@ class Crypto
 
     /**
      * Lee y descifra. Si el archivo es legacy (sin MAGIC), retorna el contenido tal cual.
-     * Devuelve null si el archivo no existe o el descifrado falla (tampered).
+     * Devuelve null si el archivo no existe o el descifrado falla (tampered/wrong key).
      */
     public static function decryptFile(string $path): ?string
     {
@@ -68,9 +76,18 @@ class Crypto
             return $blob; // legacy plaintext
         }
 
-        $nonce      = substr($blob, self::MAGIC_BYTES, self::NONCE_BYTES);
-        $ciphertext = substr($blob, self::MAGIC_BYTES + self::NONCE_BYTES);
-        $plaintext  = sodium_crypto_secretbox_open($ciphertext, $nonce, self::key());
+        $offNonce = self::MAGIC_BYTES;
+        $offTag   = $offNonce + self::NONCE_BYTES;
+        $offCt    = $offTag   + self::TAG_BYTES;
+
+        $nonce      = substr($blob, $offNonce, self::NONCE_BYTES);
+        $tag        = substr($blob, $offTag,   self::TAG_BYTES);
+        $ciphertext = substr($blob, $offCt);
+
+        $plaintext = openssl_decrypt(
+            $ciphertext, self::CIPHER, self::key(),
+            OPENSSL_RAW_DATA, $nonce, $tag
+        );
         return $plaintext === false ? null : $plaintext;
     }
 
