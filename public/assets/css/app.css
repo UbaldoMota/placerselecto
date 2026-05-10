@@ -315,6 +315,17 @@ h1, h2, h3, h4, h5, h6 {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
+.ad-card__desc {
+    font-size: .78rem;
+    color: var(--color-text-muted);
+    line-height: 1.35;
+    margin: .1rem 0 .35rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+}
 .ad-card__meta {
     font-size: .78rem;
     color: var(--color-text-muted);

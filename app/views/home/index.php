@@ -316,6 +316,11 @@
                                 <i class="bi bi-info-circle-fill"></i><span>Perfil de muestra</span>
                             </div>
                             <?php endif; ?>
+                            <?php if (!empty($p['descripcion'])):
+                                $desc = trim(preg_replace('/\s+/', ' ', strip_tags($p['descripcion'])));
+                            ?>
+                            <div class="ad-card__desc"><?= e($desc) ?></div>
+                            <?php endif; ?>
                             <div class="ad-card__meta">
                                 <span><i class="bi bi-geo-alt"></i><?= e($p['municipio_nombre'] ?? $p['ciudad'] ?? '—') ?></span>
                                 <span><i class="bi bi-tag"></i><?= e($p['categoria_nombre'] ?? '') ?></span>
