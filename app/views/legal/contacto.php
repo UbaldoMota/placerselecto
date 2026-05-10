@@ -63,18 +63,26 @@
     </div>
 
     <!-- Formulario -->
+    <?php
+    $recaptchaSiteKey = function_exists('setting') ? setting('recaptcha_site_key') : null;
+    $recaptchaActivo  = !empty($recaptchaSiteKey);
+    ?>
     <div class="card">
         <div class="card-body p-4">
             <h2 class="h5 fw-bold mb-3">
                 <i class="bi bi-pencil-square text-primary me-2"></i>Envíanos un mensaje
             </h2>
 
-            <form method="POST" action="<?= APP_URL ?>/contacto" data-validate-form novalidate>
+            <form method="POST" action="<?= APP_URL ?>/contacto" data-validate-form novalidate
+                  id="form-contacto" data-recaptcha-key="<?= e($recaptchaSiteKey ?? '') ?>">
                 <?= $csrfField ?>
 
                 <!-- Honeypot anti-spam -->
                 <input type="text" name="website" tabindex="-1" autocomplete="off"
                        style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden">
+
+                <!-- reCAPTCHA v3 token (invisible) -->
+                <input type="hidden" name="recaptcha_token" id="recaptcha-token" value="">
 
                 <div class="row g-3">
                     <div class="col-12 col-md-6">
@@ -151,9 +159,46 @@
                         <i class="bi bi-send me-2"></i>Enviar mensaje
                     </button>
                 </div>
+
+                <?php if ($recaptchaActivo): ?>
+                <div class="text-muted text-center mt-3" style="font-size:.72rem">
+                    <i class="bi bi-shield-check me-1"></i>
+                    Protegido por reCAPTCHA. Aplican
+                    <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacidad</a>
+                    y <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Términos</a> de Google.
+                </div>
+                <?php endif; ?>
             </form>
         </div>
     </div>
+
+    <?php if ($recaptchaActivo): ?>
+    <script src="https://www.google.com/recaptcha/api.js?render=<?= e($recaptchaSiteKey) ?>"></script>
+    <script>
+    (function () {
+        var form = document.getElementById('form-contacto');
+        var siteKey = form && form.getAttribute('data-recaptcha-key');
+        if (!form || !siteKey || !window.grecaptcha) return;
+
+        form.addEventListener('submit', function (e) {
+            // Si ya tiene token, dejamos que envíe (segundo intento)
+            var hidden = document.getElementById('recaptcha-token');
+            if (hidden && hidden.value) return;
+
+            e.preventDefault();
+            grecaptcha.ready(function () {
+                grecaptcha.execute(siteKey, { action: 'contact' }).then(function (token) {
+                    if (hidden) hidden.value = token;
+                    form.submit();
+                }).catch(function () {
+                    // Si falla, igual dejamos enviar — server-side decide
+                    form.submit();
+                });
+            });
+        });
+    })();
+    </script>
+    <?php endif; ?>
 
     <!-- Email directo y datos -->
     <div class="card mt-3">
