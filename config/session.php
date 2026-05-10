@@ -21,8 +21,25 @@ class SessionManager
         $isLong   = !empty($_COOKIE['remember_me']);
         $lifetime = $isLong ? SESSION_LIFETIME_LONG : SESSION_LIFETIME;
 
+        // Storage propio fuera del save_path global de PHP. Crítico en shared
+        // hosting porque el GC global borra archivos de sesion mas viejos que el
+        // session.gc_maxlifetime del SISTEMA (a veces 1440s/24min), ignorando
+        // nuestro ini_set. Con un save_path propio, solo el GC de procesos PHP
+        // que corren bajo NUESTRA cuenta toca estos archivos.
+        if (defined('ROOT_PATH')) {
+            $sessionDir = ROOT_PATH . '/sessions';
+            if (!is_dir($sessionDir)) @mkdir($sessionDir, 0700, true);
+            if (is_dir($sessionDir) && is_writable($sessionDir)) {
+                @ini_set('session.save_path', $sessionDir);
+            }
+        }
+
         // Permitir que PHP conserve la sesión server-side hasta el max
         @ini_set('session.gc_maxlifetime', (string) SESSION_LIFETIME_LONG);
+        // Bajar la probabilidad de GC en CADA request — el GC corre 1 de cada
+        // 1000 requests aprox. (gc_probability/gc_divisor = 1/1000).
+        @ini_set('session.gc_probability', '1');
+        @ini_set('session.gc_divisor',     '1000');
 
         // Configurar cookies de sesión de forma segura
         session_set_cookie_params([
@@ -74,6 +91,11 @@ class SessionManager
                 'httponly' => SESSION_HTTPONLY,
                 'samesite' => SESSION_SAMESITE,
             ]);
+            // Reiniciar el reloj de expiración interno: el chequeo de init()
+            // usa _created vs lifetime efectivo. Al promover, queremos los 30
+            // días completos desde este momento, no desde la creación inicial.
+            $_SESSION['_created']    = time();
+            $_SESSION['_long_term']  = true;
         }
     }
 

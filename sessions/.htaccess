@@ -1,0 +1,5 @@
+# Sesiones PHP — solo lectura/escritura del proceso PHP, jamás accesible por web.
+<RequireAll>
+    Require all denied
+</RequireAll>
+Options -Indexes
