@@ -8,9 +8,11 @@
  * En producción, va en `config/env.production.php` (también gitignored).
  */
 
-// Detectar entorno por hostname
+// Hostname solo para escoger qué env file cargar (no determina APP_ENV final).
+// APP_ENV se fija por el contenido del env file para evitar header forging
+// (Host: localhost en producción activaba isDevMode → simulateComplete).
 $host = $_SERVER['HTTP_HOST'] ?? 'cli';
-$isLocal = (
+$isLocalGuess = (
     $host === 'localhost'
     || str_starts_with($host, 'localhost:')
     || str_starts_with($host, '127.0.0.1')
@@ -18,20 +20,27 @@ $isLocal = (
     || str_ends_with($host, '.test')
 );
 
-define('APP_ENV', $isLocal ? 'development' : 'production');
-define('APP_DEBUG', APP_ENV === 'development');
-
-// Cargar credenciales del entorno (no se versionan en git)
-$envFile = __DIR__ . '/env.' . APP_ENV . '.php';
+$envGuess = $isLocalGuess ? 'development' : 'production';
+$envFile  = __DIR__ . '/env.' . $envGuess . '.php';
 if (!file_exists($envFile)) {
-    // Fallback: si no existe el env, usar el opuesto (útil al desplegar la primera vez)
-    $envFile = __DIR__ . '/env.' . (APP_ENV === 'production' ? 'development' : 'production') . '.php';
+    $envFile = __DIR__ . '/env.' . ($envGuess === 'production' ? 'development' : 'production') . '.php';
 }
 if (file_exists($envFile)) {
     $env = require $envFile;
 } else {
-    die('Falta config/env.' . APP_ENV . '.php — copia env.example.php y rellénalo.');
+    die('Falta config/env.' . $envGuess . '.php — copia env.example.php y rellénalo.');
 }
+
+// APP_ENV se determina por el archivo de entorno (clave 'app_env'),
+// NO por HTTP_HOST. Header forging no puede activar el modo desarrollo.
+$envFromFile = $env['app_env'] ?? null;
+if ($envFromFile === 'development' || $envFromFile === 'production') {
+    define('APP_ENV', $envFromFile);
+} else {
+    define('APP_ENV', $isLocalGuess ? 'development' : 'production');
+}
+define('APP_DEBUG', APP_ENV === 'development');
+$isLocal = APP_ENV === 'development';
 
 // Constantes públicas (iguales en ambos entornos)
 define('APP_NAME', 'PlacerSelecto');
