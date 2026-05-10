@@ -5,7 +5,7 @@
 ?>
 
 <?php if (function_exists('promoLanzamientoVigente') && promoLanzamientoVigente()): ?>
-<!-- BANNER FLOTANTE PROMO + COMUNIDAD (sticky top, gradient animado) -->
+<!-- BANNER FLOTANTE PROMO (sticky top, compacto en mobile, cerrable) -->
 <style>
     .promo-banner-2026 {
         position: sticky;
@@ -14,20 +14,15 @@
         background:
             radial-gradient(circle at 15% 50%, rgba(255,255,255,.10) 0%, transparent 35%),
             linear-gradient(115deg,
-                #06B6D4 0%,
-                #3B82F6 22%,
-                #6366F1 42%,
-                #A855F7 62%,
-                #EC4899 82%,
-                #FF2D75 100%);
+                #06B6D4 0%, #3B82F6 22%, #6366F1 42%,
+                #A855F7 62%, #EC4899 82%, #FF2D75 100%);
         background-size: 240% 240%;
         animation: promoGradient 14s ease infinite;
         color: #FFFFFF;
-        padding: .7rem 1rem .55rem;
-        font-size: .87rem;
+        padding: .65rem 1rem .55rem;
+        font-size: .85rem;
         font-weight: 500;
-        letter-spacing: .01em;
-        box-shadow: 0 4px 18px rgba(168,85,247,.35), 0 1px 0 rgba(255,255,255,.15) inset;
+        box-shadow: 0 3px 12px rgba(168,85,247,.30);
         border-bottom: 1px solid rgba(255,255,255,.18);
         overflow: hidden;
     }
@@ -35,115 +30,101 @@
         0%, 100% { background-position: 0% 50%; }
         50%      { background-position: 100% 50%; }
     }
-    .promo-banner-2026::before {
-        content: '';
-        position: absolute;
-        top: 0; left: -100%;
-        width: 60%; height: 100%;
-        background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,.18) 50%, transparent 100%);
-        animation: promoShine 6s ease-in-out infinite;
-        pointer-events: none;
-    }
-    @keyframes promoShine {
-        0%   { left: -100%; }
-        50%  { left: 120%; }
-        100% { left: 120%; }
-    }
-    .promo-banner-2026 .promo-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: .25rem;
-        background: rgba(255,255,255,.22);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        padding: .18rem .55rem;
-        border-radius: 14px;
-        font-size: .65rem;
-        font-weight: 800;
-        letter-spacing: .12em;
-        text-transform: uppercase;
-        border: 1px solid rgba(255,255,255,.45);
-        box-shadow: 0 2px 8px rgba(0,0,0,.12);
-    }
-    .promo-banner-2026 .promo-emoji {
-        display: inline-block;
-        font-size: 1.2em;
-        line-height: 1;
-        animation: promoBounce 2.4s ease-in-out infinite;
-        transform-origin: center bottom;
-    }
-    @keyframes promoBounce {
-        0%, 100%  { transform: scale(1) rotate(0deg); }
-        20%       { transform: scale(1.15) rotate(-10deg); }
-        40%       { transform: scale(1.05) rotate(8deg); }
-        60%       { transform: scale(1.12) rotate(-5deg); }
-    }
-    .promo-banner-2026 .promo-highlight {
-        color: #FFF59D;
-        font-weight: 900;
-        text-shadow: 0 1px 8px rgba(0,0,0,.20);
-    }
     .promo-banner-2026 .promo-cta {
         background: linear-gradient(135deg, #FFFFFF 0%, #FFE0EC 100%);
         color: #C2185B;
-        padding: .3rem .9rem;
-        border-radius: 18px;
-        font-size: .82rem;
-        font-weight: 900;
+        padding: .25rem .7rem;
+        border-radius: 14px;
+        font-size: .78rem;
+        font-weight: 800;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: .25rem;
-        box-shadow: 0 4px 14px rgba(255,45,117,.45), 0 0 0 1px rgba(255,255,255,.6) inset;
-        transition: transform .2s ease, box-shadow .2s ease;
+        gap: .2rem;
+        box-shadow: 0 3px 10px rgba(255,45,117,.40);
         white-space: nowrap;
     }
     .promo-banner-2026 .promo-cta:hover {
-        transform: translateY(-1px) scale(1.04);
-        box-shadow: 0 6px 22px rgba(255,45,117,.65), 0 0 0 2px #FFF inset;
         color: #C2185B;
+        transform: translateY(-1px);
+    }
+    .promo-banner-2026 .promo-highlight {
+        color: #FFF59D;
+        font-weight: 800;
     }
     .promo-banner-2026 .promo-sub {
-        font-size: .75rem;
-        opacity: .9;
+        font-size: .72rem;
+        opacity: .85;
         font-weight: 400;
     }
-    @media (max-width: 575px) {
-        .promo-banner-2026 { font-size: .8rem; padding: .55rem .75rem .5rem; }
-        .promo-banner-2026 .promo-tag { font-size: .6rem; padding: .12rem .4rem; }
+    .promo-close {
+        position: absolute;
+        top: 4px;
+        right: 6px;
+        background: rgba(255,255,255,.25);
+        border: 0;
+        color: #fff;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        font-size: .85rem;
+        line-height: 1;
+        cursor: pointer;
+        padding: 0;
+    }
+    .promo-close:hover { background: rgba(255,255,255,.4); }
+    /* MOBILE: super compacto — solo 1-2 lineas, sin sub, fonts pequeños */
+    @media (max-width: 767.98px) {
+        .promo-banner-2026 {
+            padding: .45rem 2.2rem .45rem .75rem; /* margin derecho para botón cerrar */
+            font-size: .76rem;
+            line-height: 1.3;
+        }
+        .promo-banner-2026 .promo-cta {
+            padding: .18rem .55rem;
+            font-size: .7rem;
+        }
+        .promo-banner-2026 .promo-sub-mobile-hide {
+            display: none;
+        }
     }
 </style>
 
-<div class="promo-banner-2026">
-    <div class="container position-relative" style="max-width:1100px">
-
-        <!-- Linea 1: tag + comunidad + promo + CTA -->
-        <div class="d-flex flex-wrap align-items-center justify-content-center gap-2" style="row-gap:.45rem">
-            <span class="promo-tag"><span class="promo-emoji" style="animation:none">✨</span> 2026 · Nuevo</span>
-            <span style="font-weight:800">
-                <i class="bi bi-people-fill me-1"></i>Comunidad en crecimiento.
-            </span>
-            <span class="d-none d-md-inline" style="opacity:.55">·</span>
+<div class="promo-banner-2026" id="promoBanner">
+    <button type="button" class="promo-close" aria-label="Cerrar"
+            onclick="document.getElementById('promoBanner').style.display='none';try{sessionStorage.setItem('promoCerrado','1');}catch(e){}">
+        ×
+    </button>
+    <div class="container" style="max-width:1100px">
+        <div class="d-flex flex-wrap align-items-center justify-content-center gap-2" style="row-gap:.3rem">
             <span>
-                <span class="promo-emoji" aria-hidden="true">🎁</span>
-                ¿Ofreces servicios? Inscríbete — las primeras 50 reciben
-                <span class="promo-highlight"><?= number_format((int)PROMO_LANZAMIENTO_TOKENS) ?> tokens GRATIS</span>.
+                🎁 <strong>Las primeras 50</strong> reciben
+                <span class="promo-highlight"><?= number_format((int)PROMO_LANZAMIENTO_TOKENS) ?> tokens GRATIS</span>
             </span>
             <?php if (empty($currentUser)): ?>
             <a href="<?= APP_URL ?>/registro" class="promo-cta">
-                Regístrate <i class="bi bi-arrow-right"></i>
+                Inscríbete <i class="bi bi-arrow-right"></i>
             </a>
             <?php endif; ?>
         </div>
-
-        <!-- Linea 2: aviso para visitantes -->
-        <div class="text-center mt-1 promo-sub">
+        <div class="text-center mt-1 promo-sub promo-sub-mobile-hide">
             <i class="bi bi-eye-fill me-1"></i>
-            ¿Eres visitante? Ten un poco de paciencia — sumamos perfiles a diario.
+            ¿Eres visitante? Ten paciencia — sumamos perfiles a diario.
         </div>
-
     </div>
 </div>
+
+<script>
+// Recordar que el usuario cerró el banner durante esta sesión del navegador
+(function(){
+    try {
+        if (sessionStorage.getItem('promoCerrado') === '1') {
+            var b = document.getElementById('promoBanner');
+            if (b) b.style.display = 'none';
+        }
+    } catch(e) {}
+})();
+</script>
 <?php endif; ?>
 
 <!-- HERO -->
