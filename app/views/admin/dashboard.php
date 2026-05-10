@@ -125,6 +125,133 @@
         <?php endforeach; ?>
     </div>
 
+    <?php
+    $sv     = $statsVistas ?? ['hoy'=>0,'ayer'=>0,'semana'=>0,'mes'=>0,'clicks_wa_semana'=>0];
+    $top    = $topPerfilesVistas ?? [];
+    $diario = $vistasDiarias ?? [];
+
+    // Construir mapa fecha => visitas para los últimos 14 días con ceros
+    $mapa = [];
+    foreach ($diario as $d) $mapa[$d['fecha']] = (int)$d['visitas'];
+    $serie = [];
+    for ($i = 13; $i >= 0; $i--) {
+        $f = date('Y-m-d', strtotime("-{$i} day"));
+        $serie[] = ['fecha' => $f, 'visitas' => $mapa[$f] ?? 0];
+    }
+    $maxV = max(array_column($serie, 'visitas'));
+    if ($maxV < 1) $maxV = 1;
+
+    $deltaAyer = $sv['ayer'] > 0
+        ? round((($sv['hoy'] - $sv['ayer']) / $sv['ayer']) * 100)
+        : ($sv['hoy'] > 0 ? 100 : 0);
+    ?>
+    <!-- Widget de visitas a perfiles -->
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-xl-7">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <span class="fw-semibold">
+                        <i class="bi bi-eye-fill text-primary me-2"></i>Visitas a perfiles
+                    </span>
+                    <span class="text-muted" style="font-size:.78rem">Últimos 14 días</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-6 col-md-3">
+                            <div class="text-muted" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.04em">Hoy</div>
+                            <div class="fw-bold" style="font-size:1.7rem;line-height:1.1;color:var(--color-primary)">
+                                <?= number_format($sv['hoy']) ?>
+                            </div>
+                            <?php if ($sv['ayer'] > 0 || $sv['hoy'] > 0): ?>
+                            <div style="font-size:.72rem;color:<?= $deltaAyer >= 0 ? '#10B981' : '#EF4444' ?>">
+                                <i class="bi bi-arrow-<?= $deltaAyer >= 0 ? 'up' : 'down' ?>-short"></i><?= abs($deltaAyer) ?>% vs ayer
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="text-muted" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.04em">Ayer</div>
+                            <div class="fw-bold" style="font-size:1.7rem;line-height:1.1"><?= number_format($sv['ayer']) ?></div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="text-muted" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.04em">7 días</div>
+                            <div class="fw-bold" style="font-size:1.7rem;line-height:1.1"><?= number_format($sv['semana']) ?></div>
+                            <?php if ($sv['clicks_wa_semana'] > 0): ?>
+                            <div class="text-muted" style="font-size:.72rem">
+                                <i class="bi bi-whatsapp text-success"></i> <?= number_format($sv['clicks_wa_semana']) ?> clicks WA
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="text-muted" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.04em">30 días</div>
+                            <div class="fw-bold" style="font-size:1.7rem;line-height:1.1"><?= number_format($sv['mes']) ?></div>
+                        </div>
+                    </div>
+
+                    <!-- Mini barras 14 días -->
+                    <div class="d-flex align-items-end gap-1" style="height:64px">
+                        <?php foreach ($serie as $idx => $s):
+                            $h    = (int)round(($s['visitas'] / $maxV) * 100);
+                            $isHoy= ($s['fecha'] === date('Y-m-d'));
+                            $bg   = $isHoy ? 'var(--color-primary)' : 'rgba(255,45,117,.35)';
+                        ?>
+                        <div class="flex-fill text-center" title="<?= e(date('d/m', strtotime($s['fecha']))) ?>: <?= (int)$s['visitas'] ?> vistas">
+                            <div style="background:<?= $bg ?>;height:<?= max(2, $h) ?>%;border-radius:3px 3px 0 0;min-height:2px"></div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted mt-1" style="font-size:.65rem">
+                        <span><?= e(date('d/m', strtotime('-13 day'))) ?></span>
+                        <span><?= e(date('d/m')) ?></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-5">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <span class="fw-semibold">
+                        <i class="bi bi-trophy-fill text-warning me-2"></i>Top 5 perfiles más vistos
+                    </span>
+                    <span class="text-muted" style="font-size:.78rem">7 días</span>
+                </div>
+                <div class="card-body p-0">
+                    <?php if (empty($top)): ?>
+                        <div class="text-center text-muted py-5" style="font-size:.88rem">
+                            <i class="bi bi-inbox" style="font-size:2rem;opacity:.4"></i>
+                            <div class="mt-2">Aún no hay vistas registradas en los últimos 7 días.</div>
+                        </div>
+                    <?php else: ?>
+                        <ul class="list-unstyled mb-0">
+                            <?php foreach ($top as $i => $p): ?>
+                            <li class="d-flex align-items-center gap-3 px-3 py-2 <?= $i < count($top)-1 ? 'border-bottom' : '' ?>" style="border-color:var(--color-border) !important">
+                                <div class="fw-bold text-muted" style="width:18px;font-size:.85rem">#<?= $i+1 ?></div>
+                                <a href="<?= APP_URL ?>/admin/perfil/<?= (int)$p['id'] ?>" class="d-flex align-items-center gap-2 flex-fill text-decoration-none">
+                                    <div style="width:36px;height:36px;border-radius:50%;background:rgba(255,45,117,.08);display:flex;align-items:center;justify-content:center;color:var(--color-primary);font-size:.85rem;font-weight:700;flex-shrink:0">
+                                        <?= strtoupper(mb_substr($p['nombre'], 0, 1)) ?>
+                                    </div>
+                                    <div style="min-width:0;flex:1">
+                                        <div class="fw-semibold text-truncate" style="font-size:.88rem;color:var(--color-text)"><?= e($p['nombre']) ?></div>
+                                        <?php if ((int)$p['total_clicks'] > 0): ?>
+                                        <div class="text-muted" style="font-size:.7rem">
+                                            <i class="bi bi-whatsapp text-success"></i> <?= (int)$p['total_clicks'] ?> click<?= (int)$p['total_clicks'] === 1 ? '' : 's' ?>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </a>
+                                <div class="text-end">
+                                    <div class="fw-bold text-primary" style="font-size:1.05rem;line-height:1"><?= number_format((int)$p['total_vistas']) ?></div>
+                                    <div class="text-muted" style="font-size:.66rem">vistas</div>
+                                </div>
+                            </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-4">
 
         <!-- Usuarios recientes -->

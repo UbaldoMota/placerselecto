@@ -106,6 +106,54 @@ class AdminController extends Controller
         $stmtIngresos->execute();
         $ingresosMes = $stmtIngresos->fetchAll();
 
+        // Stats de visitas — agregadas en `perfil_stats` (poblado por
+        // PerfilModel::incrementarVistas y registrarClickWhatsapp).
+        $stmtVistas = $db->prepare(
+            "SELECT
+                COALESCE(SUM(CASE WHEN fecha = CURDATE() THEN visitas END), 0)                                  AS hoy,
+                COALESCE(SUM(CASE WHEN fecha = CURDATE() - INTERVAL 1 DAY THEN visitas END), 0)                  AS ayer,
+                COALESCE(SUM(CASE WHEN fecha >= CURDATE() - INTERVAL 7 DAY THEN visitas END), 0)                 AS semana,
+                COALESCE(SUM(CASE WHEN fecha >= CURDATE() - INTERVAL 30 DAY THEN visitas END), 0)                AS mes,
+                COALESCE(SUM(CASE WHEN fecha >= CURDATE() - INTERVAL 7 DAY THEN clicks_whatsapp END), 0)         AS clicks_wa_semana
+             FROM perfil_stats"
+        );
+        $stmtVistas->execute();
+        $stats = $stmtVistas->fetch(PDO::FETCH_ASSOC) ?: [];
+        $statsVistas = [
+            'hoy'              => (int)($stats['hoy']              ?? 0),
+            'ayer'             => (int)($stats['ayer']             ?? 0),
+            'semana'           => (int)($stats['semana']           ?? 0),
+            'mes'              => (int)($stats['mes']              ?? 0),
+            'clicks_wa_semana' => (int)($stats['clicks_wa_semana'] ?? 0),
+        ];
+
+        // Top 5 perfiles más vistos en últimos 7 días
+        $stmtTop = $db->prepare(
+            "SELECT p.id, p.nombre, p.imagen_token,
+                    SUM(s.visitas) AS total_vistas,
+                    SUM(s.clicks_whatsapp) AS total_clicks
+             FROM perfil_stats s
+             INNER JOIN perfiles p ON p.id = s.id_perfil
+             WHERE s.fecha >= CURDATE() - INTERVAL 7 DAY
+             GROUP BY p.id, p.nombre, p.imagen_token
+             HAVING total_vistas > 0
+             ORDER BY total_vistas DESC
+             LIMIT 5"
+        );
+        $stmtTop->execute();
+        $topPerfilesVistas = $stmtTop->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+        // Vistas día a día últimos 14 días (para gráfica simple)
+        $stmtDiario = $db->prepare(
+            "SELECT fecha, SUM(visitas) AS visitas
+             FROM perfil_stats
+             WHERE fecha >= CURDATE() - INTERVAL 13 DAY
+             GROUP BY fecha
+             ORDER BY fecha"
+        );
+        $stmtDiario->execute();
+        $vistasDiarias = $stmtDiario->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
         // Cuentas con eliminación pendiente cuyo grace period ya venció
         $cuentasPorEliminar = (new CuentaEliminacionService())->contarPendientes();
 
@@ -131,6 +179,9 @@ class AdminController extends Controller
             'ingresosMes'         => $ingresosMes,
             'cuentasPorEliminar'  => $cuentasPorEliminar,
             'cuentasEnGrace'      => $cuentasEnGrace,
+            'statsVistas'         => $statsVistas,
+            'topPerfilesVistas'   => $topPerfilesVistas,
+            'vistasDiarias'       => $vistasDiarias,
         ]);
     }
 
