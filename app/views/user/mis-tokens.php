@@ -20,8 +20,7 @@
             </a>
             <?php if (!empty($primerPublicadoId) && (int)$saldo > 0): ?>
             <a href="<?= APP_URL ?>/perfil/<?= (int)$primerPublicadoId ?>/destacar"
-               class="btn btn-sm"
-               style="background:linear-gradient(135deg,var(--color-primary) 0%,#FF6BA0 100%);color:#fff;font-weight:700;border:0;box-shadow:0 3px 10px rgba(255,45,117,.30)">
+               class="btn btn-sm btn-outline-primary">
                 <i class="bi bi-stars me-1"></i>Destacar perfil
             </a>
             <?php endif; ?>
