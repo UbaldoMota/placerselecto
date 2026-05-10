@@ -50,7 +50,18 @@ class LegalController extends Controller
 
     public function contact(array $params = []): void
     {
-        $this->render('legal/contacto', ['pageTitle' => 'Contacto']);
+        // Generar math captcha — antibot 100% local, sin servicios externos.
+        $a = random_int(1, 9);
+        $b = random_int(1, 9);
+        SessionManager::set('contact_captcha_sum',     $a + $b);
+        SessionManager::set('contact_captcha_expires', time() + 600); // 10 min
+        SessionManager::set('contact_form_loaded_at',  time());
+
+        $this->render('legal/contacto', [
+            'pageTitle' => 'Contacto',
+            'captcha_a' => $a,
+            'captcha_b' => $b,
+        ]);
     }
 
     public function sendContact(array $params = []): void
@@ -69,17 +80,32 @@ class LegalController extends Controller
             $this->redirect('/contacto');
         }
 
-        // reCAPTCHA v3: solo se valida si el admin configuro las claves.
-        // Si score < 0.5 o falla, rechazamos como bot.
-        $siteKey   = function_exists('setting') ? setting('recaptcha_site_key')   : null;
-        $secretKey = function_exists('setting') ? setting('recaptcha_secret_key') : null;
-        if ($siteKey && $secretKey) {
-            $token = (string)($_POST['recaptcha_token'] ?? '');
-            if (!$this->verificarRecaptcha($token, $secretKey, 'contact', $ip)) {
-                SessionManager::flash('error', 'No pudimos verificar que eres humano. Recarga la página e intenta de nuevo.');
-                $this->redirect('/contacto');
-            }
+        // Time-trap: si el form se envió en menos de 3 segundos, casi seguro es bot.
+        $loadedAt = (int)(SessionManager::get('contact_form_loaded_at') ?: 0);
+        if ($loadedAt === 0 || (time() - $loadedAt) < 3) {
+            // Respuesta exitosa simulada para no dar pistas al bot
+            SessionManager::flash('success', 'Mensaje enviado. Te responderemos a la brevedad.');
+            $this->redirect('/contacto');
         }
+
+        // Math captcha
+        $expectedSum = SessionManager::get('contact_captcha_sum');
+        $expiresAt   = (int)(SessionManager::get('contact_captcha_expires') ?: 0);
+        $userAnswer  = isset($_POST['captcha']) ? (int)$_POST['captcha'] : -1;
+
+        if (!$expectedSum || time() > $expiresAt) {
+            SessionManager::flash('error', 'La verificación expiró. Recarga la página e intenta de nuevo.');
+            $this->redirect('/contacto');
+        }
+        if ($userAnswer !== (int)$expectedSum) {
+            SessionManager::flash('error', 'La respuesta de la verificación no es correcta. Recarga la página e intenta de nuevo.');
+            $this->redirect('/contacto');
+        }
+
+        // Limpiar captcha — single-use
+        SessionManager::delete('contact_captcha_sum');
+        SessionManager::delete('contact_captcha_expires');
+        SessionManager::delete('contact_form_loaded_at');
 
         $nombre  = Security::sanitizeString($_POST['nombre']  ?? '');
         $email   = Security::sanitizeEmail($_POST['email']    ?? '');
@@ -134,54 +160,4 @@ class LegalController extends Controller
         $this->redirect('/contacto');
     }
 
-    /**
-     * Verifica un token de reCAPTCHA v3 contra la API de Google.
-     * Devuelve true solo si la respuesta es valida, action coincide y score >= 0.5.
-     */
-    private function verificarRecaptcha(string $token, string $secret, string $expectedAction, string $remoteIp = ''): bool
-    {
-        if ($token === '') return false;
-
-        $ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
-        if (!$ch) return false;
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => http_build_query([
-                'secret'   => $secret,
-                'response' => $token,
-                'remoteip' => $remoteIp,
-            ]),
-            CURLOPT_TIMEOUT        => 6,
-            CURLOPT_CONNECTTIMEOUT => 4,
-        ]);
-        $resp = curl_exec($ch);
-        $err  = curl_error($ch);
-        curl_close($ch);
-
-        if (!$resp) {
-            error_log('[recaptcha] siteverify fallo curl: ' . $err);
-            return false;
-        }
-
-        $data = json_decode($resp, true);
-        if (!is_array($data) || empty($data['success'])) {
-            error_log('[recaptcha] siteverify respuesta no exitosa: ' . substr($resp, 0, 200));
-            return false;
-        }
-
-        // Verificar que la accion coincida (anti reuso de token de otro form)
-        if ($expectedAction !== '' && (($data['action'] ?? '') !== $expectedAction)) {
-            error_log('[recaptcha] action mismatch: esperaba ' . $expectedAction . ', recibi ' . ($data['action'] ?? 'null'));
-            return false;
-        }
-
-        $score = (float)($data['score'] ?? 0);
-        if ($score < 0.5) {
-            error_log('[recaptcha] score bajo: ' . $score . ' ip=' . $remoteIp);
-            return false;
-        }
-
-        return true;
-    }
 }
