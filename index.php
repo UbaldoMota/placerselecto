@@ -40,6 +40,7 @@ spl_autoload_register(function (string $class): void {
         'Security'       => APP_PATH    . '/Security.php',
         'Validator'      => APP_PATH    . '/Validator.php',
         'Upload'         => APP_PATH    . '/Upload.php',
+        'Crypto'         => APP_PATH    . '/Crypto.php',
         'Mailer'         => APP_PATH    . '/Mailer.php',
         'SmsClient'      => APP_PATH    . '/SmsClient.php',
         'TruevoClient'   => APP_PATH    . '/TruevoClient.php',

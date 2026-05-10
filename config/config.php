@@ -86,6 +86,12 @@ define('PAYCASH_SECRET',          $env['paycash_secret']   ?? '');
 // documentos por aprobar, perfiles pendientes). Vacio = no enviar.
 define('ADMIN_NOTIFY_EMAIL', $env['admin_notify_email'] ?? '');
 
+// Clave de cifrado at-rest para documentos de identidad (INE/pasaporte).
+// 32 bytes en base64. Se guarda en env.*.php (gitignored). Si se rota, los
+// documentos viejos quedan inaccesibles — soportar key rotation requiere
+// migrar archivos antes de cambiar.
+define('DOC_ENCRYPTION_KEY', $env['doc_encryption_key'] ?? '');
+
 // Rutas de sistema
 define('ROOT_PATH',    dirname(__DIR__));
 define('APP_PATH',     ROOT_PATH . '/app');

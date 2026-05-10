@@ -368,6 +368,23 @@ class UserController extends Controller
 
         chmod($destPath, 0644);
 
+        // Cifrar at-rest. Si la clave no esta configurada o falla, abortamos
+        // y borramos el archivo plaintext — preferimos no aceptar el documento
+        // antes que dejarlo sin cifrar.
+        try {
+            if (!Crypto::encryptFile($destPath)) {
+                @unlink($destPath);
+                error_log('[subirDocumento] Crypto::encryptFile retorno false para u' . $idUser);
+                SessionManager::flash('error', 'No se pudo procesar el documento. Intenta de nuevo.');
+                $this->redirect('/mi-cuenta/documento');
+            }
+        } catch (\Throwable $e) {
+            @unlink($destPath);
+            error_log('[subirDocumento] Crypto excepcion u' . $idUser . ': ' . $e->getMessage());
+            SessionManager::flash('error', 'No se pudo procesar el documento. Intenta de nuevo.');
+            $this->redirect('/mi-cuenta/documento');
+        }
+
         // Al resubir, resetear verificación y poner en revisión
         $this->usuarios->update($idUser, [
             'documento_identidad'      => $filename,

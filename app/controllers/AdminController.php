@@ -1033,6 +1033,14 @@ class AdminController extends Controller
             exit;
         }
 
+        // Descifrar (si está cifrado) o servir tal cual (legacy compat).
+        $plaintext = Crypto::decryptFile($path);
+        if ($plaintext === null) {
+            error_log('[serveUserDocumento] Falla descifrado u' . $id . ' file=' . $filename);
+            http_response_code(500);
+            exit;
+        }
+
         $ext  = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         $mime = match($ext) {
             'jpg', 'jpeg' => 'image/jpeg',
@@ -1042,12 +1050,12 @@ class AdminController extends Controller
         };
 
         header('Content-Type: '    . $mime);
-        header('Content-Length: '  . filesize($path));
+        header('Content-Length: '  . strlen($plaintext));
         header('Content-Disposition: inline; filename="doc_u' . $id . '.' . $ext . '"');
         header('Cache-Control: private, no-store');
         header('X-Content-Type-Options: nosniff');
 
-        readfile($path);
+        echo $plaintext;
         exit;
     }
 
