@@ -30,7 +30,7 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
                 <i class="bi bi-stars text-primary me-2"></i>Destacar perfil
             </h1>
             <p class="text-muted mb-0" style="font-size:.9rem">
-                Perfil seleccionado: <strong><?= e($perfil['nombre']) ?></strong>
+                Perfil seleccionado: <strong id="perfil-actual-nombre"><?= e($perfil['nombre']) ?></strong>
             </p>
         </div>
         <div class="d-flex gap-2 align-items-center">
@@ -127,8 +127,74 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
     <?php if (count($otrosPerfiles ?? []) > 1): ?>
     <!-- ============================================================
          SELECTOR DE PERFIL (cards visuales con foto)
-         Aparece antes del paso 1 cuando hay 2+ perfiles publicados.
+         Cambia perfil SIN recargar la pagina (history.replaceState).
          ============================================================ -->
+    <style>
+        .ps-selector-card {
+            display: block;
+            text-decoration: none;
+            position: relative;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            transition: transform .15s, box-shadow .15s, border-color .15s, background .15s;
+            cursor: pointer;
+        }
+        .ps-selector-card:hover {
+            border-color: var(--color-primary-l);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(0,0,0,.08);
+        }
+        .ps-selector-card.selected {
+            border-color: var(--color-primary);
+            background: rgba(255,45,117,.06);
+            box-shadow: 0 4px 14px rgba(255,45,117,.22);
+            transform: none;
+        }
+        .ps-selector-card .ps-selector-check {
+            position: absolute;
+            top: 6px; right: 6px;
+            background: var(--color-primary);
+            color: #fff;
+            border-radius: 50%;
+            width: 24px; height: 24px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            box-shadow: 0 2px 6px rgba(255,45,117,.4);
+            font-size: .85rem;
+        }
+        .ps-selector-card.selected .ps-selector-check {
+            display: flex;
+        }
+        .ps-selector-photo {
+            aspect-ratio: 1/1;
+            overflow: hidden;
+            background: var(--color-bg-alt);
+            position: relative;
+        }
+        .ps-selector-photo img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .ps-selector-info {
+            padding: .55rem .65rem;
+        }
+        .ps-selector-name {
+            font-weight: 700;
+            font-size: .88rem;
+            color: var(--color-text);
+            line-height: 1.2;
+        }
+        .ps-selector-cat {
+            color: var(--color-text-muted);
+            font-size: .7rem;
+            margin-top: 2px;
+        }
+    </style>
+
     <div class="card mb-4" style="border:2px solid var(--color-primary);box-shadow:0 4px 18px rgba(255,45,117,.12)">
         <div class="card-body p-3 p-md-4">
             <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
@@ -142,7 +208,7 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
                 </div>
             </div>
 
-            <div class="row g-2">
+            <div class="row g-2" id="ps-selector-row">
                 <?php foreach ($otrosPerfiles as $op):
                     $esActual = (int)$op['id'] === (int)$perfil['id'];
                     $imgUrl = !empty($op['imagen_token'])
@@ -151,27 +217,15 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
                 ?>
                 <div class="col-6 col-md-4">
                     <a href="<?= APP_URL ?>/perfil/<?= (int)$op['id'] ?>/destacar"
-                       class="d-block text-decoration-none position-relative"
-                       style="border:2px solid <?= $esActual ? 'var(--color-primary)' : 'var(--color-border)' ?>;
-                              border-radius:12px;
-                              overflow:hidden;
-                              background:<?= $esActual ? 'rgba(255,45,117,.06)' : '#fff' ?>;
-                              transition:transform .15s, box-shadow .15s, border-color .15s;
-                              <?= $esActual ? 'box-shadow:0 4px 14px rgba(255,45,117,.22)' : '' ?>"
-                       onmouseover="if(!<?= $esActual ? 'true' : 'false' ?>){this.style.borderColor='var(--color-primary-l)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 14px rgba(0,0,0,.08)'}"
-                       onmouseout="if(!<?= $esActual ? 'true' : 'false' ?>){this.style.borderColor='var(--color-border)';this.style.transform='';this.style.boxShadow=''}">
-                        <?php if ($esActual): ?>
-                        <span style="position:absolute;top:6px;right:6px;background:var(--color-primary);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;z-index:2;box-shadow:0 2px 6px rgba(255,45,117,.4);font-size:.85rem">
-                            <i class="bi bi-check-lg"></i>
-                        </span>
-                        <?php endif; ?>
+                       class="ps-selector-card<?= $esActual ? ' selected' : '' ?>"
+                       data-perfil-id="<?= (int)$op['id'] ?>"
+                       data-perfil-nombre="<?= e($op['nombre']) ?>">
+                        <span class="ps-selector-check"><i class="bi bi-check-lg"></i></span>
 
-                        <!-- Foto -->
-                        <div style="aspect-ratio:1/1;overflow:hidden;background:var(--color-bg-alt);position:relative">
+                        <div class="ps-selector-photo">
                             <?php if ($imgUrl): ?>
                             <img src="<?= e($imgUrl) ?>"
                                  alt="<?= e($op['nombre']) ?>"
-                                 style="width:100%;height:100%;object-fit:cover"
                                  loading="lazy">
                             <?php else: ?>
                             <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);font-size:2rem">
@@ -180,12 +234,11 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
                             <?php endif; ?>
                         </div>
 
-                        <!-- Info -->
-                        <div style="padding:.55rem .65rem">
-                            <div class="fw-bold" style="font-size:.88rem;color:var(--color-text);line-height:1.2">
+                        <div class="ps-selector-info">
+                            <div class="ps-selector-name">
                                 <?= e($op['nombre']) ?><?php if (!empty($op['edad'])): ?><span class="fw-normal text-muted">, <?= (int)$op['edad'] ?></span><?php endif; ?>
                             </div>
-                            <div class="text-muted" style="font-size:.7rem">
+                            <div class="ps-selector-cat">
                                 <i class="bi bi-tag-fill me-1"></i><?= e($op['categoria_nombre'] ?? '—') ?>
                             </div>
                         </div>
@@ -195,6 +248,44 @@ $horasResAlcance = $tphRes > 0 ? floor($saldo / $tphRes) : 0;
             </div>
         </div>
     </div>
+
+    <script>
+    // Cambio de perfil SIN recargar — preserva scroll y datos llenados en el form.
+    (function () {
+        var cards   = document.querySelectorAll('.ps-selector-card');
+        var form    = document.getElementById('boost-form');
+        var nombre  = document.getElementById('perfil-actual-nombre');
+        if (!cards.length || !form) return;
+
+        cards.forEach(function (card) {
+            card.addEventListener('click', function (e) {
+                if (card.classList.contains('selected')) {
+                    e.preventDefault();
+                    return;
+                }
+                e.preventDefault();
+
+                var newUrl     = card.getAttribute('href');
+                var newNombre  = card.dataset.perfilNombre;
+
+                // 1) Cambia URL en el navegador sin reload (preserva scroll)
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState(null, '', newUrl);
+                }
+
+                // 2) Form action -> nuevo perfil (POST ira al perfil correcto)
+                form.action = newUrl;
+
+                // 3) Texto del header
+                if (nombre) nombre.textContent = newNombre;
+
+                // 4) Marca visual: quita .selected de todas, pone en esta
+                cards.forEach(function (c) { c.classList.remove('selected'); });
+                card.classList.add('selected');
+            });
+        });
+    })();
+    </script>
     <?php endif; ?>
 
     <form method="POST" action="<?= APP_URL ?>/perfil/<?= (int)$perfil['id'] ?>/destacar" id="boost-form">
