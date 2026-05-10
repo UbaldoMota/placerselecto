@@ -165,6 +165,23 @@ class Validator
     }
 
     /**
+     * Número de WhatsApp: entre 10 y 15 dígitos (estándar internacional).
+     * Rechaza números que producirían un wa.me/ inválido. Vacío = OK
+     * (la validación required va aparte).
+     */
+    public function whatsapp(string $field, string $label = 'WhatsApp'): static
+    {
+        $value = (string) $this->getValue($field);
+        if ($value === '') return $this;
+        $digits = preg_replace('/\D/', '', $value);
+        $len    = strlen($digits);
+        if ($len < 10 || $len > 15) {
+            $this->addError($field, "El {$label} debe tener entre 10 y 15 dígitos. Ejemplo: 5512345678 (sin espacios ni guiones).");
+        }
+        return $this;
+    }
+
+    /**
      * No permite caracteres HTML/script (campo de solo texto plano).
      */
     public function noHtml(string $field, string $label = ''): static

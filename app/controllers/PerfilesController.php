@@ -375,13 +375,21 @@ class PerfilesController extends Controller
             'id_estado'    => $idEstado,
             'id_municipio' => $idMunicipio,
             'id_categoria' => $idCategoria,
+            'whatsapp'     => $whatsapp,
+            'telegram'     => $telegram,
         ]);
         $v->required('nombre',      'Nombre')->minLength('nombre', 2)->maxLength('nombre', 120)->noHtml('nombre', 'Nombre')
           ->required('descripcion', 'Descripción')->minLength('descripcion', 10)->maxLength('descripcion', 3000)
           ->custom($idEstado  <= 0, 'id_estado',    'Debes seleccionar un estado.')
           ->custom($idMunicipio <= 0, 'id_municipio', 'Debes seleccionar un municipio.')
           ->required('id_categoria', 'Categoría')
-          ->custom($edad < 18 || $edad > 99, 'edad', 'La edad debe estar entre 18 y 99 años.');
+          ->custom($edad < 18 || $edad > 99, 'edad', 'La edad debe estar entre 18 y 99 años.')
+          ->whatsapp('whatsapp', 'WhatsApp')
+          ->custom(
+              $whatsapp === '' && $telegram === '' && !$tgUsaWa,
+              'whatsapp',
+              'Indica al menos un medio de contacto (WhatsApp o Telegram).'
+          );
 
         if ($v->fails()) {
             SessionManager::set('_old_input', $oldInput);
@@ -758,13 +766,21 @@ class PerfilesController extends Controller
             'id_estado'    => $idEstado,
             'id_municipio' => $idMunicipio,
             'id_categoria' => $idCategoria,
+            'whatsapp'     => $whatsapp,
+            'telegram'     => $telegram,
         ]);
         $v->required('nombre', 'Nombre')->minLength('nombre', 2)->maxLength('nombre', 120)->noHtml('nombre', 'Nombre')
           ->required('descripcion', 'Descripción')->minLength('descripcion', 10)->maxLength('descripcion', 3000)
           ->custom($idEstado <= 0,    'id_estado',    'Debes seleccionar un estado.')
           ->custom($idMunicipio <= 0, 'id_municipio', 'Debes seleccionar un municipio.')
           ->required('id_categoria', 'Categoría')
-          ->custom($edad < 18 || $edad > 99, 'edad', 'La edad debe estar entre 18 y 99 años.');
+          ->custom($edad < 18 || $edad > 99, 'edad', 'La edad debe estar entre 18 y 99 años.')
+          ->whatsapp('whatsapp', 'WhatsApp')
+          ->custom(
+              $whatsapp === '' && $telegram === '' && !$tgUsaWa,
+              'whatsapp',
+              'Indica al menos un medio de contacto (WhatsApp o Telegram).'
+          );
 
         if ($v->fails()) {
             foreach ($v->allErrors() as $err) SessionManager::flash('error', $err);
