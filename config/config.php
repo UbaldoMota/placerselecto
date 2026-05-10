@@ -179,6 +179,12 @@ define('WATERMARK_ENABLED', true);
 define('WATERMARK_TEXT',    'PlacerSelecto.com');
 define('WATERMARK_OPACITY', 75);
 
+// Mostrar el badge "Perfil de muestra" en perfiles con es_demo=1.
+// Se desactiva durante el lanzamiento para que los demos no se vean
+// como tal a usuarias reales. Reactivar a true cuando convenga
+// transparentar que el catálogo arrancó con perfiles de muestra.
+define('MOSTRAR_BADGE_DEMO', false);
+
 date_default_timezone_set('America/Mexico_City');
 
 if (APP_DEBUG) {

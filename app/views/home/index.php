@@ -311,7 +311,7 @@
                                 <span class="text-muted fw-normal">, <?= (int)$p['edad'] ?></span>
                                 <?php endif; ?>
                             </div>
-                            <?php if (!empty($p['es_demo'])): ?>
+                            <?php if (MOSTRAR_BADGE_DEMO && !empty($p['es_demo'])): ?>
                             <div class="ad-card__demo" style="display:inline-flex;align-items:center;gap:.3rem;color:#0DCAF0;font-size:.72rem;font-weight:600;margin:.15rem 0 .25rem">
                                 <i class="bi bi-info-circle-fill"></i><span>Perfil de muestra</span>
                             </div>
