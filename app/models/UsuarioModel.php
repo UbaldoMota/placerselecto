@@ -178,9 +178,11 @@ class UsuarioModel extends Model
      */
     public function generarTokenRecuperacion(int $id): string
     {
+        // El plaintext va al email; en BD guardamos solo sha256 para que un dump
+        // de BD (binlog, SQLi futuro) no permita tomar cuentas con el token tal cual.
         $token = bin2hex(random_bytes(32));
         $this->update($id, [
-            'token_recuperacion'  => $token,
+            'token_recuperacion'  => hash('sha256', $token),
             'token_expiracion'    => date('Y-m-d H:i:s', time() + 3600), // 1 hora
             'fecha_actualizacion' => date('Y-m-d H:i:s'),
         ]);
@@ -197,7 +199,7 @@ class UsuarioModel extends Model
                   AND `token_expiracion` > NOW()
                 LIMIT 1";
 
-        $stmt = $this->raw($sql, [$token]);
+        $stmt = $this->raw($sql, [hash('sha256', $token)]);
         $row  = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ?: null;
     }

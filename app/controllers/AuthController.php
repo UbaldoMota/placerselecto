@@ -102,8 +102,10 @@ class AuthController extends Controller
         }
 
         $db = Database::getInstance()->getConnection();
+        // En BD se guarda sha256 del token (no el plaintext que viajó por email);
+        // hash mismo input para hacer match.
         $stmt = $db->prepare("SELECT id, email, email_verificado FROM usuarios WHERE email_verify_token = ? LIMIT 1");
-        $stmt->execute([$token]);
+        $stmt->execute([hash('sha256', $token)]);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$usuario) {
@@ -147,10 +149,10 @@ class AuthController extends Controller
             $this->redirect('/login');
         }
 
-        // Nuevo token
+        // Nuevo token: plaintext al link, sha256 a BD.
         $token = bin2hex(random_bytes(32));
         $db->prepare("UPDATE usuarios SET email_verify_token = ? WHERE id = ?")
-           ->execute([$token, (int)$usuario['id']]);
+           ->execute([hash('sha256', $token), (int)$usuario['id']]);
 
         $link = APP_URL . '/verificar-email/' . $token;
         $html = Mailer::render('verificar-email-link', [
@@ -208,7 +210,8 @@ class AuthController extends Controller
             $this->redirect('/login');
         }
 
-        // Token único para confirmación de email (64 chars hex)
+        // Token único para confirmación de email (64 chars hex). Plaintext en el link,
+        // sha256 en BD: si la BD se filtra, el atacante no puede confirmar cuentas.
         $emailToken = bin2hex(random_bytes(32));
 
         try {
@@ -220,7 +223,7 @@ class AuthController extends Controller
                 'rol'                => 'comentarista',
                 'ip_registro'        => $ip,
                 'email_verificado'   => 0,
-                'email_verify_token' => $emailToken,
+                'email_verify_token' => hash('sha256', $emailToken),
             ]);
         } catch (\Exception $e) {
             error_log('[AuthController::storeRegistroComentarista] ' . $e->getMessage());
