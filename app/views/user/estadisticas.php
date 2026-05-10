@@ -11,7 +11,8 @@ foreach ($diasGrafico as $d) {
 // Máximos para escalar las barras
 $maxVistasGraf = max(1, ...array_column($diasGrafico, 'visitas'));
 $maxWaGraf     = max(1, ...array_column($diasGrafico, 'clicks_whatsapp'));
-$maxCombinado  = max($maxVistasGraf, $maxWaGraf, 1);
+$maxTgGraf     = max(1, ...array_column($diasGrafico, 'clicks_telegram'));
+$maxCombinado  = max($maxVistasGraf, $maxWaGraf, $maxTgGraf, 1);
 ?>
 
 <div class="container py-4" style="max-width:960px">
@@ -37,7 +38,7 @@ $maxCombinado  = max($maxVistasGraf, $maxWaGraf, 1);
 
     <!-- TARJETAS RESUMEN -->
     <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4 col-xl">
             <div class="stat-card">
                 <div class="stat-card__value" style="color:var(--color-primary)">
                     <?= number_format((int)$totalStats['total_visitas']) ?>
@@ -46,7 +47,7 @@ $maxCombinado  = max($maxVistasGraf, $maxWaGraf, 1);
                 <i class="bi bi-eye stat-card__icon"></i>
             </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4 col-xl">
             <div class="stat-card">
                 <div class="stat-card__value" style="color:#17a2b8">
                     <?= number_format((int)$totalStats['visitas_hoy']) ?>
@@ -55,21 +56,30 @@ $maxCombinado  = max($maxVistasGraf, $maxWaGraf, 1);
                 <i class="bi bi-calendar-day stat-card__icon"></i>
             </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4 col-xl">
             <div class="stat-card">
-                <div class="stat-card__value" style="color:#10B981">
+                <div class="stat-card__value" style="color:#25d366">
                     <?= number_format((int)$totalStats['total_whatsapp']) ?>
                 </div>
                 <div class="stat-card__label">Clics WhatsApp</div>
                 <i class="bi bi-whatsapp stat-card__icon"></i>
             </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4 col-xl">
+            <div class="stat-card">
+                <div class="stat-card__value" style="color:#229ED9">
+                    <?= number_format((int)($totalStats['total_telegram'] ?? 0)) ?>
+                </div>
+                <div class="stat-card__label">Clics Telegram</div>
+                <i class="bi bi-telegram stat-card__icon"></i>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl">
             <div class="stat-card">
                 <div class="stat-card__value" style="color:#F59E0B">
                     <?= number_format((int)$totalStats['visitas_semana']) ?>
                 </div>
-                <div class="stat-card__label">Visitas esta semana</div>
+                <div class="stat-card__label">Visitas semana</div>
                 <i class="bi bi-calendar-week stat-card__icon"></i>
             </div>
         </div>
@@ -84,18 +94,21 @@ $maxCombinado  = max($maxVistasGraf, $maxWaGraf, 1);
             <div class="d-flex align-items-center gap-3" style="font-size:.72rem;color:var(--color-text-muted)">
                 <span><span style="display:inline-block;width:10px;height:10px;background:var(--color-primary);border-radius:2px;margin-right:4px"></span>Visitas</span>
                 <span><span style="display:inline-block;width:10px;height:10px;background:#25d366;border-radius:2px;margin-right:4px"></span>WhatsApp</span>
+                <span><span style="display:inline-block;width:10px;height:10px;background:#229ED9;border-radius:2px;margin-right:4px"></span>Telegram</span>
             </div>
         </div>
         <div class="card-body" style="padding:1.25rem">
             <div style="display:flex;gap:6px;align-items:flex-end;height:120px">
                 <?php foreach ($diasGrafico as $i => $dia):
+                    $tg    = (int)($dia['clicks_telegram'] ?? 0);
                     $pctV  = $maxCombinado > 0 ? round($dia['visitas']         / $maxCombinado * 100) : 0;
                     $pctWa = $maxCombinado > 0 ? round($dia['clicks_whatsapp'] / $maxCombinado * 100) : 0;
+                    $pctTg = $maxCombinado > 0 ? round($tg                     / $maxCombinado * 100) : 0;
                     $esHoy = $dia['fecha'] === date('Y-m-d');
                     $label = $esHoy ? 'Hoy' : mb_strtoupper(substr((new DateTime($dia['fecha']))->format('D'), 0, 3));
                 ?>
                 <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0">
-                    <!-- Barra visitas -->
+                    <!-- Barras visitas / WA / TG -->
                     <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:100px">
                         <div style="flex:1;border-radius:3px 3px 0 0;min-height:2px;
                                     background:<?= $esHoy ? 'var(--color-primary)' : 'rgba(255,45,117,.45)' ?>;
@@ -107,12 +120,19 @@ $maxCombinado  = max($maxVistasGraf, $maxWaGraf, 1);
                                     height:<?= max(2, $pctWa) ?>%"
                              title="<?= date('d/m', strtotime($dia['fecha'])) ?>: <?= number_format((int)$dia['clicks_whatsapp']) ?> clics WA">
                         </div>
+                        <div style="flex:1;border-radius:3px 3px 0 0;min-height:2px;
+                                    background:<?= $esHoy ? '#229ED9' : 'rgba(34,158,217,.4)' ?>;
+                                    height:<?= max(2, $pctTg) ?>%"
+                             title="<?= date('d/m', strtotime($dia['fecha'])) ?>: <?= number_format($tg) ?> clics Telegram">
+                        </div>
                     </div>
                     <div style="font-size:.62rem;color:<?= $esHoy ? 'var(--color-primary)' : 'var(--color-text-muted)' ?>;font-weight:<?= $esHoy ? '700' : '400' ?>;white-space:nowrap">
                         <?= $label ?>
                     </div>
                     <div style="font-size:.58rem;color:var(--color-text-muted)">
-                        <?= (int)$dia['visitas'] ?>v <?php if ($dia['clicks_whatsapp'] > 0): ?><span style="color:#25d366"><?= (int)$dia['clicks_whatsapp'] ?>w</span><?php endif; ?>
+                        <?= (int)$dia['visitas'] ?>v
+                        <?php if ($dia['clicks_whatsapp'] > 0): ?><span style="color:#25d366"><?= (int)$dia['clicks_whatsapp'] ?>w</span><?php endif; ?>
+                        <?php if ($tg > 0): ?><span style="color:#229ED9"><?= $tg ?>t</span><?php endif; ?>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -141,7 +161,10 @@ $maxCombinado  = max($maxVistasGraf, $maxWaGraf, 1);
     <?php foreach ($porPerfil as $p):
         $imgUrl   = !empty($p['imagen_token']) ? APP_URL . '/img/' . $p['imagen_token'] . '?size=thumb' : null;
         $serie    = $seriesPerfil[(int)$p['id']] ?? [];
-        $maxS     = max(1, ...array_merge([1], array_column($serie, 'visitas'), array_column($serie, 'clicks_whatsapp')));
+        $maxS     = max(1, ...array_merge([1],
+                        array_column($serie, 'visitas'),
+                        array_column($serie, 'clicks_whatsapp'),
+                        array_column($serie, 'clicks_telegram')));
         $estadoMap = [
             'publicado' => ['badge-publicado','Publicado'],
             'pendiente' => ['badge-pendiente','En revisión'],
@@ -175,25 +198,31 @@ $maxCombinado  = max($maxVistasGraf, $maxWaGraf, 1);
 
             <!-- Métricas -->
             <div class="row g-2 mb-3">
-                <div class="col-6 col-sm-3">
+                <div class="col-6 col-md-4 col-xl">
                     <div style="background:rgba(255,45,117,.07);border:1px solid rgba(255,45,117,.15);border-radius:8px;padding:.6rem .8rem;text-align:center">
                         <div class="fw-bold" style="font-size:1.1rem;color:var(--color-primary)"><?= number_format((int)$p['total_visitas']) ?></div>
                         <div style="font-size:.7rem;color:var(--color-text-muted)">Visitas totales</div>
                     </div>
                 </div>
-                <div class="col-6 col-sm-3">
+                <div class="col-6 col-md-4 col-xl">
                     <div style="background:rgba(23,162,184,.07);border:1px solid rgba(23,162,184,.15);border-radius:8px;padding:.6rem .8rem;text-align:center">
                         <div class="fw-bold" style="font-size:1.1rem;color:#17a2b8"><?= number_format((int)$p['visitas_hoy']) ?></div>
                         <div style="font-size:.7rem;color:var(--color-text-muted)">Hoy</div>
                     </div>
                 </div>
-                <div class="col-6 col-sm-3">
+                <div class="col-6 col-md-4 col-xl">
                     <div style="background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.15);border-radius:8px;padding:.6rem .8rem;text-align:center">
                         <div class="fw-bold" style="font-size:1.1rem;color:#25d366"><?= number_format((int)$p['total_whatsapp']) ?></div>
-                        <div style="font-size:.7rem;color:var(--color-text-muted)">Clics WA totales</div>
+                        <div style="font-size:.7rem;color:var(--color-text-muted)">Clics WA</div>
                     </div>
                 </div>
-                <div class="col-6 col-sm-3">
+                <div class="col-6 col-md-4 col-xl">
+                    <div style="background:rgba(34,158,217,.07);border:1px solid rgba(34,158,217,.15);border-radius:8px;padding:.6rem .8rem;text-align:center">
+                        <div class="fw-bold" style="font-size:1.1rem;color:#229ED9"><?= number_format((int)($p['total_telegram'] ?? 0)) ?></div>
+                        <div style="font-size:.7rem;color:var(--color-text-muted)">Clics Telegram</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xl">
                     <div style="background:rgba(255,193,7,.07);border:1px solid rgba(255,193,7,.15);border-radius:8px;padding:.6rem .8rem;text-align:center">
                         <div class="fw-bold" style="font-size:1.1rem;color:#F59E0B"><?= number_format((int)$p['visitas_semana']) ?></div>
                         <div style="font-size:.7rem;color:var(--color-text-muted)">Esta semana</div>
@@ -206,12 +235,14 @@ $maxCombinado  = max($maxVistasGraf, $maxWaGraf, 1);
             <div style="font-size:.7rem;color:var(--color-text-muted);margin-bottom:.4rem">Últimos 7 días</div>
             <div style="display:flex;gap:4px;align-items:flex-end;height:50px">
                 <?php foreach ($serie as $dia):
+                    $diaTg = (int)($dia['clicks_telegram'] ?? 0);
                     $pV  = $maxS > 0 ? round($dia['visitas']         / $maxS * 100) : 0;
                     $pWa = $maxS > 0 ? round($dia['clicks_whatsapp'] / $maxS * 100) : 0;
+                    $pTg = $maxS > 0 ? round($diaTg                  / $maxS * 100) : 0;
                     $esH = $dia['fecha'] === date('Y-m-d');
                 ?>
                 <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0"
-                     title="<?= date('d/m', strtotime($dia['fecha'])) ?>: <?= (int)$dia['visitas'] ?>v / <?= (int)$dia['clicks_whatsapp'] ?>w">
+                     title="<?= date('d/m', strtotime($dia['fecha'])) ?>: <?= (int)$dia['visitas'] ?>v / <?= (int)$dia['clicks_whatsapp'] ?>w / <?= $diaTg ?>t">
                     <div style="width:100%;display:flex;gap:1px;align-items:flex-end;height:40px">
                         <div style="flex:1;border-radius:2px 2px 0 0;min-height:1px;
                                     background:<?= $esH ? 'var(--color-primary)' : 'rgba(255,45,117,.4)' ?>;
@@ -219,6 +250,9 @@ $maxCombinado  = max($maxVistasGraf, $maxWaGraf, 1);
                         <div style="flex:1;border-radius:2px 2px 0 0;min-height:1px;
                                     background:<?= $esH ? '#25d366' : 'rgba(37,211,102,.35)' ?>;
                                     height:<?= max(1, $pWa) ?>%"></div>
+                        <div style="flex:1;border-radius:2px 2px 0 0;min-height:1px;
+                                    background:<?= $esH ? '#229ED9' : 'rgba(34,158,217,.35)' ?>;
+                                    height:<?= max(1, $pTg) ?>%"></div>
                     </div>
                     <div style="font-size:.52rem;color:<?= $esH ? 'var(--color-primary)' : 'var(--color-text-muted)' ?>">
                         <?= $esH ? '·' : date('d', strtotime($dia['fecha'])) ?>

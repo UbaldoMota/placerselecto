@@ -97,6 +97,16 @@ class PerfilModel extends Model
         );
     }
 
+    public function registrarClickTelegram(int $id): void
+    {
+        $this->raw(
+            "INSERT INTO `perfil_stats` (`id_perfil`, `fecha`, `clicks_telegram`)
+             VALUES (?, CURDATE(), 1)
+             ON DUPLICATE KEY UPDATE `clicks_telegram` = `clicks_telegram` + 1",
+            [$id]
+        );
+    }
+
     /** Totales globales del usuario (visitas históricas + stats desde perfil_stats). */
     public function totalStatsUsuario(int $idUsuario): array
     {
@@ -105,10 +115,13 @@ class PerfilModel extends Model
                 COALESCE(SUM(p.vistas), 0)                                                            AS total_visitas_hist,
                 COALESCE(SUM(ps_all.visitas), 0)                                                      AS total_visitas,
                 COALESCE(SUM(ps_all.clicks_whatsapp), 0)                                              AS total_whatsapp,
+                COALESCE(SUM(ps_all.clicks_telegram), 0)                                              AS total_telegram,
                 COALESCE(SUM(CASE WHEN ps_all.fecha = CURDATE() THEN ps_all.visitas          ELSE 0 END), 0) AS visitas_hoy,
                 COALESCE(SUM(CASE WHEN ps_all.fecha = CURDATE() THEN ps_all.clicks_whatsapp  ELSE 0 END), 0) AS whatsapp_hoy,
+                COALESCE(SUM(CASE WHEN ps_all.fecha = CURDATE() THEN ps_all.clicks_telegram  ELSE 0 END), 0) AS telegram_hoy,
                 COALESCE(SUM(CASE WHEN ps_all.fecha >= CURDATE() - INTERVAL 6 DAY THEN ps_all.visitas         ELSE 0 END), 0) AS visitas_semana,
-                COALESCE(SUM(CASE WHEN ps_all.fecha >= CURDATE() - INTERVAL 6 DAY THEN ps_all.clicks_whatsapp ELSE 0 END), 0) AS whatsapp_semana
+                COALESCE(SUM(CASE WHEN ps_all.fecha >= CURDATE() - INTERVAL 6 DAY THEN ps_all.clicks_whatsapp ELSE 0 END), 0) AS whatsapp_semana,
+                COALESCE(SUM(CASE WHEN ps_all.fecha >= CURDATE() - INTERVAL 6 DAY THEN ps_all.clicks_telegram ELSE 0 END), 0) AS telegram_semana
              FROM perfiles p
              LEFT JOIN perfil_stats ps_all ON ps_all.id_perfil = p.id
              WHERE p.id_usuario = ?",
@@ -116,9 +129,9 @@ class PerfilModel extends Model
         )->fetch(PDO::FETCH_ASSOC);
 
         return $row ?: [
-            'total_visitas_hist' => 0, 'total_visitas' => 0, 'total_whatsapp' => 0,
-            'visitas_hoy' => 0, 'whatsapp_hoy' => 0,
-            'visitas_semana' => 0, 'whatsapp_semana' => 0,
+            'total_visitas_hist' => 0, 'total_visitas' => 0, 'total_whatsapp' => 0, 'total_telegram' => 0,
+            'visitas_hoy' => 0, 'whatsapp_hoy' => 0, 'telegram_hoy' => 0,
+            'visitas_semana' => 0, 'whatsapp_semana' => 0, 'telegram_semana' => 0,
         ];
     }
 
@@ -129,8 +142,10 @@ class PerfilModel extends Model
             "SELECT p.id, p.nombre, p.imagen_token, p.estado, p.vistas AS total_vistas_hist,
                     COALESCE(SUM(ps.visitas), 0)                                                              AS total_visitas,
                     COALESCE(SUM(ps.clicks_whatsapp), 0)                                                      AS total_whatsapp,
+                    COALESCE(SUM(ps.clicks_telegram), 0)                                                      AS total_telegram,
                     COALESCE(SUM(CASE WHEN ps.fecha = CURDATE() THEN ps.visitas          ELSE 0 END), 0)       AS visitas_hoy,
                     COALESCE(SUM(CASE WHEN ps.fecha = CURDATE() THEN ps.clicks_whatsapp  ELSE 0 END), 0)       AS whatsapp_hoy,
+                    COALESCE(SUM(CASE WHEN ps.fecha = CURDATE() THEN ps.clicks_telegram  ELSE 0 END), 0)       AS telegram_hoy,
                     COALESCE(SUM(CASE WHEN ps.fecha >= CURDATE() - INTERVAL 6 DAY THEN ps.visitas ELSE 0 END), 0) AS visitas_semana
              FROM perfiles p
              LEFT JOIN perfil_stats ps ON ps.id_perfil = p.id
@@ -146,7 +161,7 @@ class PerfilModel extends Model
     {
         if ($idPerfil > 0) {
             $rows = $this->raw(
-                "SELECT fecha, visitas, clicks_whatsapp
+                "SELECT fecha, visitas, clicks_whatsapp, clicks_telegram
                  FROM `perfil_stats`
                  WHERE `id_perfil` = ? AND `fecha` >= CURDATE() - INTERVAL ? DAY
                  ORDER BY fecha ASC",
@@ -156,7 +171,8 @@ class PerfilModel extends Model
             $rows = $this->raw(
                 "SELECT ps.fecha,
                         COALESCE(SUM(ps.visitas), 0)         AS visitas,
-                        COALESCE(SUM(ps.clicks_whatsapp), 0) AS clicks_whatsapp
+                        COALESCE(SUM(ps.clicks_whatsapp), 0) AS clicks_whatsapp,
+                        COALESCE(SUM(ps.clicks_telegram), 0) AS clicks_telegram
                  FROM `perfil_stats` ps
                  INNER JOIN `perfiles` p ON p.id = ps.id_perfil
                  WHERE p.id_usuario = ? AND ps.fecha >= CURDATE() - INTERVAL ? DAY
@@ -171,7 +187,7 @@ class PerfilModel extends Model
         $serie = [];
         for ($i = $dias - 1; $i >= 0; $i--) {
             $f = date('Y-m-d', strtotime("-{$i} days"));
-            $serie[] = $map[$f] ?? ['fecha' => $f, 'visitas' => 0, 'clicks_whatsapp' => 0];
+            $serie[] = $map[$f] ?? ['fecha' => $f, 'visitas' => 0, 'clicks_whatsapp' => 0, 'clicks_telegram' => 0];
         }
         return $serie;
     }

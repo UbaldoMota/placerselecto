@@ -114,7 +114,8 @@ class AdminController extends Controller
                 COALESCE(SUM(CASE WHEN fecha = CURDATE() - INTERVAL 1 DAY THEN visitas END), 0)                  AS ayer,
                 COALESCE(SUM(CASE WHEN fecha >= CURDATE() - INTERVAL 7 DAY THEN visitas END), 0)                 AS semana,
                 COALESCE(SUM(CASE WHEN fecha >= CURDATE() - INTERVAL 30 DAY THEN visitas END), 0)                AS mes,
-                COALESCE(SUM(CASE WHEN fecha >= CURDATE() - INTERVAL 7 DAY THEN clicks_whatsapp END), 0)         AS clicks_wa_semana
+                COALESCE(SUM(CASE WHEN fecha >= CURDATE() - INTERVAL 7 DAY THEN clicks_whatsapp END), 0)         AS clicks_wa_semana,
+                COALESCE(SUM(CASE WHEN fecha >= CURDATE() - INTERVAL 7 DAY THEN clicks_telegram END), 0)         AS clicks_tg_semana
              FROM perfil_stats"
         );
         $stmtVistas->execute();
@@ -125,13 +126,15 @@ class AdminController extends Controller
             'semana'           => (int)($stats['semana']           ?? 0),
             'mes'              => (int)($stats['mes']              ?? 0),
             'clicks_wa_semana' => (int)($stats['clicks_wa_semana'] ?? 0),
+            'clicks_tg_semana' => (int)($stats['clicks_tg_semana'] ?? 0),
         ];
 
         // Top 5 perfiles más vistos en últimos 7 días
         $stmtTop = $db->prepare(
             "SELECT p.id, p.nombre, p.imagen_token,
                     SUM(s.visitas) AS total_vistas,
-                    SUM(s.clicks_whatsapp) AS total_clicks
+                    SUM(s.clicks_whatsapp) AS total_clicks_wa,
+                    SUM(s.clicks_telegram) AS total_clicks_tg
              FROM perfil_stats s
              INNER JOIN perfiles p ON p.id = s.id_perfil
              WHERE s.fecha >= CURDATE() - INTERVAL 7 DAY

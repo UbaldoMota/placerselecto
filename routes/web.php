@@ -190,6 +190,7 @@ return [
     ['GET',  '/perfil/{id}/verificar/camara', 'PerfilesController', 'showVerificarCamara',     ['auth']],
     ['POST', '/perfil/{id}/verificar/video',  'PerfilesController', 'subirVideoVerificacion',  ['auth', 'csrf']],
     ['GET',  '/perfil/{id}/whatsapp',         'PerfilesController', 'whatsappRedirect', []],
+    ['GET',  '/perfil/{id}/telegram',         'PerfilesController', 'telegramRedirect', []],
     ['POST', '/perfil/{id}/eliminar',     'PerfilesController', 'delete',   ['auth', 'csrf']],
     ['POST', '/perfil/{id}/reportar',     'PerfilesController', 'report',   ['auth', 'csrf']],
 

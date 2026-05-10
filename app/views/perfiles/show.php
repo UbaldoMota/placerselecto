@@ -617,7 +617,7 @@ $colorScore = $pct >= 75 ? '#10B981' : ($pct >= 40 ? '#F59E0B' : '#FF2D75');
                         <?php endif; ?>
 
                         <?php if ($tieneTG): ?>
-                        <a href="<?= e($tgUrl) ?>"
+                        <a href="<?= APP_URL ?>/perfil/<?= (int)$perfil['id'] ?>/telegram"
                            target="_blank" rel="noopener noreferrer"
                            class="contact-cta contact-cta--telegram">
                             <div class="contact-cta__icon"><i class="bi bi-telegram"></i></div>

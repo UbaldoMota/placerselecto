@@ -917,6 +917,35 @@ class PerfilesController extends Controller
         exit;
     }
 
+    // ---------------------------------------------------------
+    // TELEGRAM — Redirect con tracking de clic
+    // ---------------------------------------------------------
+
+    public function telegramRedirect(array $params = []): void
+    {
+        $id     = (int)($params['id'] ?? 0);
+        $perfil = $this->perfiles->obtenerPublico($id);
+
+        if (!$perfil || $perfil['estado'] !== 'publicado') {
+            $this->redirect('/perfiles');
+        }
+
+        $tgUrl = Security::telegramUrl($perfil);
+        if (!$tgUrl) {
+            $this->redirect('/perfil/' . $id);
+        }
+
+        // No contar clics del propio dueño
+        $user     = $this->currentUser();
+        $esDuenio = $user && (int)$user['id'] === (int)$perfil['id_usuario'];
+        if (!$esDuenio) {
+            $this->perfiles->registrarClickTelegram($id);
+        }
+
+        header('Location: ' . $tgUrl);
+        exit;
+    }
+
     public function delete(array $params = []): void
     {
         $this->requireAuth();

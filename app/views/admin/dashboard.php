@@ -175,9 +175,14 @@
                         <div class="col-6 col-md-3">
                             <div class="text-muted" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.04em">7 días</div>
                             <div class="fw-bold" style="font-size:1.7rem;line-height:1.1"><?= number_format($sv['semana']) ?></div>
-                            <?php if ($sv['clicks_wa_semana'] > 0): ?>
+                            <?php if ($sv['clicks_wa_semana'] > 0 || ($sv['clicks_tg_semana'] ?? 0) > 0): ?>
                             <div class="text-muted" style="font-size:.72rem">
-                                <i class="bi bi-whatsapp text-success"></i> <?= number_format($sv['clicks_wa_semana']) ?> clicks WA
+                                <?php if ($sv['clicks_wa_semana'] > 0): ?>
+                                <i class="bi bi-whatsapp text-success"></i> <?= number_format($sv['clicks_wa_semana']) ?>
+                                <?php endif; ?>
+                                <?php if (($sv['clicks_tg_semana'] ?? 0) > 0): ?>
+                                <i class="bi bi-telegram" style="color:#229ED9"></i> <?= number_format($sv['clicks_tg_semana']) ?>
+                                <?php endif; ?>
                             </div>
                             <?php endif; ?>
                         </div>
@@ -232,9 +237,18 @@
                                     </div>
                                     <div style="min-width:0;flex:1">
                                         <div class="fw-semibold text-truncate" style="font-size:.88rem;color:var(--color-text)"><?= e($p['nombre']) ?></div>
-                                        <?php if ((int)$p['total_clicks'] > 0): ?>
+                                        <?php
+                                            $cWa = (int)($p['total_clicks_wa'] ?? 0);
+                                            $cTg = (int)($p['total_clicks_tg'] ?? 0);
+                                        ?>
+                                        <?php if ($cWa > 0 || $cTg > 0): ?>
                                         <div class="text-muted" style="font-size:.7rem">
-                                            <i class="bi bi-whatsapp text-success"></i> <?= (int)$p['total_clicks'] ?> click<?= (int)$p['total_clicks'] === 1 ? '' : 's' ?>
+                                            <?php if ($cWa > 0): ?>
+                                            <i class="bi bi-whatsapp text-success"></i> <?= $cWa ?>
+                                            <?php endif; ?>
+                                            <?php if ($cTg > 0): ?>
+                                            <i class="bi bi-telegram" style="color:#229ED9"></i> <?= $cTg ?>
+                                            <?php endif; ?>
                                         </div>
                                         <?php endif; ?>
                                     </div>
