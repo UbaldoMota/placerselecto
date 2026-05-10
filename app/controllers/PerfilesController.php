@@ -1011,6 +1011,11 @@ class PerfilesController extends Controller
         $archivos = $_FILES[$fieldName] ?? null;
         if (!$archivos || empty($archivos['name'][0])) return [];
 
+        // Procesar imágenes (decode+resize+watermark+5 variantes) puede tomar varios segundos
+        // por foto. En shared hosting el default ~30s no alcanza con 3-5 fotos grandes.
+        @set_time_limit(180);
+        @ini_set('memory_limit', '256M');
+
         $lista = [];
         foreach ($archivos['name'] as $i => $name) {
             if ($archivos['error'][$i] === UPLOAD_ERR_NO_FILE) continue;

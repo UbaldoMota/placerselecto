@@ -75,6 +75,16 @@ class Upload
 
         [$width, $height] = $imageInfo;
 
+        // 5b. Protección contra image bombs y consumo excesivo de RAM/CPU
+        // Una imagen 50MP decodificada en GD consume ~200MB de RAM y >30s de procesamiento.
+        // Cámara iPhone normal = 12MP, DSLR alta = 24-50MP. Cortamos en 40MP.
+        $megapixels = ($width * $height) / 1_000_000;
+        if ($megapixels > 40) {
+            $mp = round($megapixels, 1);
+            $this->errors[] = "La imagen es demasiado grande ({$mp} MP). Redúcela a menos de 40 MP antes de subirla.";
+            return false;
+        }
+
         // 6. Validar dimensiones mínimas
         if ($width < $minWidth || $height < $minHeight) {
             $this->errors[] = "La imagen debe tener al menos {$minWidth}x{$minHeight} píxeles.";
