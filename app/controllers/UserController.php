@@ -553,6 +553,60 @@ class UserController extends Controller
     }
 
     // ---------------------------------------------------------
+    // REENVIAR CORREO DE VERIFICACIÓN (desde banner en dashboard)
+    // ---------------------------------------------------------
+
+    public function reenviarVerificacionEmail(array $params = []): void
+    {
+        $this->requireAuth();
+
+        $user    = $this->currentUser();
+        $idUser  = (int)$user['id'];
+        $usuario = $this->usuarios->find($idUser);
+
+        if ((int)($usuario['email_verificado'] ?? 0) === 1) {
+            SessionManager::flash('info', 'Tu correo ya está verificado.');
+            $this->redirect('/dashboard');
+        }
+
+        // Rate limit: máx 3 reenvíos por hora
+        if (!Security::checkRateLimit('reenv_verif_' . $idUser, 3, 3600)) {
+            SessionManager::flash('warning', 'Ya enviaste varios reenvíos recientemente. Espera unos minutos.');
+            $this->redirect('/dashboard');
+        }
+
+        $token = bin2hex(random_bytes(32));
+        Database::getInstance()->getConnection()
+            ->prepare("UPDATE usuarios SET email_verify_token = ? WHERE id = ?")
+            ->execute([hash('sha256', $token), $idUser]);
+
+        $link = APP_URL . '/verificar-email/' . $token;
+        try {
+            $html = Mailer::render('verificar-email-link', [
+                'nombre' => $usuario['nombre'] ?? '',
+                'link'   => $link,
+            ]);
+            $ok = Mailer::send(
+                $usuario['email'],
+                'Verifica tu correo — ' . APP_NAME,
+                $html,
+                "Verifica tu correo abriendo este enlace:\n{$link}"
+            );
+            if ($ok) {
+                SessionManager::flash('success',
+                    'Te reenviamos el correo de verificación. Si no aparece en tu bandeja, revisa la carpeta de Spam y márcalo como "No es spam".');
+            } else {
+                SessionManager::flash('warning', 'Hubo un problema enviando el correo. Intenta más tarde o contacta a soporte.');
+            }
+        } catch (\Throwable $e) {
+            error_log('[UserController::reenviarVerificacionEmail] ' . $e->getMessage());
+            SessionManager::flash('warning', 'Hubo un problema enviando el correo. Intenta más tarde.');
+        }
+
+        $this->redirect('/dashboard');
+    }
+
+    // ---------------------------------------------------------
     // ELIMINAR CUENTA — soft delete + 30 días grace
     // ---------------------------------------------------------
 

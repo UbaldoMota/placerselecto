@@ -31,6 +31,28 @@ $horasTop        = $tarifaTop       > 0 ? floor($saldoTokens / $tarifaTop)      
 $horasResaltado  = $tarifaResaltado > 0 ? floor($saldoTokens / $tarifaResaltado) : 0;
 ?>
 
+<?php if ((int)($usuarioCompleto['email_verificado'] ?? 1) === 0): ?>
+<!-- Banner: correo no verificado (recovery password no funcionará si lo olvida) -->
+<div class="container pt-3">
+    <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2 mb-0"
+         style="font-size:.88rem;border-radius:10px">
+        <div class="d-flex align-items-center gap-2" style="min-width:0;flex:1">
+            <i class="bi bi-envelope-exclamation" style="font-size:1.3rem;flex-shrink:0"></i>
+            <div>
+                <strong>Tu correo no está verificado.</strong>
+                Sin esto no podrás recuperar tu contraseña si la olvidas.
+            </div>
+        </div>
+        <form method="POST" action="<?= APP_URL ?>/mi-cuenta/reenviar-verificacion-email" class="m-0">
+            <?= $csrfField ?>
+            <button type="submit" class="btn btn-sm btn-warning">
+                <i class="bi bi-arrow-clockwise me-1"></i>Reenviar correo
+            </button>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
+
 <!-- HERO compacto -->
 <div class="py-4" style="background:linear-gradient(135deg,#FFF5F8 0%,#FFFFFF 60%);border-bottom:1px solid var(--color-border)">
     <div class="container">

@@ -319,27 +319,23 @@ class AuthController extends Controller
             $this->redirect('/registro/publicador');
         }
 
-        // Generar códigos
-        $smsCodigo   = $this->generarCodigo();
-        $emailCodigo = $this->generarCodigo();
-        $ahora       = time();
+        // Generar código SMS (único paso obligatorio de verificación).
+        // El email se guarda pero NO se verifica con código durante el registro;
+        // se manda un link de verificación opcional al crear la cuenta.
+        $smsCodigo = $this->generarCodigo();
+        $ahora     = time();
 
         SessionManager::set('reg_pendiente', [
-            'tipo'             => 'publicador',
-            'telefono'         => $telefono,
-            'email'            => $email,
-            'sms_codigo'       => $smsCodigo,
-            'sms_sent_at'      => $ahora,
-            'sms_intentos'     => 0,
-            'sms_verified'     => false,
-            'email_codigo'     => $emailCodigo,
-            'email_sent_at'    => $ahora,
-            'email_intentos'   => 0,
-            'email_verified'   => false,
+            'tipo'         => 'publicador',
+            'telefono'     => $telefono,
+            'email'        => $email,
+            'sms_codigo'   => $smsCodigo,
+            'sms_sent_at'  => $ahora,
+            'sms_intentos' => 0,
+            'sms_verified' => false,
         ]);
 
         $this->enviarSms($telefono, $smsCodigo);
-        $this->enviarCorreoVerificacion($email, $emailCodigo);
 
         $this->redirect('/registro/verificar-sms');
     }
@@ -352,7 +348,7 @@ class AuthController extends Controller
             $this->redirect('/registro/publicador');
         }
         if (!empty($reg['sms_verified'])) {
-            $this->redirect('/registro/verificar-email');
+            $this->redirect('/registro/completar');
         }
         $segundosRestantes = max(0, 60 - (time() - ($reg['sms_sent_at'] ?? 0)));
         $this->render('auth/registro-verificar-sms', [
@@ -395,7 +391,11 @@ class AuthController extends Controller
 
         $reg['sms_verified'] = true;
         SessionManager::set('reg_pendiente', $reg);
-        $this->redirect('/registro/verificar-email');
+        // Saltamos el paso de verificación por email (PTR pendiente, los correos
+        // de verificación pueden caer a spam). El correo se guarda con
+        // email_verificado=0 y el usuario puede verificarlo después desde
+        // su dashboard si quiere recuperación de contraseña funcional.
+        $this->redirect('/registro/completar');
     }
 
     /** Paso 3a: reenviar SMS */
@@ -539,8 +539,8 @@ class AuthController extends Controller
     public function showCompletar(array $params = []): void
     {
         $reg = SessionManager::get('reg_pendiente', []);
-        if (empty($reg['email_verified'])) {
-            $this->redirect('/registro/verificar-email');
+        if (empty($reg['sms_verified'])) {
+            $this->redirect('/registro/verificar-sms');
         }
         $this->render('auth/registro-completar', ['pageTitle' => 'Crea tu contraseña']);
     }
@@ -549,8 +549,8 @@ class AuthController extends Controller
     public function completar(array $params = []): void
     {
         $reg = SessionManager::get('reg_pendiente', []);
-        if (empty($reg['email_verified'])) {
-            $this->redirect('/registro/verificar-email');
+        if (empty($reg['sms_verified'])) {
+            $this->redirect('/registro/verificar-sms');
         }
 
         $ip       = Security::getClientIp();
@@ -579,18 +579,42 @@ class AuthController extends Controller
             $this->redirect('/login');
         }
 
+        // Token de verificación opcional. plaintext al email, sha256 en BD.
+        $emailToken = bin2hex(random_bytes(32));
+
         try {
             $idUsuario = $this->usuarios->crear([
-                'nombre'      => $nombre,
-                'email'       => $reg['email'],
-                'password'    => $password,
-                'telefono'    => $reg['telefono'],
-                'ip_registro' => $ip,
+                'nombre'             => $nombre,
+                'email'              => $reg['email'],
+                'password'           => $password,
+                'telefono'           => $reg['telefono'],
+                'ip_registro'        => $ip,
+                'email_verificado'   => 0,
+                'email_verify_token' => hash('sha256', $emailToken),
             ]);
         } catch (\Exception $e) {
             error_log('[AuthController::completar] ' . $e->getMessage());
             SessionManager::flash('error', 'Error al crear la cuenta. Intenta de nuevo.');
             $this->redirect('/registro/completar');
+        }
+
+        // Correo de bienvenida con link de verificación opcional (best-effort).
+        // Si falla por PTR/spam, el usuario sigue dentro de la cuenta y puede
+        // reenviar después desde el banner del dashboard.
+        try {
+            $link = APP_URL . '/verificar-email/' . $emailToken;
+            $html = Mailer::render('verificar-email-link', [
+                'nombre' => $nombre,
+                'link'   => $link,
+            ]);
+            Mailer::send(
+                $reg['email'],
+                'Bienvenida a ' . APP_NAME . ' — verifica tu correo',
+                $html,
+                "Bienvenida a " . APP_NAME . "\n\nVerifica tu correo (opcional) abriendo:\n{$link}\n\nEste paso es necesario para recuperar tu contraseña si la olvidas."
+            );
+        } catch (\Throwable $e) {
+            error_log('[AuthController::completar] bienvenida mail fallo: ' . $e->getMessage());
         }
 
         // Limpiar sesión de registro
@@ -825,8 +849,11 @@ class AuthController extends Controller
             $this->redirect('/login');
         }
 
-        // Bloquear login si el correo no está confirmado (solo aplica a cuentas con email_verificado registrado)
-        if (isset($usuario['email_verificado']) && (int)$usuario['email_verificado'] === 0
+        // Bloquear login solo para comentaristas con email no verificado.
+        // Los publicadores pasan; el dashboard les muestra un banner pidiendo
+        // que verifiquen para habilitar la recuperación de contraseña.
+        if (($usuario['rol'] ?? '') === 'comentarista'
+            && isset($usuario['email_verificado']) && (int)$usuario['email_verificado'] === 0
             && !empty($usuario['email_verify_token'])) {
             SessionManager::flash('error', 'Debes confirmar tu correo antes de iniciar sesión. Revisa tu bandeja.');
             SessionManager::set('form_old', ['email' => $email]);
