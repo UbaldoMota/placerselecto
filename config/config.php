@@ -134,22 +134,27 @@ function asset(string $path): string {
 }
 
 // =====================================================
-// PROMO DE LANZAMIENTO — primeras 50 chicas
-// El tope de 50 es solo marketing. Tecnicamente regalamos PROMO_LANZAMIENTO_TOKENS
-// a TODAS las publicadoras que completen registro entre INICIO y FIN.
-// Al pasar la fecha FIN, el regalo se desactiva automaticamente.
+// PROMO DE LANZAMIENTO — regalo de tokens a quien se registre
+// Regalamos PROMO_LANZAMIENTO_TOKENS a TODA publicadora que complete su registro.
+// PROMO_LANZAMIENTO_FIN = '' (cadena vacia) -> promo indefinida (sin fecha limite).
+// Para terminar la promo en el futuro, basta con poner una fecha aqui.
 // =====================================================
 define('PROMO_LANZAMIENTO_INICIO', '2026-05-08 00:00:00');
-define('PROMO_LANZAMIENTO_FIN',    '2026-05-11 12:00:00');
+define('PROMO_LANZAMIENTO_FIN',    '');   // '' = sin fecha limite
 define('PROMO_LANZAMIENTO_TOKENS', 100);
 
 function promoLanzamientoVigente(): bool {
-    if (!defined('PROMO_LANZAMIENTO_INICIO') || !defined('PROMO_LANZAMIENTO_FIN')) return false;
+    if (!defined('PROMO_LANZAMIENTO_INICIO')) return false;
     $ini = strtotime(PROMO_LANZAMIENTO_INICIO);
-    $fin = strtotime(PROMO_LANZAMIENTO_FIN);
-    if (!$ini || !$fin) return false;
+    if (!$ini) return false;
     $now = time();
-    return $now >= $ini && $now < $fin;
+    if ($now < $ini) return false;
+    // Sin fecha fin definida -> promo indefinida.
+    $finRaw = defined('PROMO_LANZAMIENTO_FIN') ? PROMO_LANZAMIENTO_FIN : '';
+    if ($finRaw === '' || $finRaw === null) return true;
+    $fin = strtotime($finRaw);
+    if (!$fin) return true;
+    return $now < $fin;
 }
 
 /**

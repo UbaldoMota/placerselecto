@@ -98,8 +98,9 @@
     <div class="container" style="max-width:1100px">
         <div class="d-flex flex-wrap align-items-center justify-content-center gap-2" style="row-gap:.3rem">
             <span>
-                🎁 <strong>Las primeras 50</strong> reciben
+                🎁 <strong>Regístrate</strong> y recibe
                 <span class="promo-highlight"><?= number_format((int)PROMO_LANZAMIENTO_TOKENS) ?> tokens GRATIS</span>
+                de bienvenida
             </span>
             <?php if (empty($currentUser)): ?>
             <a href="<?= APP_URL ?>/registro" class="promo-cta">
