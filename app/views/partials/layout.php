@@ -29,7 +29,10 @@
         <?= $extraCss ?>
     <?php endif; ?>
 </head>
-<?php $showAgeGate = $GLOBALS['show_age_gate'] ?? false; ?>
+<?php
+$showAgeGate = $GLOBALS['show_age_gate'] ?? false;
+$showWelcome = $GLOBALS['show_welcome'] ?? false;
+?>
 <body>
 
     <!-- Global loader overlay -->
@@ -133,6 +136,66 @@
             </div>
         </div>
     </div>
+
+    <?php if ($showWelcome): ?>
+    <!-- =====================================================
+         MODAL DE BIENVENIDA — etapa de lanzamiento
+         Aparece una sola vez, tras confirmar la mayoría de edad.
+         ===================================================== -->
+    <?php
+        $welcomeRol = $currentUser['rol'] ?? '';
+        if (!$currentUser) {
+            $welcomeCtaUrl  = APP_URL . '/registro';
+            $welcomeCtaText = 'Crear mi perfil gratis';
+        } elseif ($welcomeRol === 'usuario') {
+            $welcomeCtaUrl  = APP_URL . '/perfil/nuevo';
+            $welcomeCtaText = 'Crear mi perfil';
+        } else {
+            $welcomeCtaUrl  = '';
+            $welcomeCtaText = '';
+        }
+    ?>
+    <div class="modal fade" id="welcomeModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 text-center" style="border-radius:var(--radius-lg);overflow:hidden">
+                <div class="modal-body p-4 p-md-5">
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+
+                    <div class="age-gate-icon">
+                        <i class="bi bi-rocket-takeoff"></i>
+                    </div>
+
+                    <h2 class="h4 fw-bold mb-2">¡Estamos arrancando! 🚀</h2>
+                    <p class="text-muted mb-3" style="font-size:.95rem">
+                        <strong style="color:var(--color-text)"><?= e(APP_NAME) ?></strong> está en su etapa de lanzamiento
+                        y nos encontramos sumando los primeros perfiles.
+                    </p>
+                    <p class="text-muted mb-4" style="font-size:.95rem">
+                        Registra tu perfil hoy y sé de los primeros en aparecer.
+                        Ayúdanos a hacer crecer la comunidad. <strong style="color:var(--color-text)">El registro es completamente gratis.</strong>
+                    </p>
+
+                    <?php if ($welcomeCtaUrl): ?>
+                    <a href="<?= e($welcomeCtaUrl) ?>" class="btn btn-primary btn-lg w-100 mb-2">
+                        <i class="bi bi-person-plus me-2"></i><?= e($welcomeCtaText) ?>
+                    </a>
+                    <?php endif; ?>
+                    <button type="button" class="btn btn-link w-100 text-muted" data-bs-dismiss="modal" style="font-size:.9rem;text-decoration:none">
+                        Explorar primero
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var el = document.getElementById('welcomeModal');
+            if (el && window.bootstrap) {
+                new bootstrap.Modal(el).show();
+            }
+        });
+    </script>
+    <?php endif; ?>
 
     <!-- Bootstrap JS -->
     <script src="<?= APP_URL ?>/public/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>

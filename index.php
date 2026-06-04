@@ -181,6 +181,18 @@ if (!SessionManager::get('age_verified') && !in_array($currentUri, $exemptAgeRou
 }
 
 // ---------------------------------------------------------
+// 6b. MODAL DE BIENVENIDA (etapa de lanzamiento)
+//     Se muestra una sola vez, en la primera página tras confirmar la edad.
+// ---------------------------------------------------------
+if (SessionManager::get('show_welcome')) {
+    SessionManager::delete('show_welcome');
+    // No apilar sobre el age gate (no debería coincidir, pero por si acaso)
+    if (empty($GLOBALS['show_age_gate'])) {
+        $GLOBALS['show_welcome'] = true;
+    }
+}
+
+// ---------------------------------------------------------
 // 7. ROUTER
 // ---------------------------------------------------------
 $router = new Router();

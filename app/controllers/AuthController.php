@@ -47,6 +47,10 @@ class AuthController extends Controller
 
         SessionManager::set('age_verified', true);
 
+        // Mostrar el modal de bienvenida (etapa de lanzamiento) una sola vez,
+        // en la primera página tras confirmar la edad.
+        SessionManager::set('show_welcome', true);
+
         $dest = SessionManager::get('age_redirect', '/');
         SessionManager::delete('age_redirect');
 
