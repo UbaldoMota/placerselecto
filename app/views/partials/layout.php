@@ -175,13 +175,6 @@ $showWelcome = $GLOBALS['show_welcome'] ?? false;
                     <!-- Puntos de confianza (para anunciantes y visitantes) -->
                     <div class="text-start rounded-3 p-3 mb-3" style="background:rgba(255,45,117,.05);border:1px solid var(--color-border)">
                         <div class="d-flex align-items-start mb-2">
-                            <i class="bi bi-patch-check-fill text-primary me-2" style="margin-top:.15rem"></i>
-                            <span style="font-size:.88rem">
-                                <strong style="color:var(--color-text)">Perfiles verificados</strong> con foto y video.
-                                Sabes con quién hablas.
-                            </span>
-                        </div>
-                        <div class="d-flex align-items-start mb-2">
                             <i class="bi bi-chat-dots-fill text-primary me-2" style="margin-top:.15rem"></i>
                             <span style="font-size:.88rem">
                                 <strong style="color:var(--color-text)">Contacto directo</strong> por WhatsApp o Telegram.
