@@ -218,6 +218,16 @@ $showWelcome = $GLOBALS['show_welcome'] ?? false;
         document.addEventListener('DOMContentLoaded', function () {
             var el = document.getElementById('welcomeModal');
             if (el && window.bootstrap) {
+                // El banner de promo (sticky, z-index alto) se encima al modal:
+                // lo ocultamos mientras el modal está abierto y lo restauramos al cerrar.
+                el.addEventListener('show.bs.modal', function () {
+                    var pb = document.getElementById('promoBanner');
+                    if (pb) pb.style.visibility = 'hidden';
+                });
+                el.addEventListener('hidden.bs.modal', function () {
+                    var pb = document.getElementById('promoBanner');
+                    if (pb) pb.style.visibility = '';
+                });
                 new bootstrap.Modal(el).show();
             }
         });
