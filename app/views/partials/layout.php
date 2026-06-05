@@ -156,7 +156,7 @@ $showWelcome = $GLOBALS['show_welcome'] ?? false;
         }
     ?>
     <div class="modal fade" id="welcomeModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 text-center" style="border-radius:var(--radius-lg);overflow:hidden">
                 <div class="modal-body p-4 p-md-5">
                     <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -167,22 +167,56 @@ $showWelcome = $GLOBALS['show_welcome'] ?? false;
 
                     <h2 class="h4 fw-bold mb-2">¡Estamos arrancando! 🚀</h2>
                     <p class="text-muted mb-3" style="font-size:.95rem">
-                        <strong style="color:var(--color-text)"><?= e(APP_NAME) ?></strong> está en su etapa de lanzamiento
-                        y nos encontramos sumando los primeros perfiles.
-                    </p>
-                    <p class="text-muted mb-4" style="font-size:.95rem">
-                        Registra tu perfil hoy y sé de los primeros en aparecer.
-                        Ayúdanos a hacer crecer la comunidad. <strong style="color:var(--color-text)">El registro es completamente gratis.</strong>
+                        <strong style="color:var(--color-text)"><?= e(APP_NAME) ?></strong> es el directorio de anuncios
+                        para adultos en México. Conecta de forma <strong style="color:var(--color-text)">directa, segura
+                        y sin intermediarios</strong>.
                     </p>
 
+                    <!-- Puntos de confianza (para anunciantes y visitantes) -->
+                    <div class="text-start rounded-3 p-3 mb-3" style="background:rgba(255,45,117,.05);border:1px solid var(--color-border)">
+                        <div class="d-flex align-items-start mb-2">
+                            <i class="bi bi-patch-check-fill text-primary me-2" style="margin-top:.15rem"></i>
+                            <span style="font-size:.88rem">
+                                <strong style="color:var(--color-text)">Perfiles verificados</strong> con foto y video.
+                                Sabes con quién hablas.
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-start mb-2">
+                            <i class="bi bi-chat-dots-fill text-primary me-2" style="margin-top:.15rem"></i>
+                            <span style="font-size:.88rem">
+                                <strong style="color:var(--color-text)">Contacto directo</strong> por WhatsApp o Telegram.
+                                Sin comisiones de por medio.
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-start mb-2">
+                            <i class="bi bi-geo-alt-fill text-primary me-2" style="margin-top:.15rem"></i>
+                            <span style="font-size:.88rem">
+                                Cobertura en <strong style="color:var(--color-text)">todos los estados y municipios</strong>
+                                de la República.
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-gift-fill text-primary me-2" style="margin-top:.15rem"></i>
+                            <span style="font-size:.88rem">
+                                <strong style="color:var(--color-text)">Anunciarte es gratis.</strong>
+                                Tú decides cuándo destacar tu perfil.
+                            </span>
+                        </div>
+                    </div>
+
+                    <p class="text-muted mb-4" style="font-size:.9rem">
+                        Estamos sumando los primeros perfiles —
+                        <strong style="color:var(--color-text)">sé de los primeros en aparecer</strong>.
+                    </p>
+
+                    <button type="button" class="btn btn-primary btn-lg w-100 mb-2" data-bs-dismiss="modal">
+                        <i class="bi bi-compass me-2"></i>Explorar
+                    </button>
                     <?php if ($welcomeCtaUrl): ?>
-                    <a href="<?= e($welcomeCtaUrl) ?>" class="btn btn-primary btn-lg w-100 mb-2">
+                    <a href="<?= e($welcomeCtaUrl) ?>" class="btn btn-outline-primary w-100">
                         <i class="bi bi-person-plus me-2"></i><?= e($welcomeCtaText) ?>
                     </a>
                     <?php endif; ?>
-                    <button type="button" class="btn btn-link w-100 text-muted" data-bs-dismiss="modal" style="font-size:.9rem;text-decoration:none">
-                        Explorar primero
-                    </button>
                 </div>
             </div>
         </div>
